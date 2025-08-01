@@ -1,0 +1,23 @@
+{
+  "name": "Mission Groomsmen - TOP SECRET",
+  "short_name": "Mission Groomsmen",
+  "description": "A classified terminal for groomsman recruitment with Mission Impossible theme",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/ring.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "lifestyle"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
+} 

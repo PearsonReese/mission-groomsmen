@@ -14,7 +14,8 @@ export const groomsmenNames = [
   "Maison Holes",
   "Adam Simpson",
   "Brent Adams",
-  "Emma Howard" // Easter egg - the bride!
+  "Emma Howard", // Easter egg - the bride!
+  "Jordan Swann" // Easter egg - the sister-in-law!
 ];
 
 // =============================================================================
@@ -285,6 +286,94 @@ export const easterEggs = {
     }
   },
 
+  // Secret sister-in-law flow
+  jordanSwann: {
+    names: ["jordan swann", "jordan", "swann", "sister", "sister-in-law", "jordan swann", "the sister"],
+    detection: "👯 👯 👯 SISTER-IN-LAW DETECTED 👯 👯 👯",
+    welcome: "👯 WELCOME, SISTER-IN-LAW JORDAN SWANN 👯",
+    clearance: "👯 CLEARANCE LEVEL: FAMILY",
+    privileges: "👯 PRIVILEGES: FAMILY SUPPORT",
+    status: "👯 STATUS: FAMILY OPERATIVE",
+    mission: {
+      header: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '👯 👯 👯 FAMILY TRANSMISSION 👯 👯 👯', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'TOP SECRET - FAMILY EYES ONLY', type: 'classified' as const, delay: 600 },
+        { text: 'MISSION CODE: OPERATION: FAMILY SUPPORT', type: 'classified' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Your mission, should you choose to accept it, is to support your brother and husband in this epic wedding mission!', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'SISTER-IN-LAW MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 200 },
+        { text: '👯 TARGET EVENT: Family Wedding Support', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: [CLASSIFIED - Family briefing to follow]', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '👯 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+        { text: '👯 RECEPTTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'SISTER-IN-LAW MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
+      ],
+      parameters: [
+        { text: '• Support your brother Pearson with family wisdom', type: 'system' as const, delay: 400 },
+        { text: '• Keep your husband Brad focused on best man duties', type: 'system' as const, delay: 400 },
+        { text: '• Coordinate with your brother-in-law Beau', type: 'system' as const, delay: 400 },
+        { text: '• Provide emotional support to the family', type: 'system' as const, delay: 400 },
+        { text: '• Ensure everyone looks their best for photos', type: 'system' as const, delay: 400 }
+      ],
+      equipment: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'SPECIAL FAMILY EQUIPMENT:', type: 'classified' as const, delay: 800 },
+        { text: '• Family wisdom (for brother support)', type: 'system' as const, delay: 400 },
+        { text: '• Wife skills (for husband coordination)', type: 'system' as const, delay: 400 },
+        { text: '• Sister-in-law diplomacy (for Beau)', type: 'system' as const, delay: 400 },
+        { text: '• Unlimited family love and support', type: 'system' as const, delay: 400 }
+      ],
+      footer: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'This mission will test your family bonds, coordination skills, and ability to keep everyone happy. The success of Operation: Family Support depends on your love for your family.', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '👯 DO YOU ACCEPT THIS FAMILY MISSION? 👯', type: 'classified' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+      ]
+    },
+    responses: {
+      accept: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '👯 FAMILY MISSION ACCEPTED 👯', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '👯 EXCELLENT! Your commitment to family has been confirmed.', type: 'success' as const, delay: 800 },
+        { text: '👯 Standby for family coordination and support duties...', type: 'success' as const, delay: 800 },
+        { text: '👯 Welcome to the most important family mission ever!', type: 'success' as const, delay: 800 },
+        { text: '👯 You\'re going to be the best sister-in-law ever!', type: 'success' as const, delay: 800 },
+        { text: '👯 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: '👯 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+        { text: '👯 Check your email for family coordination details.', type: 'classified' as const, delay: 800 },
+        { text: '👯 Family meetings and support planning to follow.', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 800 },
+        { text: '✨ Family mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+        { text: 'Just kidding! Welcome to the most important family mission ever, Jordan! 👯', type: 'success' as const, delay: 1500 }
+      ],
+      decline: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💔 FAMILY MISSION DECLINED', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '👯 This is... unexpected. Please reconsider, Sister Jordan.', type: 'error' as const, delay: 800 },
+        { text: '👯 Your family mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+        { text: '👯 Are you sure? The fate of family harmony depends on you.', type: 'error' as const, delay: 800 },
+        { text: '👯 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+        { text: '👯 Your family love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+      ]
+    }
+  },
+
   // Konami code easter egg
   konamiCode: {
     sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'],
@@ -329,6 +418,22 @@ export const easterEggs = {
         { text: '🕵️ 🕵️ 🕵️ IMPOSSIBLE MISSION DETECTED 🕵️ 🕵️ 🕵️', type: 'classified' as const, delay: 800 },
         { text: '🕵️ Nothing is impossible for a true groomsman!', type: 'success' as const, delay: 800 },
         { text: '🕵️ Your mission will be completed with impossible precision!', type: 'classified' as const, delay: 800 }
+      ]
+    },
+    "sister": {
+      message: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '👯 👯 👯 SISTER-IN-LAW DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
+        { text: '👯 Jordan Swann, is that you?', type: 'success' as const, delay: 800 },
+        { text: '👯 Try entering "Jordan Swann" for a special family mission!', type: 'classified' as const, delay: 800 }
+      ]
+    },
+    "family": {
+      message: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '👯 👯 👯 FAMILY CONNECTION DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
+        { text: '👯 Family bonds are the strongest mission support!', type: 'success' as const, delay: 800 },
+        { text: '👯 Jordan Swann has special family clearance...', type: 'classified' as const, delay: 800 }
       ]
     }
   }

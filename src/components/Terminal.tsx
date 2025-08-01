@@ -159,6 +159,13 @@ export function Terminal() {
       }
     }
     
+    // Check Jordan Swann easter egg
+    for (const name of easterEggs.jordanSwann.names) {
+      if (inputLower.includes(name.toLowerCase())) {
+        return 'jordanSwann';
+      }
+    }
+    
     return null;
   };
 
@@ -353,6 +360,18 @@ export function Terminal() {
         ];
 
         await addLines(pearsonReeseBriefingLines);
+        setGameState('mission_choice');
+      } else if (userName.toLowerCase() === 'jordan swann') {
+        // Jordan Swann easter egg briefing
+        const jordanSwannBriefingLines = [
+          ...easterEggs.jordanSwann.mission.header,
+          { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+          ...easterEggs.jordanSwann.mission.parameters,
+          ...easterEggs.jordanSwann.mission.equipment,
+          ...easterEggs.jordanSwann.mission.footer
+        ];
+
+        await addLines(jordanSwannBriefingLines);
         setGameState('mission_choice');
       } else if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
         // Build the complete bride mission briefing from structured data
@@ -762,6 +781,26 @@ export function Terminal() {
             const errorLines = [
               { text: '', type: 'system' as const, delay: 300 },
               { text: '⚠️  INVALID GROOM RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
+
+            await addLines(errorLines);
+            break;
+          }
+        }
+        
+        if (userName.toLowerCase() === 'jordan swann') {
+          if (choice === 'y' || choice === 'yes') {
+            await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
+            setGameState('completed');
+            break;
+          } else if (choice === 'n' || choice === 'no') {
+            await addLines(easterEggs.jordanSwann.responses.decline as TerminalLine[]);
+            break;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID SISTER-IN-LAW RESPONSE', type: 'error' as const, delay: 600 },
               { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
             ];
 

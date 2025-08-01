@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Mission Groomsmen - Classified Terminal
+# This is a wedding invitation app with Mission Impossible theme
+# All content is public and can be indexed
+
+Sitemap: https://mission-groomsmen.pages.dev/sitemap.xml 

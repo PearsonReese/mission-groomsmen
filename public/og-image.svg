@@ -1,0 +1,79 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Grid pattern for terminal effect -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00ff00" stroke-width="1" opacity="0.1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  
+  <!-- Main title -->
+  <text x="600" y="200" font-family="monospace" font-size="72" font-weight="bold" text-anchor="middle" fill="#00ff00" filter="url(#glow)">
+    MISSION GROOMSMEN
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="280" font-family="monospace" font-size="36" text-anchor="middle" fill="#ffffff" opacity="0.8">
+    TOP SECRET - EYES ONLY
+  </text>
+  
+  <!-- Mission text -->
+  <text x="600" y="350" font-family="monospace" font-size="24" text-anchor="middle" fill="#00ff00" opacity="0.9">
+    Your mission, should you choose to accept it...
+  </text>
+  
+  <!-- Terminal cursor -->
+  <rect x="580" y="380" width="40" height="4" fill="#00ff00" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0;0.8" dur="1s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Decorative elements -->
+  <circle cx="200" cy="150" r="3" fill="#00ff00" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="1000" cy="150" r="3" fill="#00ff00" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1s"/>
+  </circle>
+  <circle cx="200" cy="480" r="3" fill="#00ff00" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+  <circle cx="1000" cy="480" r="3" fill="#00ff00" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+  </circle>
+  
+  <!-- Bottom text -->
+  <text x="600" y="550" font-family="monospace" font-size="18" text-anchor="middle" fill="#ffffff" opacity="0.6">
+    CLASSIFIED TERMINAL ACCESS REQUIRED
+  </text>
+  
+  <!-- Security clearance badge -->
+  <rect x="50" y="50" width="200" height="80" rx="10" fill="none" stroke="#00ff00" stroke-width="2" opacity="0.7"/>
+  <text x="150" y="85" font-family="monospace" font-size="14" text-anchor="middle" fill="#00ff00" opacity="0.8">
+    SECURITY CLEARANCE
+  </text>
+  <text x="150" y="105" font-family="monospace" font-size="12" text-anchor="middle" fill="#ffffff" opacity="0.6">
+    GROOMSMAN LEVEL
+  </text>
+  <text x="150" y="120" font-family="monospace" font-size="10" text-anchor="middle" fill="#00ff00" opacity="0.7">
+    ACCESS GRANTED
+  </text>
+</svg> 
