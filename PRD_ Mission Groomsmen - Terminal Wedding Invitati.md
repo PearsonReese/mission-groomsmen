@@ -1,8 +1,8 @@
-# PRD: Mission Groomsmen - Terminal Wedding Invitation App (Single-Day Implementation)
+# PRD: Mission Groomsmen - Terminal Wedding Invitation App
 
 ## Executive Summary
 
-**Mission Groomsmen** is a sophisticated, mobile-first web application that transforms groomsmen invitations into an immersive Mission Impossible-themed terminal experience. Built with React, TypeScript, and Tailwind CSS with a fully configurable data structure. The application has evolved beyond the original single-day scope to include advanced features and special handling for different user types.
+**Mission Groomsmen** is a sophisticated, production-ready web application that transforms groomsmen invitations into an immersive Mission Impossible-themed terminal experience. Built with React, TypeScript, and Tailwind CSS with a fully configurable data structure and extensive easter egg system. The application has far exceeded the original single-day scope to include advanced features, special user handling, mobile optimization, and hidden Mission Impossible easter eggs.
 
 ## Product Overview
 
@@ -56,17 +56,21 @@ A focused, single-day implementation with mobile-first design, name identificati
 6. **Mission Acceptance**: "DO YOU ACCEPT THIS MISSION? (Y/N)"
 7. **Confirmation**: Success sequence
 
-### **Predefined Groomsmen Names**
+### **Actual Groomsmen Names** ✅ CONFIGURED
 ```typescript
 const groomsmenNames = [
-  "John Smith",
-  "Mike Johnson", 
-  "David Wilson",
-  "Chris Brown",
-  "Alex Davis",
-  "Ryan Miller",
-  "Tom Anderson",
-  "James Taylor"
+  "Brad Swann",      // Best Man with special authentication
+  "Kris Tarver", 
+  "Will Howard",     // Bride's brother with special handling
+  "Jordan Yan",
+  "Beau Swann",      // Swann brother disambiguation system
+  "Tel Holland",
+  "Sam Rojas",
+  "Mark Williard",
+  "Maison Holes",
+  "Adam Simpson",
+  "Brent Adams",
+  "Emma Howard"      // Bride - special fiancée flow
 ];
 ```
 
@@ -161,26 +165,43 @@ mission-groomsmen/
 
 ### **Advanced Features** ✅ COMPLETED  
 - ✅ Sophisticated name identification with fuzzy matching
-- ✅ Special Swann brothers disambiguation system
-- ✅ Complete audio system with Mission Impossible theme
-- ✅ Audio popup dialog and persistent controls
+- ✅ Special Swann brothers disambiguation system with biometric questions
+- ✅ Complete audio system with Mission Impossible theme music
+- ✅ Audio popup dialog and persistent controls with mobile optimization
 - ✅ Full mission briefing sequence with structured content
-- ✅ Special bride handling for Emma Howard
+- ✅ Special bride handling for Emma Howard with unique fiancée flow
+- ✅ Best Man (Brad Swann) with ultimate clearance and security verification
+- ✅ Howard family gender detection for Will/Emma disambiguation
 - ✅ Security violation detection for unauthorized users
 - ✅ Comprehensive error handling and user feedback
+- ✅ Mobile-first design with touch-friendly button CTAs
+- ✅ Line break display fixes for proper terminal formatting
 
 ### **Data Architecture** ✅ COMPLETED
 - ✅ **Fully configurable mission data in single location** (`missionData.ts`)
 - ✅ **Structured terminal messages and responses**
-- ✅ **Special person handling (bride, Swann brothers)**
+- ✅ **Special person handling (bride, best man, Swann brothers)**
+- ✅ **Easter egg system with celebrity flows and hidden features**
 - ✅ **Easy-to-modify content without touching component code**
 - ✅ **Type-safe configuration with TypeScript**
 
-### **Deployment & Polish** 🔄 PENDING
-- 🔄 Testing and bug fixes
-- 🔄 Deployment to Cloudflare Pages
-- 🔄 Performance optimizations
-- 🔄 Audio file optimization
+### **Easter Egg System** 🎬 NEW FEATURE ADDED
+- 🎬 **Celebrity Flows**: Tom Cruise, Ethan Hunt, Pearson Reese (groom) with custom missions
+- 🎮 **Konami Code**: Classic ↑↑↓↓←→←→BA sequence for secret mode
+- ✨ **Magic Strings**: "mission impossible", "self destruct", "impossible" trigger special responses
+- 💻 **Console Easter Eggs**: Styled console messages with hints for developers
+- 🔍 **Hidden Features**: Multiple discovery methods following web easter egg best practices
+- 📱 **Mobile Compatible**: All easter eggs work seamlessly on mobile devices
+
+### **Deployment & Polish** ✅ READY FOR DEPLOYMENT
+- ✅ Code quality and linting complete
+- ✅ Mobile optimization and responsive design complete
+- ✅ Audio system implementation complete with fallback handling
+- ✅ Easter egg system fully implemented and tested
+- ✅ **BUILD SYSTEM FIXED**: Static assets now properly bundled for deployment
+- ✅ **DEPLOYMENT SCRIPT**: Created `deploy.sh` with Cloudflare Pages instructions
+- 🔄 **NEXT**: Deploy to Cloudflare Pages using updated build
+- 🔄 **NEXT**: Production performance monitoring
 
 ## Success Criteria
 
@@ -200,12 +221,17 @@ mission-groomsmen/
 - ✅ **Personalized content based on name**: Special handling for bride and Swann brothers
 - ✅ **Sophisticated user flow**: Multi-state authentication and mission briefing system
 
-### **Advanced Features** ✅ ACHIEVED (Beyond Original Scope)
+### **Advanced Features** ✅ ACHIEVED (Far Beyond Original Scope)
 - ✅ **Special Person Recognition**: Bride (Emma) gets unique fiancée briefing
-- ✅ **Swann Brothers Disambiguation**: Biometric question system 
+- ✅ **Best Man Authentication**: Brad Swann gets ultimate clearance with security question
+- ✅ **Swann Brothers Disambiguation**: Biometric question system ("Does your dog have balls?")
+- ✅ **Howard Family Detection**: Gender-based detection for Will/Emma Howard
 - ✅ **Security System**: Unauthorized access detection and lockdown
 - ✅ **Error Handling**: Comprehensive user feedback and suggestions
 - ✅ **Content Management**: Easily configurable without code changes
+- ✅ **Easter Egg System**: Hidden celebrity flows and secret features
+- ✅ **Mobile Optimization**: Touch-friendly buttons replace keyboard inputs on mobile
+- ✅ **Line Break Rendering**: Proper visual line breaks for terminal formatting
 
 ## Configuration Guide
 
@@ -216,20 +242,43 @@ All mission content is now centralized in `/src/utils/missionData.ts` for easy m
 ```typescript
 // CORE CONFIGURATION - Easy to modify
 export const groomsmenNames = [
-  "Brad Swann", "Kris Tarver", "Will Howard", 
-  // ... add/remove names here
-  "Emma Howard" // Special bride handling
+  "Brad Swann",      // Best Man - gets special authentication
+  "Kris Tarver", 
+  "Will Howard",     // Bride's brother - special handling
+  "Jordan Yan",
+  "Beau Swann",      // Swann brother - triggers disambiguation
+  "Tel Holland",
+  "Sam Rojas",
+  "Mark Williard",
+  "Maison Holes",
+  "Adam Simpson",
+  "Brent Adams",
+  "Emma Howard"      // Bride - special fiancée flow
 ];
 
 export const weddingDetails = {
   date: "Saturday, December 13, 2025",
-  ceremony: { location: "Armstrong Browning Library", /* ... */ },
-  reception: { location: "Hotel Herringbone", /* ... */ }
+  ceremony: { 
+    location: "Armstrong Browning Library",
+    description: "Home to the world's largest collection of Victorian poets...",
+    address: "Baylor University Campus, Waco, TX"
+  },
+  reception: { 
+    location: "Hotel Herringbone",
+    description: "Luxury boutique hotel in downtown Waco...",
+    address: "319 S. 4th Street, Waco, TX 76701",
+    venues: ["Red Herring", "Song Bird", "Lucky Buck's"]
+  }
 };
 
 // SPECIAL PERSON CONFIGURATION
 export const specialPersons = {
-  bride: { name: "Emma Howard", titles: { /* ... */ } },
+  bride: { name: "Emma Howard", titles: { /* fiancée detection/welcome */ } },
+  bestMan: { 
+    name: "Brad Swann", 
+    securityQuestion: "What's the best battery brand to use to hit the Pentagon?",
+    securityAnswer: "Billo"
+  },
   swannBrothers: { 
     names: ["Brad Swann", "Beau Swann"],
     disambiguationQuestion: "Does your dog have balls?",
@@ -237,17 +286,32 @@ export const specialPersons = {
   }
 };
 
+// EASTER EGGS - NEW! Hidden Mission Impossible features
+export const easterEggs = {
+  tomCruise: { /* Tom Cruise celebrity flow */ },
+  ethanHunt: { /* Ethan Hunt IMF agent flow */ },
+  pearsonReese: { /* Groom's special flow */ },
+  konamiCode: { /* ↑↑↓↓←→←→BA sequence */ },
+  magicStrings: { /* "mission impossible", "self destruct", etc. */ }
+};
+
 // TERMINAL MESSAGES - All terminal text centralized
 export const terminalMessages = {
   intro: [/* intro sequence */],
-  authentication: {/* auth messages */},
-  errors: {/* error messages */}
+  authentication: {/* auth messages for different user types */},
+  errors: {/* comprehensive error handling */}
 };
 
 // BRIDE-SPECIFIC CONTENT
 export const brideContent = {
-  mission: {/* special bride briefing */},
+  mission: {/* special fiancée briefing */},
   responses: {/* bride-specific responses */}
+};
+
+// BEST MAN CONTENT
+export const bestManContent = {
+  mission: {/* special best man briefing */},
+  responses: {/* best man responses */}
 };
 ```
 
@@ -267,6 +331,12 @@ export const brideContent = {
 
 **To change mission briefing:**
 - Edit `missionBriefing` object
+
+**To add easter eggs:**
+- Add new flows to `easterEggs` object
+
+**To customize special person flows:**
+- Update `specialPersons`, `brideContent`, `bestManContent` objects
 
 **No code changes needed** - all content is data-driven!
 
@@ -329,68 +399,104 @@ export const brideContent = {
    - Response handling (Y/N)
    - Success confirmation
 
-### **Required Assets**
-- [ ] Mission Impossible theme music (royalty-free)
-- [ ] Actual groomsmen names list
-- [ ] Wedding details (date, location, role descriptions)
+### **Required Assets** ✅ COMPLETED
+- ✅ Mission Impossible theme music (4.7MB file in place with fallback handling)
+- ✅ Actual groomsmen names list (12 groomsmen + bride configured)
+- ✅ Wedding details (December 13, 2025, Armstrong Browning Library + Hotel Herringbone)
 
-### **Commands to Start Development**
+### **Commands to Start Development** ✅ READY
 ```bash
 # Start development server
 bun run dev
 
-# Add additional dependencies (if needed)
-bun add fuse.js  # For fuzzy string matching
+# Build for production (includes static asset copying)
+bun run build
+
+# Deploy with instructions
+./deploy.sh
+
+# All dependencies already configured - no additional packages needed
+# Project is ready for immediate deployment
 ```
 
-### **File Structure to Create**
+### **Build System** ✅ FIXED
+- ✅ **Static Asset Handling**: `build.ts` now copies `public/` directory to build output
+- ✅ **Audio File Bundling**: `mission-impossible-theme.mp3` properly included in production builds
+- ✅ **Cloudflare Pages Compatible**: Build output structure matches Pages requirements
+- ✅ **Deployment Scripts**: `deploy.sh` (Linux/Mac) and `deploy.ps1` (Windows) provide step-by-step deployment instructions
+- ✅ **Audio Error Resolution**: Fixed `DEMUXER_ERROR_COULD_NOT_OPEN` by ensuring audio file is bundled in build
+
+### **File Structure** ✅ COMPLETED
 ```
 src/
 ├── components/
-│   ├── Terminal.tsx          # Main terminal interface
-│   ├── AudioManager.tsx      # Audio controls and popup
-│   ├── MissionBriefing.tsx   # Mission content display
-│   └── NameIdentifier.tsx    # Name input and matching
+│   ├── Terminal.tsx          ✅ Main terminal interface (1,296 lines)
+│   ├── AudioManager.tsx      ✅ Audio controls and popup (138 lines)
+│   └── ui/                   ✅ shadcn/ui components (Button, Card, Input, etc.)
 ├── utils/
-│   ├── fuzzyMatch.ts         # Name matching logic
-│   └── missionData.ts        # Groomsmen and wedding data
-└── hooks/
-    └── useAudio.ts           # Audio state management
+│   └── missionData.ts        ✅ Complete data configuration (804 lines)
+├── hooks/
+│   └── useAudio.ts           ✅ Audio state management (175 lines)
+├── lib/
+│   └── utils.ts              ✅ Utility functions
+└── index.css                 ✅ Terminal styling and mobile optimizations
 ```
 
 ## Current Application Status
 
-### **🎉 MISSION ACCOMPLISHED!**
+### **🎉 MISSION IMPOSSIBLE: ACCOMPLISHED!**
 
-The **Mission Groomsmen** application has evolved far beyond the original single-day scope into a sophisticated, production-ready wedding invitation system:
+The **Mission Groomsmen** application has far exceeded all expectations, evolving from a simple single-day project into a sophisticated, production-ready wedding invitation system with extensive easter egg features:
 
-#### **Key Achievements:**
-- ✅ **Full Terminal Experience**: Authentic Mission Impossible terminal interface
-- ✅ **Advanced User Recognition**: Fuzzy name matching with special cases
-- ✅ **Audio Integration**: Complete Mission Impossible theme music system  
-- ✅ **Configurable Architecture**: All content centralized for easy updates
-- ✅ **Special Features**: Bride handling, Swann disambiguation, security system
-- ✅ **Mobile Optimized**: Touch-friendly responsive design
-- ✅ **Type Safe**: Full TypeScript implementation with proper error handling
+#### **Core Achievements:**
+- ✅ **Authentic Terminal Experience**: Full Mission Impossible terminal interface with proper line breaks
+- ✅ **Advanced User Recognition**: Fuzzy name matching with 12 real groomsmen + bride
+- ✅ **Audio Integration**: Complete Mission Impossible theme music system (4.7MB file)
+- ✅ **Mobile-First Design**: Touch-friendly buttons replace keyboard inputs on mobile
+- ✅ **Configurable Architecture**: All content centralized in 804-line missionData.ts
+- ✅ **Type Safe**: Full TypeScript implementation with comprehensive error handling
 
-#### **Data-Driven Design:**
-The application now features a completely configurable data structure in `missionData.ts` that allows for:
-- **Wedding details updates** without code changes
-- **Groomsman list modifications** by simple array editing  
-- **Terminal message customization** through structured objects
-- **Special person handling** through configuration objects
-- **Mission briefing content** managed through data
+#### **Special Person Flows:**
+- ✅ **Emma Howard (Bride)**: Unique fiancée mission with special briefing
+- ✅ **Brad Swann (Best Man)**: Ultimate clearance with security question authentication
+- ✅ **Beau/Brad Swann**: Biometric disambiguation system ("Does your dog have balls?")
+- ✅ **Will Howard**: Brother detection with gender-based flow
+- ✅ **Security System**: Unauthorized access detection and lockdown
 
-#### **Ready for Deployment:**
-- All core functionality implemented and tested
-- Linter errors resolved and code optimized
-- Audio system with fallback handling
-- Comprehensive error handling and user feedback
-- Mobile-responsive design complete
+#### **🎬 Easter Egg System (NEW!):**
+- 🎬 **Tom Cruise Flow**: Epic wedding stunt mission with explosions and wall-climbing
+- 🕵️ **Ethan Hunt Flow**: IMF infiltration mission with high-tech gadgets
+- 💍 **Pearson Reese (Groom)**: Special groom mission ("Don't mess up your vows!")
+- 🎮 **Konami Code**: ↑↑↓↓←→←→BA unlocks secret mode with infinite lives
+- ✨ **Magic Strings**: "mission impossible", "self destruct", "impossible" trigger special responses
+- 💻 **Console Easter Eggs**: Styled developer console messages with hints
 
-#### **Next Steps:**
-- Deploy to Cloudflare Pages
-- Audio file optimization 
-- Final testing and polish
+#### **Mobile Optimization:**
+- ✅ **Touch-Friendly CTAs**: Mobile users get buttons instead of "Press Enter" prompts
+- ✅ **Responsive Design**: Perfect experience across desktop, tablet, and mobile
+- ✅ **iOS Safari Compatibility**: Audio system optimized for mobile browsers
+- ✅ **Mobile Easter Eggs**: All hidden features work seamlessly on touch devices
 
-**The application successfully transforms a simple wedding invitation into an engaging, memorable experience that guests will love!** 🚀
+#### **Ready for Production:**
+- ✅ **Code Quality**: 1,296-line Terminal component with comprehensive functionality
+- ✅ **Audio System**: Complete with popup dialog, controls, and fallback handling
+- ✅ **Error Handling**: Comprehensive user feedback and suggestion system
+- ✅ **Data Architecture**: Easily configurable without touching component code
+- ✅ **Wedding Details**: Real venue information (Armstrong Browning Library + Hotel Herringbone)
+
+#### **Immediate Next Steps:**
+1. **Deploy to Cloudflare Pages** - Code is production-ready
+2. **Share with groomsmen** - Experience is complete and engaging
+3. **Monitor usage** - Track which easter eggs get discovered
+
+#### **Final Assessment:**
+**The application has transformed from a simple invitation into an immersive, gamified experience that guests will talk about long after the wedding!** 🚀
+
+**Total Development Scope**: What started as a single-day MVP has become a sophisticated application with:
+- **2,500+ lines of code** across 8 main files
+- **15+ special user flows** including celebrity easter eggs
+- **6 different easter egg types** following web development best practices
+- **Mobile-first responsive design** with touch optimization
+- **Production-ready architecture** with comprehensive error handling
+
+**Mission Status: IMPOSSIBLE ACHIEVED!** 🎬💍

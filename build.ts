@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import plugin from "bun-plugin-tailwind";
-import { existsSync } from "fs";
-import { rm } from "fs/promises";
+import { existsSync, copyFileSync, mkdirSync } from "fs";
+import { rm, cp } from "fs/promises";
 import path from "path";
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -33,7 +33,7 @@ Example:
   process.exit(0);
 }
 
-const toCamelCase = (str: string): string => str.replace(/-([a-z])/g, g => g[1].toUpperCase());
+const toCamelCase = (str: string): string => str.replace(/-([a-z])/g, g => g[1]?.toUpperCase() || '');
 
 const parseValue = (value: string): any => {
   if (value === "true") return true;
@@ -48,7 +48,7 @@ const parseValue = (value: string): any => {
 };
 
 function parseArgs(): Partial<Bun.BuildConfig> {
-  const config: Partial<Bun.BuildConfig> = {};
+  const config: Partial<Bun.BuildConfig> & Record<string, any> = {};
   const args = process.argv.slice(2);
 
   for (let i = 0; i < args.length; i++) {
@@ -82,8 +82,10 @@ function parseArgs(): Partial<Bun.BuildConfig> {
 
     if (key.includes(".")) {
       const [parentKey, childKey] = key.split(".");
-      config[parentKey] = config[parentKey] || {};
-      config[parentKey][childKey] = parseValue(value);
+      if (parentKey && childKey) {
+        config[parentKey] = config[parentKey] || {};
+        (config[parentKey] as any)[childKey] = parseValue(value);
+      }
     } else {
       config[key] = parseValue(value);
     }
@@ -134,6 +136,18 @@ const result = await Bun.build({
   },
   ...cliConfig,
 });
+
+// Copy static assets from public directory to build root
+console.log("📁 Copying static assets from public directory...");
+if (existsSync("public")) {
+  try {
+    // Copy contents of public directory directly to build output root
+    await cp("public", outdir, { recursive: true });
+    console.log("✅ Static assets copied successfully");
+  } catch (error) {
+    console.error("❌ Error copying static assets:", error);
+  }
+}
 
 const end = performance.now();
 
