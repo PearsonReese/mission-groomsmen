@@ -15,7 +15,7 @@ export const groomsmenNames = [
   "Adam Simpson",
   "Brent Adams",
   "Emma Howard", // Easter egg - the bride!
-  "Jordan Swann" // Easter egg - the sister-in-law!
+  "Jordan Swann" // The groom's blood sister!
 ];
 
 // =============================================================================
@@ -286,11 +286,11 @@ export const easterEggs = {
     }
   },
 
-  // Secret sister-in-law flow
+  // Secret sister flow
   jordanSwann: {
-    names: ["jordan swann", "jordan", "swann", "sister", "sister-in-law", "jordan swann", "the sister"],
-    detection: "👯 👯 👯 SISTER-IN-LAW DETECTED 👯 👯 👯",
-    welcome: "👯 WELCOME, SISTER-IN-LAW JORDAN SWANN 👯",
+    names: ["jordan swann", "jordan", "swann", "sister", "blood sister", "jordan swann", "the sister"],
+    detection: "👯 👯 👯 BLOOD SISTER DETECTED 👯 👯 👯",
+    welcome: "👯 WELCOME, BLOOD SISTER JORDAN SWANN 👯",
     clearance: "👯 CLEARANCE LEVEL: FAMILY",
     privileges: "👯 PRIVILEGES: FAMILY SUPPORT",
     status: "👯 STATUS: FAMILY OPERATIVE",
@@ -300,23 +300,23 @@ export const easterEggs = {
         { text: '👯 👯 👯 FAMILY TRANSMISSION 👯 👯 👯', type: 'classified' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 500 },
         { text: 'TOP SECRET - FAMILY EYES ONLY', type: 'classified' as const, delay: 600 },
-        { text: 'MISSION CODE: OPERATION: FAMILY SUPPORT', type: 'classified' as const, delay: 600 },
+        { text: 'MISSION CODE: OPERATION: SISTER SUPPORT', type: 'classified' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 500 },
-        { text: 'Your mission, should you choose to accept it, is to support your brother and husband in this epic wedding mission!', type: 'system' as const, delay: 1000 },
+        { text: 'Your mission, should you choose to accept it, is to support your brother Pearson in this epic wedding mission!', type: 'system' as const, delay: 1000 },
         { text: '', type: 'system' as const, delay: 500 },
-        { text: 'SISTER-IN-LAW MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+        { text: 'BLOOD SISTER MISSION DETAILS:', type: 'classified' as const, delay: 800 },
         { text: '---LINE---', type: 'system' as const, delay: 300 },
         { text: '', type: 'system' as const, delay: 200 },
-        { text: '👯 TARGET EVENT: Family Wedding Support', type: 'system' as const, delay: 600 },
+        { text: '👯 TARGET EVENT: Brother\'s Wedding Support', type: 'system' as const, delay: 600 },
         { text: '⏰ TIME: [CLASSIFIED - Family briefing to follow]', type: 'system' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 300 },
         { text: '👯 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
         { text: '👯 RECEPTTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 300 },
-        { text: 'SISTER-IN-LAW MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
+        { text: 'BLOOD SISTER MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
       ],
       parameters: [
-        { text: '• Support your brother Pearson with family wisdom', type: 'system' as const, delay: 400 },
+        { text: '• Support your brother Pearson with sisterly wisdom', type: 'system' as const, delay: 400 },
         { text: '• Keep your husband Brad focused on best man duties', type: 'system' as const, delay: 400 },
         { text: '• Coordinate with your brother-in-law Beau', type: 'system' as const, delay: 400 },
         { text: '• Provide emotional support to the family', type: 'system' as const, delay: 400 },
@@ -325,18 +325,18 @@ export const easterEggs = {
       equipment: [
         { text: '', type: 'system' as const, delay: 300 },
         { text: 'SPECIAL FAMILY EQUIPMENT:', type: 'classified' as const, delay: 800 },
-        { text: '• Family wisdom (for brother support)', type: 'system' as const, delay: 400 },
+        { text: '• Sister wisdom (for brother support)', type: 'system' as const, delay: 400 },
         { text: '• Wife skills (for husband coordination)', type: 'system' as const, delay: 400 },
         { text: '• Sister-in-law diplomacy (for Beau)', type: 'system' as const, delay: 400 },
         { text: '• Unlimited family love and support', type: 'system' as const, delay: 400 }
       ],
       footer: [
         { text: '', type: 'system' as const, delay: 500 },
-        { text: 'This mission will test your family bonds, coordination skills, and ability to keep everyone happy. The success of Operation: Family Support depends on your love for your family.', type: 'system' as const, delay: 1000 },
+        { text: 'This mission will test your family bonds, sisterly instincts, and ability to keep everyone happy. The success of Operation: Sister Support depends on your love for your brother.', type: 'system' as const, delay: 1000 },
         { text: '', type: 'system' as const, delay: 500 },
         { text: '---LINE---', type: 'system' as const, delay: 300 },
         { text: '', type: 'system' as const, delay: 500 },
-        { text: '👯 DO YOU ACCEPT THIS FAMILY MISSION? 👯', type: 'classified' as const, delay: 1000 },
+        { text: '👯 DO YOU ACCEPT THIS SISTER MISSION? 👯', type: 'classified' as const, delay: 1000 },
         { text: '', type: 'system' as const, delay: 500 },
         { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
       ]
@@ -344,24 +344,24 @@ export const easterEggs = {
     responses: {
       accept: [
         { text: '', type: 'system' as const, delay: 500 },
-        { text: '👯 FAMILY MISSION ACCEPTED 👯', type: 'success' as const, delay: 800 },
+        { text: '👯 SISTER MISSION ACCEPTED 👯', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 500 },
         { text: '👯 EXCELLENT! Your commitment to family has been confirmed.', type: 'success' as const, delay: 800 },
         { text: '👯 Standby for family coordination and support duties...', type: 'success' as const, delay: 800 },
         { text: '👯 Welcome to the most important family mission ever!', type: 'success' as const, delay: 800 },
-        { text: '👯 You\'re going to be the best sister-in-law ever!', type: 'success' as const, delay: 800 },
+        { text: '👯 You\'re going to be the best sister ever!', type: 'success' as const, delay: 800 },
         { text: '👯 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 1000 },
         { text: '👯 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
         { text: '👯 Check your email for family coordination details.', type: 'classified' as const, delay: 800 },
         { text: '👯 Family meetings and support planning to follow.', type: 'classified' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 800 },
-        { text: '✨ Family mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+        { text: '✨ Sister mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
         { text: 'Just kidding! Welcome to the most important family mission ever, Jordan! 👯', type: 'success' as const, delay: 1500 }
       ],
       decline: [
         { text: '', type: 'system' as const, delay: 500 },
-        { text: '💔 FAMILY MISSION DECLINED', type: 'error' as const, delay: 800 },
+        { text: '💔 SISTER MISSION DECLINED', type: 'error' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 500 },
         { text: '👯 This is... unexpected. Please reconsider, Sister Jordan.', type: 'error' as const, delay: 800 },
         { text: '👯 Your family mission requires your specific skill set.', type: 'error' as const, delay: 800 },
@@ -423,9 +423,9 @@ export const easterEggs = {
     "sister": {
       message: [
         { text: '', type: 'system' as const, delay: 300 },
-        { text: '👯 👯 👯 SISTER-IN-LAW DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
+        { text: '👯 👯 👯 BLOOD SISTER DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
         { text: '👯 Jordan Swann, is that you?', type: 'success' as const, delay: 800 },
-        { text: '👯 Try entering "Jordan Swann" for a special family mission!', type: 'classified' as const, delay: 800 }
+        { text: '👯 Try entering "Jordan Swann" for a special sister mission!', type: 'classified' as const, delay: 800 }
       ]
     },
     "family": {
@@ -433,7 +433,6 @@ export const easterEggs = {
         { text: '', type: 'system' as const, delay: 300 },
         { text: '👯 👯 👯 FAMILY CONNECTION DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
         { text: '👯 Family bonds are the strongest mission support!', type: 'success' as const, delay: 800 },
-        { text: '👯 Jordan Swann has special family clearance...', type: 'classified' as const, delay: 800 }
       ]
     }
   }
@@ -485,13 +484,65 @@ export const specialPersons = {
     securityQuestion: "What's the best battery brand to use to hit the Pentagon?",
     securityAnswer: "Billo"
   },
-  swannBrothers: {
-    names: ["Brad Swann", "Beau Swann"],
-    disambiguationQuestion: "Does your dog have balls?",
-    answers: {
-      yes: "Beau Swann",
-      no: "Brad Swann"
+  swannFamily: {
+    names: ["Brad Swann", "Beau Swann", "Jordan Swann"],
+    firstQuestion: "Does your dog have balls?",
+    firstAnswers: {
+      yes: "Beau Swann", // Only Beau answers yes
+      no: ["Brad Swann", "Jordan Swann"] // Both Brad and Jordan answer no
+    },
+    secondQuestion: "Are you blood related?", // For disambiguating Jordan vs Brad
+    secondAnswers: {
+      yes: "Jordan Swann", // Blood sister
+      no: "Brad Swann" // Brother-in-law (Best Man)
     }
+  }
+};
+
+// =============================================================================
+// VERIFICATION QUESTIONS FOR INDIVIDUAL GROOMSMEN
+// =============================================================================
+
+export const verificationQuestions = {
+  "Jordan Yan": {
+    question: "Where did we meet for the first time in person?",
+    correctAnswers: ["the basement", "basement"],
+    maxAttempts: 3
+  },
+  "Kris Tarver": {
+    question: "Some would say this mission is TOP SECRET while others might say...",
+    correctAnswers: ["top notch"],
+    maxAttempts: 3
+  },
+  "Tel Holland": {
+    question: "What N64 game did we play endlessly?",
+    correctAnswers: ["mario 64", "super mario 64", "super smash bros", "smash bros", "mario", "smash"],
+    maxAttempts: 3
+  },
+  "Sam Rojas": {
+    question: "What delicious dessert was getting cooked up as we nearly burned our apartment down in college?",
+    correctAnswers: ["brownies", "brownie"],
+    maxAttempts: 3
+  },
+  "Mark Williard": {
+    question: "What do we like to call one another in the bedroom?",
+    correctAnswers: ["boo"],
+    maxAttempts: 3
+  },
+  "Maison Holes": {
+    question: "Speaking of Holes, what mythical creature did we like to butt f*** in high school?",
+    correctAnswers: ["unicorn", "a unicorn"],
+    maxAttempts: 3
+  },
+  "Adam Simpson": {
+    question: "You're one of the few people I've ever played video games with with money on the line... what game were we playing?",
+    correctAnswers: ["rocket league"],
+    maxAttempts: 3
+  },
+  "Brent Adams": {
+    question: "What's the greatest TV show ever created on Earth?",
+    correctAnswers: ["spongebob", "spongebob squarepants", "sponge bob"],
+    maxAttempts: 3
   }
 };
 
@@ -507,17 +558,23 @@ TARGET EVENT: Wedding Ceremony & Reception
 DATE: ${weddingDetails.date}
 TIME: [CLASSIFIED - Details to follow in subsequent briefing]
 
+---LINE---
+
 CEREMONY LOCATION: Armstrong Browning Library
 • Historic Baylor University venue
 • World's largest collection of Victorian poetry
 • One of America's most beautiful libraries
 • High-security literary fortress
 
+---LINE---
+
 RECEPTTION LOCATION: Hotel Herringbone  
 • Luxury downtown Waco facility
 • Multiple operational dining zones
 • Rooftop surveillance point with city views
 • 319 S. 4th Street - memorize this location
+
+---LINE---
 
 MISSION PARAMETERS:
 • Formal attire required (tuxedo specification)
@@ -526,13 +583,17 @@ MISSION PARAMETERS:
 • Brotherhood solidarity maintenance
 • Epic memory creation mandate
 
+---LINE---
+
 SPECIAL EQUIPMENT:
 • Wedding rings (handling with extreme care)
 • Emergency tissues (for emotional moments)
 • Dance floor reconnaissance skills
-• Toast delivery capabilities (prepared remarks essential)
+• Toast delivery capabilities (prepared remarks optional)
 
-This mission will test your loyalty, friendship, and ability to look incredibly handsome in formal wear. The success of Operation: Eternal Bond depends on your commitment.
+---LINE---
+
+This mission will test your loyalty, friendship, and ability to look handsome in formal wear. The success of Operation: Eternal Bond depends on your commitment.
 
 ---LINE---
 
@@ -622,7 +683,17 @@ export const terminalMessages = {
     { text: '', type: 'system' as const, delay: 500 },
     { text: '🔍 SECURITY QUESTION FOR IDENTITY VERIFICATION:', type: 'classified' as const, delay: 1000 },
     { text: '', type: 'system' as const, delay: 300 },
-    { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+    { text: 'Type or press Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+  ],
+
+  swannSecondQuestion: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '🔍 ADDITIONAL VERIFICATION REQUIRED', type: 'classified' as const, delay: 800 },
+    { text: 'RESOLVING FAMILY RELATIONSHIP...', type: 'system' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '🧬 FOLLOW-UP SECURITY QUESTION:', type: 'classified' as const, delay: 1000 },
+    { text: '', type: 'system' as const, delay: 300 },
+    { text: 'Type or press Y for YES or N for NO:', type: 'system' as const, delay: 600 }
   ],
 
   swannConfirmation: [
@@ -631,6 +702,38 @@ export const terminalMessages = {
     { text: 'VERIFYING CLEARANCE LEVEL...', type: 'system' as const, delay: 800 },
     { text: '████████████████████████████████ 100%', type: 'system' as const, delay: 1500 },
     { text: '', type: 'system' as const, delay: 500 }
+  ],
+
+  verificationStart: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '🔐 INITIATING GROOMSMAN VERIFICATION PROTOCOL', type: 'classified' as const, delay: 800 },
+    { text: 'ADDITIONAL SECURITY CHECK REQUIRED...', type: 'system' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '🔍 PERSONAL SECURITY QUESTION:', type: 'classified' as const, delay: 1000 },
+    { text: '', type: 'system' as const, delay: 300 }
+  ],
+
+  verificationSuccess: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '✓ VERIFICATION COMPLETE', type: 'success' as const, delay: 800 },
+    { text: 'GROOMSMAN IDENTITY CONFIRMED', type: 'success' as const, delay: 800 },
+    { text: '████████████████████████████████ 100%', type: 'system' as const, delay: 1500 },
+    { text: '', type: 'system' as const, delay: 500 }
+  ],
+
+  verificationFailure: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '❌ INCORRECT RESPONSE', type: 'error' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 300 }
+  ],
+
+  verificationLockout: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '🚨 MAXIMUM ATTEMPTS EXCEEDED', type: 'error' as const, delay: 800 },
+    { text: '🔒 VERIFICATION PROTOCOL FAILED', type: 'error' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: 'Please contact the groom for manual verification.', type: 'system' as const, delay: 1000 },
+    { text: 'Terminal access suspended.', type: 'error' as const, delay: 800 }
   ],
 
   restart: [
@@ -669,7 +772,7 @@ export const terminalMessages = {
     invalidResponse: [
       { text: '', type: 'system' as const, delay: 300 },
       { text: '⚠️  INVALID RESPONSE', type: 'error' as const, delay: 600 },
-      { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+      { text: 'Please type or press Y for YES or N for NO:', type: 'system' as const, delay: 600 }
     ],
     invalidBiometric: [
       { text: '', type: 'system' as const, delay: 300 },

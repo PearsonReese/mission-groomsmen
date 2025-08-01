@@ -10,6 +10,7 @@ import {
   responses, 
   weddingDetails,
   specialPersons,
+  verificationQuestions,
   terminalMessages,
   brideContent,
   bestManContent,
@@ -23,7 +24,7 @@ interface TerminalLine {
   delay?: number;
 }
 
-type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'howard_gender' | 'best_man_authentication' | 'authentication' | 'mission_choice' | 'completed';
+type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'howard_gender' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'completed';
 
 export function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -36,6 +37,9 @@ export function Terminal() {
   const [isMobile, setIsMobile] = useState(false);
   const [konamiSequence, setKonamiSequence] = useState<string[]>([]);
   const [konamiActivated, setKonamiActivated] = useState(false);
+  const [verificationAttempts, setVerificationAttempts] = useState(0);
+  const [currentVerificationUser, setCurrentVerificationUser] = useState('');
+  const [pendingSwanns, setPendingSwanns] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const introStartedRef = useRef(false);
@@ -95,6 +99,81 @@ export function Terminal() {
     }, 500);
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-focus management for mobile keyboard
+  useEffect(() => {
+    // Focus states that should trigger keyboard on mobile
+    const focusStates = [
+      'name_input', 
+      'swann_second_question', 
+      'howard_gender', 
+      'best_man_authentication', 
+      'verification', 
+      'authentication', 
+      'mission_choice',
+      'completed'
+    ];
+    
+    if (focusStates.includes(gameState) && !isTyping && inputRef.current) {
+      // Small delay to ensure DOM is ready
+      const focusTimer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          // Force keyboard to open on mobile by triggering a click
+          if (isMobile) {
+            inputRef.current.click();
+          }
+        }
+      }, 100);
+      
+      return () => clearTimeout(focusTimer);
+    }
+  }, [gameState, isTyping, isMobile]);
+
+  // Initial focus when component mounts and game state is ready
+  useEffect(() => {
+    if (gameState === 'name_input' && !isTyping && inputRef.current) {
+      const initialFocusTimer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          // Force keyboard to open on mobile
+          if (isMobile) {
+            inputRef.current.click();
+          }
+        }
+      }, 200);
+      
+      return () => clearTimeout(initialFocusTimer);
+    }
+  }, [gameState, isTyping, isMobile]);
+
+  // Handle focus when mobile state changes (responsive design)
+  useEffect(() => {
+    const focusStates = [
+      'name_input', 
+      'swann_second_question', 
+      'howard_gender', 
+      'best_man_authentication', 
+      'verification', 
+      'authentication', 
+      'mission_choice',
+      'completed'
+    ];
+    
+    if (focusStates.includes(gameState) && !isTyping && inputRef.current) {
+      const responsiveFocusTimer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          // Force keyboard to open on mobile
+          if (isMobile) {
+            inputRef.current.click();
+          }
+        }
+      }, 150);
+      
+      return () => clearTimeout(responsiveFocusTimer);
+    }
+  }, [isMobile, gameState, isTyping]);
 
   // Console easter egg message
   useEffect(() => {
@@ -179,7 +258,15 @@ export function Terminal() {
     }
     
     setIsTyping(false);
-    inputRef.current?.focus();
+    
+    // Enhanced focus management for mobile keyboard
+    if (inputRef.current) {
+      inputRef.current.focus();
+      // Force keyboard to open on mobile by triggering a click
+      if (isMobile) {
+        inputRef.current.click();
+      }
+    }
   };
 
   // Start the intro sequence only after audio dialog is closed
@@ -200,6 +287,11 @@ export function Terminal() {
     setUserName('');
     setIsTyping(false);
     introStartedRef.current = false;
+    
+    // Scroll to top of terminal
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = 0;
+    }
     
     await addLines(terminalMessages.restart);
     await startIntroSequence();
@@ -265,11 +357,11 @@ export function Terminal() {
     return fuzzyMatch || null;
   };
 
-  // Check if input matches multiple Swann brothers
+  // Check if input matches multiple Swann family members
   const findAllSwannMatches = (input: string): string[] => {
     const inputLower = input.toLowerCase().trim();
     
-    return specialPersons.swannBrothers.names.filter(name => {
+    return specialPersons.swannFamily.names.filter(name => {
       const fullNameLower = name.toLowerCase();
       const nameParts = fullNameLower.split(' ');
       const firstName = nameParts[0];
@@ -283,6 +375,22 @@ export function Terminal() {
       }
       
       return false;
+    });
+  };
+
+  // Check if a user needs verification
+  const needsVerification = (userName: string): boolean => {
+    return Object.keys(verificationQuestions).includes(userName);
+  };
+
+  // Fuzzy match verification answers
+  const isCorrectVerificationAnswer = (userAnswer: string, correctAnswers: string[]): boolean => {
+    const userLower = userAnswer.toLowerCase().trim();
+    return correctAnswers.some(correct => {
+      const correctLower = correct.toLowerCase();
+      return userLower === correctLower || 
+             userLower.includes(correctLower) || 
+             correctLower.includes(userLower);
     });
   };
 
@@ -486,10 +594,11 @@ export function Terminal() {
         const swannMatches = findAllSwannMatches(input);
         
         if (swannMatches.length > 1) {
-          // Multiple Swann brothers detected - ask disambiguation question
+          // Multiple Swann family members detected - ask disambiguation question
+          setPendingSwanns(swannMatches);
           const disambiguationLines = [
             ...terminalMessages.swannDisambiguation,
-            { text: specialPersons.swannBrothers.disambiguationQuestion, type: 'system' as const, delay: 800 }
+            { text: specialPersons.swannFamily.firstQuestion, type: 'system' as const, delay: 800 }
           ];
           
           await addLines(disambiguationLines);
@@ -587,7 +696,7 @@ export function Terminal() {
             authLines.push(
               { text: '', type: 'system', delay: 800 },
               { text: specialPersons.bestMan.titles.welcome, type: 'classified', delay: 1000 },
-              { text: '🎖️ You have ultimate clearance but require additional verification', type: 'classified', delay: 800 },
+                                  { text: '🎖️ You have ultimate clearance but require additional verification', type: 'classified' as const, delay: 800 },
               { text: '', type: 'system', delay: 500 }
             );
             
@@ -608,9 +717,37 @@ export function Terminal() {
             authLines.push(
               { text: '', type: 'system', delay: 800 },
               { text: `WELCOME, AGENT ${matchedName.toUpperCase()}`, type: 'classified', delay: 1000 },
-              { text: '', type: 'system', delay: 500 },
-              { text: terminalMessages.authentication.prompts.standard, type: 'system', delay: 800 }
+              { text: '', type: 'system', delay: 500 }
             );
+            
+            // Check if user needs verification (but skip Jordan Swann - she's family)
+            if (needsVerification(matchedName) && matchedName !== "Jordan Swann") {
+              authLines.push(
+                { text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 }
+              );
+              
+              await addLines(authLines);
+              
+              // Start verification process
+              setCurrentVerificationUser(matchedName);
+              setVerificationAttempts(0);
+              
+              const verificationData = verificationQuestions[matchedName as keyof typeof verificationQuestions];
+              const verificationLines = [
+                ...terminalMessages.verificationStart,
+                { text: verificationData.question, type: 'system' as const, delay: 800 },
+                { text: '', type: 'system' as const, delay: 300 },
+                { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+              ];
+              
+              await addLines(verificationLines);
+              setGameState('verification');
+              return;
+            } else {
+              authLines.push(
+                { text: terminalMessages.authentication.prompts.standard, type: 'system', delay: 800 }
+              );
+            }
           }
           
           await addLines(authLines);
@@ -693,12 +830,46 @@ export function Terminal() {
 
       case 'swann_disambiguation':
         const answer = input.toLowerCase().trim();
-        let identifiedSwann = '';
         
         if (answer === 'y' || answer === 'yes') {
-          identifiedSwann = specialPersons.swannBrothers.answers.yes;
+          // Only Beau answers yes - go directly to authentication
+          const identifiedSwann = specialPersons.swannFamily.firstAnswers.yes;
+          setUserName(identifiedSwann);
+          
+          const swannAuthLines = [
+            ...terminalMessages.swannConfirmation,
+            { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
+            ...terminalMessages.authentication.success.standard,
+            { text: '', type: 'system' as const, delay: 800 },
+            { text: `WELCOME, AGENT ${identifiedSwann.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
+            { text: '', type: 'system' as const, delay: 500 },
+            { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+          ];
+
+          await addLines(swannAuthLines);
+          setGameState('authentication');
         } else if (answer === 'n' || answer === 'no') {
-          identifiedSwann = specialPersons.swannBrothers.answers.no;
+          // Both Brad and Jordan answer no, need second question
+          const secondQuestionLines = [
+            ...terminalMessages.swannSecondQuestion,
+            { text: specialPersons.swannFamily.secondQuestion, type: 'system' as const, delay: 800 }
+          ];
+          
+          await addLines(secondQuestionLines);
+          setGameState('swann_second_question');
+        } else {
+          await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
+        }
+        break;
+
+      case 'swann_second_question':
+        const secondAnswer = input.toLowerCase().trim();
+        let identifiedSwann = '';
+        
+        if (secondAnswer === 'y' || secondAnswer === 'yes') {
+          identifiedSwann = specialPersons.swannFamily.secondAnswers.yes; // Jordan (blood sister)
+        } else if (secondAnswer === 'n' || secondAnswer === 'no') {
+          identifiedSwann = specialPersons.swannFamily.secondAnswers.no; // Brad (brother-in-law, Best Man)
         } else {
           await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
           break;
@@ -712,12 +883,123 @@ export function Terminal() {
           ...terminalMessages.authentication.success.standard,
           { text: '', type: 'system' as const, delay: 800 },
           { text: `WELCOME, AGENT ${identifiedSwann.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
-          { text: '', type: 'system' as const, delay: 500 },
-          { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+          { text: '', type: 'system' as const, delay: 500 }
         ];
+
+        // Check if Brad (Best Man) needs additional verification
+        if (identifiedSwann.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
+          swannAuthLines.push(
+            { text: '🎖️ You have ultimate clearance but require additional verification', type: 'classified' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 500 }
+          );
+          
+          await addLines(swannAuthLines);
+          
+          // Start Best Man authentication
+          const bestManAuthLines = [
+            ...terminalMessages.bestManAuthentication,
+            { text: specialPersons.bestMan.securityQuestion, type: 'system' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 300 },
+            { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+          ];
+          
+          await addLines(bestManAuthLines);
+          setGameState('best_man_authentication');
+          return;
+        }
+        // Check if this user needs verification (but skip Jordan Swann - she's family)
+        else if (needsVerification(identifiedSwann) && identifiedSwann !== "Jordan Swann") {
+          swannAuthLines.push(
+            { text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 }
+          );
+          
+          await addLines(swannAuthLines);
+          
+          // Start verification process
+          setCurrentVerificationUser(identifiedSwann);
+          setVerificationAttempts(0);
+          
+          const verificationData = verificationQuestions[identifiedSwann as keyof typeof verificationQuestions];
+          const verificationLines = [
+            ...terminalMessages.verificationStart,
+            { text: verificationData.question, type: 'system' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 300 },
+            { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+          ];
+          
+          await addLines(verificationLines);
+          setGameState('verification');
+          return;
+        } else {
+          // Check if this is Jordan Swann for easter egg flow
+          if (identifiedSwann.toLowerCase() === 'jordan swann') {
+            // Jordan Swann easter egg flow
+            const jordanSwannAuthLines: TerminalLine[] = [
+              ...terminalMessages.swannConfirmation,
+              { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
+              { text: easterEggs.jordanSwann.detection, type: 'classified' as const, delay: 1000 },
+              { text: easterEggs.jordanSwann.clearance, type: 'success' as const, delay: 800 },
+              { text: easterEggs.jordanSwann.privileges, type: 'success' as const, delay: 600 },
+              { text: easterEggs.jordanSwann.status, type: 'success' as const, delay: 600 },
+              { text: '', type: 'system' as const, delay: 800 },
+              { text: easterEggs.jordanSwann.welcome, type: 'classified' as const, delay: 1000 },
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: 'Press ENTER to receive your special mission briefing...', type: 'system' as const, delay: 800 }
+            ];
+            
+            await addLines(jordanSwannAuthLines);
+            setGameState('authentication');
+            return;
+          } else {
+            swannAuthLines.push(
+              { text: terminalMessages.authentication.prompts.standard, type: 'system', delay: 800 }
+            );
+          }
+        }
 
         await addLines(swannAuthLines);
         setGameState('authentication');
+        break;
+
+      case 'verification':
+        const verificationAnswer = input.trim();
+        const verificationData = verificationQuestions[currentVerificationUser as keyof typeof verificationQuestions];
+        
+        if (isCorrectVerificationAnswer(verificationAnswer, verificationData.correctAnswers)) {
+          // Correct answer - proceed to authentication
+          const successLines = [
+            ...terminalMessages.verificationSuccess,
+            { text: `✓ IDENTITY CONFIRMED: ${currentVerificationUser.toUpperCase()}`, type: 'success' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 500 },
+            { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+          ];
+          
+          await addLines(successLines);
+          setGameState('authentication');
+        } else {
+          // Incorrect answer
+          const currentAttempts = verificationAttempts + 1;
+          setVerificationAttempts(currentAttempts);
+          
+          if (currentAttempts >= verificationData.maxAttempts) {
+            // Max attempts exceeded - lockout
+            await addLines(terminalMessages.verificationLockout);
+            setGameState('completed');
+          } else {
+            // Show error and retry
+            const remainingAttempts = verificationData.maxAttempts - currentAttempts;
+            const failureLines = [
+              ...terminalMessages.verificationFailure,
+              { text: `Attempts remaining: ${remainingAttempts}`, type: 'error' as const, delay: 600 },
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: verificationData.question, type: 'system' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+            ];
+            
+            await addLines(failureLines);
+          }
+        }
         break;
 
       case 'authentication':
@@ -916,10 +1198,10 @@ export function Terminal() {
         />
       )}
       
-      <Card className="terminal-card flex-1 flex flex-col w-full max-w-none sm:max-w-4xl mx-auto bg-black border-green-500 border-2 shadow-2xl shadow-green-500/20 min-h-0">
+      <Card className="terminal-card flex-1 flex flex-col w-full max-w-none sm:max-w-4xl mx-auto bg-black border-green-500 border-2 shadow-2xl shadow-green-500/20 min-h-0 max-h-full">
         <div 
           ref={terminalRef}
-          className="terminal-screen flex-1 overflow-y-auto p-3 sm:p-6 space-y-1 scrollbar-thin scrollbar-track-black scrollbar-thumb-green-500 text-sm sm:text-base"
+          className="terminal-screen flex-1 overflow-y-auto p-3 sm:p-6 space-y-1 scrollbar-thin scrollbar-track-black scrollbar-thumb-green-500 text-sm sm:text-base min-h-0"
         >
           {lines.map((line, index) => (
             <div 
@@ -960,7 +1242,8 @@ export function Terminal() {
                   // Add user input to terminal
                   setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
                   
-                  const identifiedSwann = specialPersons.swannBrothers.answers.yes;
+                  // Only Beau answers yes - go directly to authentication
+                  const identifiedSwann = specialPersons.swannFamily.firstAnswers.yes;
                   setUserName(identifiedSwann);
                   
                   const swannAuthLines = [
@@ -979,7 +1262,7 @@ export function Terminal() {
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
               >
-                ✅ YES (Beau Swann)
+                ✅ YES
               </Button>
               
               <Button
@@ -990,7 +1273,71 @@ export function Terminal() {
                   // Add user input to terminal
                   setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
                   
-                  const identifiedSwann = specialPersons.swannBrothers.answers.no;
+                  // Both Brad and Jordan answer no, need second question
+                  const secondQuestionLines = [
+                    ...terminalMessages.swannSecondQuestion,
+                    { text: specialPersons.swannFamily.secondQuestion, type: 'system' as const, delay: 800 }
+                  ];
+                  
+                  await addLines(secondQuestionLines);
+                  setGameState('swann_second_question');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ❌ NO
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for Swann second question */}
+          {gameState === 'swann_second_question' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  // Blood related = Jordan (blood sister)
+                  const identifiedSwann = specialPersons.swannFamily.secondAnswers.yes;
+                  setUserName(identifiedSwann);
+                  
+                  // Jordan Swann easter egg flow
+                  const jordanSwannAuthLines: TerminalLine[] = [
+                    ...terminalMessages.swannConfirmation,
+                    { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
+                    { text: easterEggs.jordanSwann.detection, type: 'classified' as const, delay: 1000 },
+                    { text: easterEggs.jordanSwann.clearance, type: 'success' as const, delay: 800 },
+                    { text: easterEggs.jordanSwann.privileges, type: 'success' as const, delay: 600 },
+                    { text: easterEggs.jordanSwann.status, type: 'success' as const, delay: 600 },
+                    { text: '', type: 'system' as const, delay: 800 },
+                    { text: easterEggs.jordanSwann.welcome, type: 'classified' as const, delay: 1000 },
+                    { text: '', type: 'system' as const, delay: 500 },
+                    { text: 'Press ENTER to receive your special mission briefing...', type: 'system' as const, delay: 800 }
+                  ];
+
+                  await addLines(jordanSwannAuthLines);
+                  setGameState('authentication');
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES
+              </Button>
+              
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  // Not blood related = Brad (brother-in-law, Best Man)
+                  const identifiedSwann = specialPersons.swannFamily.secondAnswers.no;
                   setUserName(identifiedSwann);
                   
                   const swannAuthLines = [
@@ -999,17 +1346,27 @@ export function Terminal() {
                     ...terminalMessages.authentication.success.standard,
                     { text: '', type: 'system' as const, delay: 800 },
                     { text: `WELCOME, AGENT ${identifiedSwann.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
-                    { text: '', type: 'system' as const, delay: 500 },
-                    { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+                    { text: '🎖️ You have ultimate clearance but require additional verification', type: 'classified' as const, delay: 800 },
+                    { text: '', type: 'system' as const, delay: 500 }
                   ];
-
+                  
                   await addLines(swannAuthLines);
-                  setGameState('authentication');
+                  
+                  // Start Best Man authentication
+                  const bestManAuthLines = [
+                    ...terminalMessages.bestManAuthentication,
+                    { text: specialPersons.bestMan.securityQuestion, type: 'system' as const, delay: 800 },
+                    { text: '', type: 'system' as const, delay: 300 },
+                    { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                  ];
+                  
+                  await addLines(bestManAuthLines);
+                  setGameState('best_man_authentication');
                 }}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
                 disabled={isTyping}
               >
-                ❌ NO (Brad Swann)
+                ❌ NO
               </Button>
             </div>
           )}
@@ -1031,6 +1388,155 @@ export function Terminal() {
                 disabled={isTyping}
               />
             </form>
+          )}
+
+          {/* Desktop input for Swann second question */}
+          {gameState === 'swann_second_question' && !isTyping && !isMobile && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Type Y for YES or N for NO..."
+                autoFocus
+                disabled={isTyping}
+              />
+            </form>
+          )}
+
+          {/* Desktop input for verification */}
+          {gameState === 'verification' && !isTyping && !isMobile && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Enter your response..."
+                autoFocus
+                disabled={isTyping}
+              />
+            </form>
+          )}
+
+          {/* Mobile CTA Buttons for verification state */}
+          {gameState === 'verification' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'highly classified';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  // Handle verification answer
+                  const verificationData = verificationQuestions[currentVerificationUser as keyof typeof verificationQuestions];
+                  
+                  if (isCorrectVerificationAnswer(answer, verificationData.correctAnswers)) {
+                    // Correct answer - proceed to authentication
+                    const successLines = [
+                      ...terminalMessages.verificationSuccess,
+                      { text: `✓ IDENTITY CONFIRMED: ${currentVerificationUser.toUpperCase()}`, type: 'success' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+                    ];
+                    
+                    await addLines(successLines);
+                    setGameState('authentication');
+                  } else {
+                    // Incorrect answer
+                    const currentAttempts = verificationAttempts + 1;
+                    setVerificationAttempts(currentAttempts);
+                    
+                    if (currentAttempts >= verificationData.maxAttempts) {
+                      // Max attempts exceeded - lockout
+                      await addLines(terminalMessages.verificationLockout);
+                      setGameState('completed');
+                    } else {
+                      // Show error and retry
+                      const remainingAttempts = verificationData.maxAttempts - currentAttempts;
+                      const failureLines = [
+                        ...terminalMessages.verificationFailure,
+                        { text: `Attempts remaining: ${remainingAttempts}`, type: 'error' as const, delay: 600 },
+                        { text: '', type: 'system' as const, delay: 300 },
+                        { text: verificationData.question, type: 'system' as const, delay: 800 },
+                        { text: '', type: 'system' as const, delay: 300 },
+                        { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                      ];
+                      
+                      await addLines(failureLines);
+                    }
+                  }
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                🔒 HIGHLY CLASSIFIED
+              </Button>
+              
+              <Button
+                onClick={async () => {
+                  const answer = 'top notch';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  // Handle verification answer
+                  const verificationData = verificationQuestions[currentVerificationUser as keyof typeof verificationQuestions];
+                  
+                  if (isCorrectVerificationAnswer(answer, verificationData.correctAnswers)) {
+                    // Correct answer - proceed to authentication
+                    const successLines = [
+                      ...terminalMessages.verificationSuccess,
+                      { text: `✓ IDENTITY CONFIRMED: ${currentVerificationUser.toUpperCase()}`, type: 'success' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+                    ];
+                    
+                    await addLines(successLines);
+                    setGameState('authentication');
+                  } else {
+                    // Incorrect answer
+                    const currentAttempts = verificationAttempts + 1;
+                    setVerificationAttempts(currentAttempts);
+                    
+                    if (currentAttempts >= verificationData.maxAttempts) {
+                      // Max attempts exceeded - lockout
+                      await addLines(terminalMessages.verificationLockout);
+                      setGameState('completed');
+                    } else {
+                      // Show error and retry
+                      const remainingAttempts = verificationData.maxAttempts - currentAttempts;
+                      const failureLines = [
+                        ...terminalMessages.verificationFailure,
+                        { text: `Attempts remaining: ${remainingAttempts}`, type: 'error' as const, delay: 600 },
+                        { text: '', type: 'system' as const, delay: 300 },
+                        { text: verificationData.question, type: 'system' as const, delay: 800 },
+                        { text: '', type: 'system' as const, delay: 300 },
+                        { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                      ];
+                      
+                      await addLines(failureLines);
+                    }
+                  }
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ⭐ TOP NOTCH
+              </Button>
+            </div>
           )}
           
           {/* Mobile CTA Button for authentication state */}
@@ -1302,8 +1808,30 @@ export function Terminal() {
             </div>
           )}
           
-          {/* Restart prompt when completed */}
-          {gameState === 'completed' && (
+          {/* Mobile CTA Button for restart */}
+          {gameState === 'completed' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4">
+              <Button
+                onClick={async () => {
+                  const input = 'restart';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${input}`, type: 'user' }]);
+                  
+                  // Handle restart command
+                  await restartTerminal();
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                🔄 RESTART MISSION
+              </Button>
+            </div>
+          )}
+          
+          {/* Desktop input for restart */}
+          {gameState === 'completed' && !isTyping && !isMobile && (
             <div className="terminal-restart-prompt mt-4 text-green-400 text-sm sm:text-base">
               <div className="mb-2">Type "restart" to experience the mission again.</div>
               <form onSubmit={handleSubmit} className="terminal-input-form flex items-center">
@@ -1325,7 +1853,7 @@ export function Terminal() {
         
         {/* Audio controls footer */}
         {!showAudioManager && (
-          <div className="terminal-footer border-t border-green-500 p-2 sm:p-4 flex-shrink-0">
+          <div className="terminal-footer border-t border-green-500 p-2 sm:p-4 flex-shrink-0 bg-black">
             <AudioManager audio={audio} showDialog={false} />
           </div>
         )}

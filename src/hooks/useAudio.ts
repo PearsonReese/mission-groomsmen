@@ -15,7 +15,7 @@ export function useAudio(src: string) {
   const [state, setState] = useState<AudioState>({
     isPlaying: false,
     isMuted: false,
-    volume: 0.2, // Default volume at 20%
+    volume: 0.1, // Default volume at 10%
     canPlay: false,
     showAudioPrompt: true,
     isLoading: true,
@@ -30,6 +30,10 @@ export function useAudio(src: string) {
     audio.loop = true;
     audio.volume = state.volume;
     audio.preload = 'auto';
+    
+    // iOS-specific audio settings
+    (audio as any).playsInline = true; // Prevents fullscreen video on iOS
+    (audio as any).webkitPlaysinline = true; // Legacy iOS support
     
     audioRef.current = audio;
 
@@ -152,6 +156,11 @@ export function useAudio(src: string) {
   const toggleMute = () => {
     console.log('🎵 Toggling audio mute');
     setState(prev => ({ ...prev, isMuted: !prev.isMuted }));
+    
+    // Force volume update immediately for mobile
+    if (audioRef.current) {
+      audioRef.current.volume = state.isMuted ? state.volume : 0;
+    }
   };
 
   const setVolume = (volume: number) => {

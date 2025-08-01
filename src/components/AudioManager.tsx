@@ -42,21 +42,36 @@ export function AudioManager({ audio, onAudioEnabled, showDialog = true }: Audio
     return;
   };
 
+  // Enhanced mobile touch handlers for better iOS compatibility
+  const handlePlayPauseClick = async (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🎵 Play/Pause button clicked');
+    await audio.togglePlay();
+  };
+
+  const handleMuteClick = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🎵 Mute button clicked');
+    audio.toggleMute();
+  };
+
   // Audio permission dialog
   return (
     <>
       {showDialog && (
         <Dialog open={audio.showAudioPrompt} onOpenChange={handleDialogChange}>
           <DialogContent 
-            className="audio-permission-dialog bg-black border-yellow-500 border-2 shadow-2xl shadow-yellow-500/20 max-w-md"
+            className="audio-permission-dialog bg-black border-yellow-500 border-2 shadow-2xl shadow-yellow-500/20 max-w-md mx-auto"
             showCloseButton={false}
           >
             <DialogHeader>
-              <DialogTitle className="audio-dialog-title text-yellow-400 text-xl font-bold text-center">
+              <DialogTitle className="audio-dialog-title text-yellow-400 text-lg sm:text-xl font-bold text-center leading-tight">
                 🎵 AUDIO ENHANCEMENT AVAILABLE 🎵
               </DialogTitle>
               <DialogDescription className="audio-dialog-description text-green-400 text-sm text-center">
-                For the full Mission Impossible experience, enable audio to hear the iconic theme music during your briefing.
+                For the full Mission Impossible experience, enable audio to hear the iconic music during your briefing.
               </DialogDescription>
               {audio.isLoading && (
                 <div className="audio-loading-indicator mt-2 text-yellow-400 text-xs text-center">
@@ -93,39 +108,41 @@ export function AudioManager({ audio, onAudioEnabled, showDialog = true }: Audio
       )}
 
       {/* Audio controls for the terminal footer */}
-      <div className="audio-controls-container flex items-center justify-between">
-        <div className="audio-status-display text-green-400 text-sm flex items-center space-x-2">
+      <div className="audio-controls-container flex items-center justify-between gap-2">
+        <div className="audio-status-display text-green-400 text-sm flex items-center space-x-2 flex-1 min-w-0">
           <span className={`audio-icon ${audio.isPlaying ? 'animate-pulse' : ''}`}>
             🎵
           </span>
-          <span className="audio-track-name">Mission: Impossible Theme</span>
+          <span className="audio-track-name truncate">Mission: Impossible Theme</span>
           {audio.isLoading && (
-            <span className="audio-loading-status text-yellow-400 text-xs">(Loading...)</span>
+            <span className="audio-loading-status text-yellow-400 text-xs flex-shrink-0">(Loading...)</span>
           )}
           {audio.hasError && (
-            <span className="audio-error-status text-red-400 text-xs">(Audio error)</span>
+            <span className="audio-error-status text-red-400 text-xs flex-shrink-0">(Audio error)</span>
           )}
           {!audio.canPlay && !audio.isLoading && !audio.hasError && (
-            <span className="audio-unavailable-status text-yellow-400 text-xs">(Audio not available)</span>
+            <span className="audio-unavailable-status text-yellow-400 text-xs flex-shrink-0">(Audio not available)</span>
           )}
         </div>
         
-        <div className="audio-control-buttons flex space-x-2">
+        <div className="audio-control-buttons flex space-x-2 flex-shrink-0">
           {audio.canPlay && !audio.isLoading && !audio.hasError && (
             <>
               <Button 
-                onClick={audio.togglePlay}
+                onClick={handlePlayPauseClick}
+                onTouchEnd={handlePlayPauseClick}
                 variant="outline" 
                 size="sm" 
-                className="audio-play-pause-button border-green-500 text-green-400 hover:bg-green-500/10"
+                className="audio-play-pause-button border-green-500 text-green-400 hover:bg-green-500/10 touch-manipulation"
               >
                 {audio.isPlaying ? '⏸️' : '▶️'}
               </Button>
               <Button 
-                onClick={audio.toggleMute}
+                onClick={handleMuteClick}
+                onTouchEnd={handleMuteClick}
                 variant="outline" 
                 size="sm" 
-                className="audio-mute-button border-green-500 text-green-400 hover:bg-green-500/10"
+                className="audio-mute-button border-green-500 text-green-400 hover:bg-green-500/10 touch-manipulation"
               >
                 {audio.isMuted ? '🔇' : '🔊'}
               </Button>
