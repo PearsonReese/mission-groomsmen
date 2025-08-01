@@ -1,0 +1,124 @@
+@import "../styles/globals.css";
+
+@layer base {
+  :root {
+    @apply font-mono;
+  }
+
+  body {
+    @apply min-w-[320px] min-h-screen relative m-0 bg-black text-green-400 overflow-x-hidden;
+  }
+  
+  /* Terminal-specific styling */
+  .terminal-scan {
+    position: relative;
+  }
+  
+  .terminal-scan::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      transparent 50%, 
+      rgba(0, 255, 0, 0.03) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    animation: scan 0.1s linear infinite;
+  }
+  
+  /* Scrollbar styling for terminal */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #00ff00 #000000;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #000000;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #00ff00;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #00cc00;
+  }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* Terminal background - solid black */
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .terminal-screen {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .terminal-input-form {
+    min-height: 44px; /* iOS touch target minimum */
+  }
+  
+  .terminal-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Ensure terminal content doesn't get cut off by notches */
+  .terminal-app-container {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Prevent zoom on input focus for iOS */
+@media (max-width: 640px) and (-webkit-min-device-pixel-ratio: 2) {
+  .terminal-input {
+    font-size: 16px !important;
+  }
+}
+
+/* Improved touch targets for mobile */
+@media (pointer: coarse) {
+  .terminal-input-form {
+    min-height: 48px;
+    padding: 4px 0;
+  }
+  
+  .terminal-prompt,
+  .terminal-cursor {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion) {
+  *,
+  ::before,
+  ::after {
+    animation: none !important;
+  }
+}
+
