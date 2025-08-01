@@ -17,6 +17,323 @@ export const groomsmenNames = [
   "Emma Howard" // Easter egg - the bride!
 ];
 
+// =============================================================================
+// EASTER EGGS - Hidden Mission Impossible Features
+// =============================================================================
+
+export const easterEggs = {
+  // Secret celebrity flows
+  tomCruise: {
+    names: ["tom cruise", "tommy", "cruise", "maverick", "top gun"],
+    detection: "🎬 🎬 🎬 HOLLYWOOD LEGEND DETECTED 🎬 🎬 🎬",
+    welcome: "🎬 WELCOME, TOM CRUISE 🎬",
+    clearance: "🎬 CLEARANCE LEVEL: MOVIE STAR",
+    privileges: "🎬 PRIVILEGES: STUNT COORDINATION",
+    status: "🎬 STATUS: RUNNING FROM EXPLOSIONS",
+    mission: {
+      header: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🎬 🎬 🎬 HOLLYWOOD TRANSMISSION 🎬 🎬 🎬', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'TOP SECRET - TOM CRUISE EYES ONLY', type: 'classified' as const, delay: 600 },
+        { text: 'MISSION CODE: OPERATION: WEDDING STUNT', type: 'classified' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Your mission, should you choose to accept it, is to perform the most epic wedding entrance ever!', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'TOM CRUISE MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 200 },
+        { text: '🎬 TARGET EVENT: Your Epic Wedding Entrance', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: [CLASSIFIED - You\'ll know when the music hits]', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '🎬 PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+        { text: '🎬 SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'TOM CRUISE MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
+      ],
+      parameters: [
+        { text: '• Run from explosions (even if there are none)', type: 'system' as const, delay: 400 },
+        { text: '• Perform death-defying stunts during the ceremony', type: 'system' as const, delay: 400 },
+        { text: '• Climb the library walls like a spider', type: 'system' as const, delay: 400 },
+        { text: '• Jump from the rooftop to the dance floor', type: 'system' as const, delay: 400 },
+        { text: '• Do your own stunts (no doubles allowed)', type: 'system' as const, delay: 400 }
+      ],
+      equipment: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'SPECIAL TOM CRUISE EQUIPMENT:', type: 'classified' as const, delay: 800 },
+        { text: '• Sunglasses (for dramatic effect)', type: 'system' as const, delay: 400 },
+        { text: '• Running shoes (for running from explosions)', type: 'system' as const, delay: 400 },
+        { text: '• Stunt harness (safety first!)', type: 'system' as const, delay: 400 },
+        { text: '• Unlimited charisma and charm', type: 'system' as const, delay: 400 }
+      ],
+      footer: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'This mission will test your acting skills, stunt coordination, and ability to look cool while running. The success of Operation: Wedding Stunt depends on your commitment to epicness.', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🎬 DO YOU ACCEPT THIS TOM CRUISE MISSION? 🎬', type: 'classified' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+      ]
+    },
+    responses: {
+      accept: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🎬 TOM CRUISE MISSION ACCEPTED 🎬', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🎬 EXCELLENT! Your commitment to epic stunts has been confirmed.', type: 'success' as const, delay: 800 },
+        { text: '🎬 Standby for stunt coordination and explosion timing...', type: 'success' as const, delay: 800 },
+        { text: '🎬 Welcome to the most action-packed wedding ever!', type: 'success' as const, delay: 800 },
+        { text: '🎬 You\'re going to make this wedding legendary!', type: 'success' as const, delay: 800 },
+        { text: '🎬 Remember: What happens during the wedding stunts, stays in the wedding video forever.', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: '🎬 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+        { text: '🎬 Check your email for stunt coordination details.', type: 'classified' as const, delay: 800 },
+        { text: '🎬 Explosion timing and wall-climbing practice to follow.', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 800 },
+        { text: '✨ Tom Cruise mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+        { text: 'Just kidding! Welcome to the most epic wedding mission ever, Tom! 🎬', type: 'success' as const, delay: 1500 }
+      ],
+      decline: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💔 TOM CRUISE MISSION DECLINED', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🎬 This is... unexpected. Please reconsider, Tom Cruise.', type: 'error' as const, delay: 800 },
+        { text: '🎬 Your stunt mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+        { text: '🎬 Are you sure? The fate of epic wedding entrances depends on you.', type: 'error' as const, delay: 800 },
+        { text: '🎬 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+        { text: '🎬 Your charisma is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+      ]
+    }
+  },
+
+  ethanHunt: {
+    names: ["ethan hunt", "ethan", "hunt", "impossible", "agent hunt"],
+    detection: "🕵️ 🕵️ 🕵️ IMF AGENT DETECTED 🕵️ 🕵️ 🕵️",
+    welcome: "🕵️ WELCOME, ETHAN HUNT 🕵️",
+    clearance: "🕵️ CLEARANCE LEVEL: IMF AGENT",
+    privileges: "🕵️ PRIVILEGES: IMPOSSIBLE MISSIONS",
+    status: "🕵️ STATUS: SAVING THE WORLD",
+    mission: {
+      header: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🕵️ 🕵️ 🕵️ IMF TRANSMISSION 🕵️ 🕵️ 🕵️', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'TOP SECRET - IMF EYES ONLY', type: 'classified' as const, delay: 600 },
+        { text: 'MISSION CODE: OPERATION: WEDDING INFILTRATION', type: 'classified' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Your mission, should you choose to accept it, is to infiltrate the wedding and ensure everything goes perfectly!', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'ETHAN HUNT MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 200 },
+        { text: '🕵️ TARGET EVENT: Wedding Infiltration', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: [CLASSIFIED - Mission briefing to follow]', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '🕵️ PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+        { text: '🕵️ SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'ETHAN HUNT MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
+      ],
+      parameters: [
+        { text: '• Infiltrate the wedding using advanced disguise techniques', type: 'system' as const, delay: 400 },
+        { text: '• Prevent any wedding disasters with precision timing', type: 'system' as const, delay: 400 },
+        { text: '• Use high-tech gadgets to ensure smooth operation', type: 'system' as const, delay: 400 },
+        { text: '• Execute the mission with impossible precision', type: 'system' as const, delay: 400 },
+        { text: '• Self-destruct any evidence of your involvement', type: 'system' as const, delay: 400 }
+      ],
+      equipment: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'SPECIAL IMF EQUIPMENT:', type: 'classified' as const, delay: 800 },
+        { text: '• Disguise kit (for blending in)', type: 'system' as const, delay: 400 },
+        { text: '• High-tech surveillance gear', type: 'system' as const, delay: 400 },
+        { text: '• Mission impossible theme music (for dramatic effect)', type: 'system' as const, delay: 400 },
+        { text: '• Unlimited determination and skill', type: 'system' as const, delay: 400 }
+      ],
+      footer: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'This mission will test your infiltration skills, timing, and ability to save the day. The success of Operation: Wedding Infiltration depends on your commitment to the impossible.', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🕵️ DO YOU ACCEPT THIS IMF MISSION? 🕵️', type: 'classified' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+      ]
+    },
+    responses: {
+      accept: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🕵️ IMF MISSION ACCEPTED 🕵️', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🕵️ EXCELLENT! Your commitment to impossible missions has been confirmed.', type: 'success' as const, delay: 800 },
+        { text: '🕵️ Standby for infiltration training and gadget distribution...', type: 'success' as const, delay: 800 },
+        { text: '🕵️ Welcome to the most impossible wedding mission ever!', type: 'success' as const, delay: 800 },
+        { text: '🕵️ You\'re going to make this wedding mission impossible to forget!', type: 'success' as const, delay: 800 },
+        { text: '🕵️ Remember: What happens during the mission, stays classified forever.', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: '🕵️ Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+        { text: '🕵️ Check your email for infiltration details.', type: 'classified' as const, delay: 800 },
+        { text: '🕵️ Disguise training and gadget briefing to follow.', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 800 },
+        { text: '✨ IMF mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+        { text: 'Just kidding! Welcome to the most impossible wedding mission ever, Ethan! 🕵️', type: 'success' as const, delay: 1500 }
+      ],
+      decline: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💔 IMF MISSION DECLINED', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🕵️ This is... unexpected. Please reconsider, Agent Hunt.', type: 'error' as const, delay: 800 },
+        { text: '🕵️ Your infiltration mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+        { text: '🕵️ Are you sure? The fate of the wedding depends on you.', type: 'error' as const, delay: 800 },
+        { text: '🕵️ We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+        { text: '🕵️ Your skills are more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+      ]
+    }
+  },
+
+  // Secret groom flow
+  pearsonReese: {
+    names: ["pearson reese", "pearson", "reese", "groom", "pearson reese", "the groom"],
+    detection: "💍 💍 💍 GROOM DETECTED 💍 💍 💍",
+    welcome: "💍 WELCOME, GROOM PEARSON REESE 💍",
+    clearance: "💍 CLEARANCE LEVEL: GROOM",
+    privileges: "💍 PRIVILEGES: WEDDING PLANNING",
+    status: "💍 STATUS: GETTING MARRIED",
+    mission: {
+      header: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💍 💍 💍 GROOM TRANSMISSION 💍 💍 💍', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'TOP SECRET - GROOM EYES ONLY', type: 'classified' as const, delay: 600 },
+        { text: 'MISSION CODE: OPERATION: GETTING MARRIED', type: 'classified' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Your mission, should you choose to accept it, is to marry the love of your life and not mess it up!', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'GROOM MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 200 },
+        { text: '💍 TARGET EVENT: Your Wedding Day', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: [CLASSIFIED - You probably know this better than anyone]', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '💍 PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+        { text: '💍 SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'GROOM MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
+      ],
+      parameters: [
+        { text: '• Don\'t forget the rings (mission critical)', type: 'system' as const, delay: 400 },
+        { text: '• Say "I do" with confidence', type: 'system' as const, delay: 400 },
+        { text: '• Don\'t trip walking down the aisle', type: 'system' as const, delay: 400 },
+        { text: '• Remember to breathe', type: 'system' as const, delay: 400 },
+        { text: '• Don\'t mess up your vows', type: 'system' as const, delay: 400 }
+      ],
+      equipment: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'SPECIAL GROOM EQUIPMENT:', type: 'classified' as const, delay: 800 },
+        { text: '• Wedding ring (don\'t lose it!)', type: 'system' as const, delay: 400 },
+        { text: '• Tuxedo (looking sharp)', type: 'system' as const, delay: 400 },
+        { text: '• Vows (memorized and practiced)', type: 'system' as const, delay: 400 },
+        { text: '• Unlimited love for Emma', type: 'system' as const, delay: 400 }
+      ],
+      footer: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'This mission will test your love, commitment, and ability to not mess up the most important day of your life. The success of Operation: Getting Married depends on your love for Emma.', type: 'system' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💍 DO YOU ACCEPT THIS GROOM MISSION? 💍', type: 'classified' as const, delay: 1000 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+      ]
+    },
+    responses: {
+      accept: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💍 GROOM MISSION ACCEPTED 💍', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💍 EXCELLENT! Your commitment to love has been confirmed.', type: 'success' as const, delay: 800 },
+        { text: '💍 Standby for wedding planning and groom duties...', type: 'success' as const, delay: 800 },
+        { text: '💍 Welcome to the most important mission of your life!', type: 'success' as const, delay: 800 },
+        { text: '💍 You\'re going to be the best groom ever!', type: 'success' as const, delay: 800 },
+        { text: '💍 Remember: What happens on your wedding day, stays in your hearts forever.', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: '💍 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+        { text: '💍 Check your email for wedding planning details.', type: 'classified' as const, delay: 800 },
+        { text: '💍 Tuxedo fittings and groom duties to follow.', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 800 },
+        { text: '✨ Groom mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+        { text: 'Just kidding! Welcome to the most important mission ever, Pearson! 💍', type: 'success' as const, delay: 1500 }
+      ],
+      decline: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💔 GROOM MISSION DECLINED', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💍 This is... unexpected. Please reconsider, Groom Pearson.', type: 'error' as const, delay: 800 },
+        { text: '💍 Your love mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+        { text: '💍 Are you sure? The fate of true love depends on you.', type: 'error' as const, delay: 800 },
+        { text: '💍 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+        { text: '💍 Your love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 1000 },
+        { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+      ]
+    }
+  },
+
+  // Konami code easter egg
+  konamiCode: {
+    sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'],
+    message: [
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: '🎮 🎮 🎮 KONAMI CODE ACTIVATED 🎮 🎮 🎮', type: 'classified' as const, delay: 800 },
+      { text: '🎮 UNLOCKING SECRET MISSION MODE...', type: 'classified' as const, delay: 800 },
+      { text: '🎮 ACCESSING CLASSIFIED GROOMSMAN DATABASE...', type: 'classified' as const, delay: 800 },
+      { text: '🎮 SECRET FEATURE: INFINITE LIVES ENABLED', type: 'success' as const, delay: 800 },
+      { text: '🎮 You now have unlimited attempts at the mission!', type: 'success' as const, delay: 800 },
+      { text: '🎮 This message will self-destruct in 5 seconds...', type: 'system' as const, delay: 1000 },
+      { text: '🎮 Just kidding! Welcome to the secret mode!', type: 'success' as const, delay: 1000 }
+    ]
+  },
+
+  // Magic string easter eggs
+  magicStrings: {
+    "mission impossible": {
+      message: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '🎵 🎵 🎵 MISSION IMPOSSIBLE THEME DETECTED 🎵 🎵 🎵', type: 'classified' as const, delay: 800 },
+        { text: '🎵 Playing secret mission impossible theme...', type: 'system' as const, delay: 800 },
+        { text: '🎵 *dramatic music intensifies*', type: 'success' as const, delay: 800 },
+        { text: '🎵 Your mission, should you choose to accept it...', type: 'classified' as const, delay: 1000 }
+      ]
+    },
+    "self destruct": {
+      message: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '💥 💥 💥 SELF DESTRUCT SEQUENCE INITIATED 💥 💥 💥', type: 'error' as const, delay: 800 },
+        { text: '💥 COUNTDOWN: 5...', type: 'error' as const, delay: 1000 },
+        { text: '💥 COUNTDOWN: 4...', type: 'error' as const, delay: 1000 },
+        { text: '💥 COUNTDOWN: 3...', type: 'error' as const, delay: 1000 },
+        { text: '💥 COUNTDOWN: 2...', type: 'error' as const, delay: 1000 },
+        { text: '💥 COUNTDOWN: 1...', type: 'error' as const, delay: 1000 },
+        { text: '💥 Just kidding! This terminal is too important to destroy!', type: 'success' as const, delay: 1000 }
+      ]
+    },
+    "impossible": {
+      message: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: '🕵️ 🕵️ 🕵️ IMPOSSIBLE MISSION DETECTED 🕵️ 🕵️ 🕵️', type: 'classified' as const, delay: 800 },
+        { text: '🕵️ Nothing is impossible for a true groomsman!', type: 'success' as const, delay: 800 },
+        { text: '🕵️ Your mission will be completed with impossible precision!', type: 'classified' as const, delay: 800 }
+      ]
+    }
+  }
+};
+
 export const weddingDetails = {
   date: "Saturday, December 13, 2025",
   ceremony: {
@@ -85,13 +402,13 @@ TARGET EVENT: Wedding Ceremony & Reception
 DATE: ${weddingDetails.date}
 TIME: [CLASSIFIED - Details to follow in subsequent briefing]
 
-PRIMARY LOCATION: Armstrong Browning Library
+CEREMONY LOCATION: Armstrong Browning Library
 • Historic Baylor University venue
 • World's largest collection of Victorian poetry
 • One of America's most beautiful libraries
 • High-security literary fortress
 
-SECONDARY LOCATION: Hotel Herringbone  
+RECEPTTION LOCATION: Hotel Herringbone  
 • Luxury downtown Waco facility
 • Multiple operational dining zones
 • Rooftop surveillance point with city views
@@ -283,8 +600,8 @@ export const brideContent = {
       { text: '💍 TARGET EVENT: Your Wedding Day', type: 'system' as const, delay: 600 },
       { text: '⏰ TIME: [CLASSIFIED - You probably know this better than anyone]', type: 'system' as const, delay: 600 },
       { text: '', type: 'system' as const, delay: 300 },
-      { text: '👰 PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
-      { text: '🎉 SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+      { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+      { text: '🎉 RECEPTTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
       { text: '', type: 'system' as const, delay: 300 },
       { text: 'FIANCÉE MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
     ],
@@ -422,8 +739,8 @@ export const bestManContent = {
       { text: '🎖️ TARGET EVENT: Your Best Man Duties', type: 'system' as const, delay: 600 },
       { text: '⏰ TIME: [CLASSIFIED - You\'ll be the first to know]', type: 'system' as const, delay: 600 },
       { text: '', type: 'system' as const, delay: 300 },
-      { text: '🎖️ PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
-      { text: '🎖️ SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+      { text: '🎖️ CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+      { text: '🎖️ RECEPTTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
       { text: '', type: 'system' as const, delay: 300 },
       { text: 'BEST MAN MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
     ],

@@ -15,7 +15,7 @@ export function useAudio(src: string) {
   const [state, setState] = useState<AudioState>({
     isPlaying: false,
     isMuted: false,
-    volume: 0.3, // Default volume at 30%
+    volume: 0.2, // Default volume at 20%
     canPlay: false,
     showAudioPrompt: true,
     isLoading: true,

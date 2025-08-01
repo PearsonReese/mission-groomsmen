@@ -13,7 +13,8 @@ import {
   terminalMessages,
   brideContent,
   bestManContent,
-  missionPrompts
+  missionPrompts,
+  easterEggs
 } from '@/utils/missionData';
 
 interface TerminalLine {
@@ -33,6 +34,8 @@ export function Terminal() {
   const [showCursor, setShowCursor] = useState(true);
   const [showAudioManager, setShowAudioManager] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [konamiSequence, setKonamiSequence] = useState<string[]>([]);
+  const [konamiActivated, setKonamiActivated] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const introStartedRef = useRef(false);
@@ -51,6 +54,33 @@ export function Terminal() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Konami code detection
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (konamiActivated) return; // Prevent multiple activations
+      
+      const newSequence = [...konamiSequence, e.code];
+      setKonamiSequence(newSequence);
+      
+      // Keep only the last 10 keys
+      if (newSequence.length > 10) {
+        newSequence.shift();
+      }
+      
+      // Check if Konami code is complete
+      if (newSequence.length === 10) {
+        const isKonamiCode = easterEggs.konamiCode.sequence.every((key, index) => key === newSequence[index]);
+        if (isKonamiCode) {
+          setKonamiActivated(true);
+          handleKonamiCode();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [konamiSequence, konamiActivated]);
+
   // Auto-scroll to bottom when new lines are added
   useEffect(() => {
     if (terminalRef.current) {
@@ -66,6 +96,16 @@ export function Terminal() {
     return () => clearInterval(interval);
   }, []);
 
+  // Console easter egg message
+  useEffect(() => {
+    console.log('%c🎬 MISSION IMPOSSIBLE WEDDING INVITATION 🎬', 'color: #00ff00; font-size: 20px; font-weight: bold;');
+    console.log('%c🕵️ Welcome to the classified groomsman recruitment system!', 'color: #00ff00; font-size: 14px;');
+    console.log('%c💍 This terminal is designed to recruit the most elite groomsmen for Operation: Eternal Bond', 'color: #00ff00; font-size: 14px;');
+    console.log('%c🎮 Try typing the Konami code (↑↑↓↓←→←→BA) for a secret surprise!', 'color: #ffff00; font-size: 14px;');
+    console.log('%c🎬 Or try entering names like "Tom Cruise", "Ethan Hunt", or "Pearson Reese" for special missions!', 'color: #ffff00; font-size: 14px;');
+    console.log('%c💥 Type "self destruct" or "mission impossible" for more easter eggs!', 'color: #ff0000; font-size: 14px;');
+  }, []);
+
   // Helper function to render line content (handles ---LINE--- conversion)
   const renderLineContent = (text: string) => {
     if (text === '---LINE---') {
@@ -74,6 +114,52 @@ export function Terminal() {
       );
     }
     return text;
+  };
+
+  // Handle Konami code activation
+  const handleKonamiCode = async () => {
+    await addLines(easterEggs.konamiCode.message);
+  };
+
+  // Check for magic string easter eggs
+  const checkMagicStrings = async (input: string) => {
+    const inputLower = input.toLowerCase();
+    
+    for (const [magicString, easterEgg] of Object.entries(easterEggs.magicStrings)) {
+      if (inputLower.includes(magicString.toLowerCase())) {
+        await addLines(easterEgg.message);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Check for easter egg celebrity flows
+  const checkEasterEggFlows = (input: string): string | null => {
+    const inputLower = input.toLowerCase().trim();
+    
+    // Check Tom Cruise easter egg
+    for (const name of easterEggs.tomCruise.names) {
+      if (inputLower.includes(name.toLowerCase())) {
+        return 'tomCruise';
+      }
+    }
+    
+    // Check Ethan Hunt easter egg
+    for (const name of easterEggs.ethanHunt.names) {
+      if (inputLower.includes(name.toLowerCase())) {
+        return 'ethanHunt';
+      }
+    }
+    
+    // Check Pearson Reese easter egg
+    for (const name of easterEggs.pearsonReese.names) {
+      if (inputLower.includes(name.toLowerCase())) {
+        return 'pearsonReese';
+      }
+    }
+    
+    return null;
   };
 
   // Add multiple lines with typing effect
@@ -231,8 +317,44 @@ export function Terminal() {
         return;
       }
       
-      // Handle the authentication case - check if it's Emma for special briefing
-      if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
+      // Handle the authentication case - check for easter egg flows first
+      if (userName.toLowerCase() === 'tom cruise') {
+        // Tom Cruise easter egg briefing
+        const tomCruiseBriefingLines = [
+          ...easterEggs.tomCruise.mission.header,
+          { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+          ...easterEggs.tomCruise.mission.parameters,
+          ...easterEggs.tomCruise.mission.equipment,
+          ...easterEggs.tomCruise.mission.footer
+        ];
+
+        await addLines(tomCruiseBriefingLines);
+        setGameState('mission_choice');
+      } else if (userName.toLowerCase() === 'ethan hunt') {
+        // Ethan Hunt easter egg briefing
+        const ethanHuntBriefingLines = [
+          ...easterEggs.ethanHunt.mission.header,
+          { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+          ...easterEggs.ethanHunt.mission.parameters,
+          ...easterEggs.ethanHunt.mission.equipment,
+          ...easterEggs.ethanHunt.mission.footer
+        ];
+
+        await addLines(ethanHuntBriefingLines);
+        setGameState('mission_choice');
+      } else if (userName.toLowerCase() === 'pearson reese') {
+        // Pearson Reese easter egg briefing
+        const pearsonReeseBriefingLines = [
+          ...easterEggs.pearsonReese.mission.header,
+          { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+          ...easterEggs.pearsonReese.mission.parameters,
+          ...easterEggs.pearsonReese.mission.equipment,
+          ...easterEggs.pearsonReese.mission.footer
+        ];
+
+        await addLines(pearsonReeseBriefingLines);
+        setGameState('mission_choice');
+      } else if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
         // Build the complete bride mission briefing from structured data
         const fianceeBriefingLines = [
           ...brideContent.mission.header,
@@ -291,8 +413,56 @@ export function Terminal() {
     const input = currentInput;
     setCurrentInput('');
 
+    // Check for magic string easter eggs first
+    const magicStringFound = await checkMagicStrings(input);
+    if (magicStringFound) return;
+
     switch (gameState) {
       case 'name_input':
+        // Check for easter egg celebrity flows first
+        const easterEggFlow = checkEasterEggFlows(input);
+        if (easterEggFlow) {
+          let easterEggData;
+          let easterEggName;
+          
+          switch (easterEggFlow) {
+            case 'tomCruise':
+              easterEggData = easterEggs.tomCruise;
+              easterEggName = 'Tom Cruise';
+              break;
+            case 'ethanHunt':
+              easterEggData = easterEggs.ethanHunt;
+              easterEggName = 'Ethan Hunt';
+              break;
+            case 'pearsonReese':
+              easterEggData = easterEggs.pearsonReese;
+              easterEggName = 'Pearson Reese';
+              break;
+            default:
+              break;
+          }
+          
+          if (easterEggData && easterEggName) {
+            setUserName(easterEggName);
+            
+            const authLines: TerminalLine[] = [
+              ...terminalMessages.authentication.verifying,
+              { text: easterEggData.detection, type: 'classified', delay: 1000 },
+              { text: easterEggData.clearance, type: 'success', delay: 800 },
+              { text: easterEggData.privileges, type: 'success', delay: 600 },
+              { text: easterEggData.status, type: 'success', delay: 600 },
+              { text: '', type: 'system', delay: 800 },
+              { text: easterEggData.welcome, type: 'classified', delay: 1000 },
+              { text: '', type: 'system', delay: 500 },
+              { text: 'Press ENTER to receive your special mission briefing...', type: 'system', delay: 800 }
+            ];
+            
+            await addLines(authLines);
+            setGameState('authentication');
+            return;
+          }
+        }
+        
         // Check for Swann disambiguation first
         const swannMatches = findAllSwannMatches(input);
         
@@ -539,6 +709,67 @@ export function Terminal() {
       case 'mission_choice':
         const choice = input.toLowerCase().trim();
         
+        // Special responses for easter egg flows first
+        if (userName.toLowerCase() === 'tom cruise') {
+          if (choice === 'y' || choice === 'yes') {
+            await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
+            setGameState('completed');
+            break;
+          } else if (choice === 'n' || choice === 'no') {
+            await addLines(easterEggs.tomCruise.responses.decline as TerminalLine[]);
+            break;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID TOM CRUISE RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
+
+            await addLines(errorLines);
+            break;
+          }
+        }
+        
+        if (userName.toLowerCase() === 'ethan hunt') {
+          if (choice === 'y' || choice === 'yes') {
+            await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
+            setGameState('completed');
+            break;
+          } else if (choice === 'n' || choice === 'no') {
+            await addLines(easterEggs.ethanHunt.responses.decline as TerminalLine[]);
+            break;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID ETHAN HUNT RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
+
+            await addLines(errorLines);
+            break;
+          }
+        }
+        
+        if (userName.toLowerCase() === 'pearson reese') {
+          if (choice === 'y' || choice === 'yes') {
+            await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
+            setGameState('completed');
+            break;
+          } else if (choice === 'n' || choice === 'no') {
+            await addLines(easterEggs.pearsonReese.responses.decline as TerminalLine[]);
+            break;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID GROOM RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
+
+            await addLines(errorLines);
+            break;
+          }
+        }
+        
         // Special responses for Emma (the bride!)
         if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
           if (choice === 'y' || choice === 'yes') {
@@ -661,7 +892,7 @@ export function Terminal() {
           ))}
           
           {/* Input line */}
-          {(gameState === 'name_input' || gameState === 'swann_disambiguation' || gameState === 'howard_gender' || gameState === 'best_man_authentication') && !isTyping && (
+          {(gameState === 'name_input' || gameState === 'howard_gender' || gameState === 'best_man_authentication') && !isTyping && (
             <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
               <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
               <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
@@ -673,6 +904,90 @@ export function Terminal() {
                 onChange={(e) => setCurrentInput(e.target.value)}
                 className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
                 placeholder=""
+                autoFocus
+                disabled={isTyping}
+              />
+            </form>
+          )}
+          
+          {/* Mobile CTA Buttons for Swann disambiguation */}
+          {gameState === 'swann_disambiguation' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  const identifiedSwann = specialPersons.swannBrothers.answers.yes;
+                  setUserName(identifiedSwann);
+                  
+                  const swannAuthLines = [
+                    ...terminalMessages.swannConfirmation,
+                    { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
+                    ...terminalMessages.authentication.success.standard,
+                    { text: '', type: 'system' as const, delay: 800 },
+                    { text: `WELCOME, AGENT ${identifiedSwann.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
+                    { text: '', type: 'system' as const, delay: 500 },
+                    { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+                  ];
+
+                  await addLines(swannAuthLines);
+                  setGameState('authentication');
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES (Beau Swann)
+              </Button>
+              
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  const identifiedSwann = specialPersons.swannBrothers.answers.no;
+                  setUserName(identifiedSwann);
+                  
+                  const swannAuthLines = [
+                    ...terminalMessages.swannConfirmation,
+                    { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
+                    ...terminalMessages.authentication.success.standard,
+                    { text: '', type: 'system' as const, delay: 800 },
+                    { text: `WELCOME, AGENT ${identifiedSwann.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
+                    { text: '', type: 'system' as const, delay: 500 },
+                    { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+                  ];
+
+                  await addLines(swannAuthLines);
+                  setGameState('authentication');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ❌ NO (Brad Swann)
+              </Button>
+            </div>
+          )}
+          
+          {/* Desktop input for Swann disambiguation */}
+          {gameState === 'swann_disambiguation' && !isTyping && !isMobile && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Type Y for YES or N for NO..."
                 autoFocus
                 disabled={isTyping}
               />
@@ -764,7 +1079,13 @@ export function Terminal() {
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
               >
-                {userName.toLowerCase() === specialPersons.bride.name.toLowerCase() 
+                {userName.toLowerCase() === 'tom cruise'
+                  ? '🎬 RECEIVE TOM CRUISE BRIEFING'
+                  : userName.toLowerCase() === 'ethan hunt'
+                  ? '🕵️ RECEIVE IMF BRIEFING'
+                  : userName.toLowerCase() === 'pearson reese'
+                  ? '💍 RECEIVE GROOM BRIEFING'
+                  : userName.toLowerCase() === specialPersons.bride.name.toLowerCase() 
                   ? '💍 RECEIVE FIANCÉE BRIEFING' 
                   : userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()
                   ? '🎖️ RECEIVE BEST MAN BRIEFING'
@@ -802,6 +1123,25 @@ export function Terminal() {
                   
                   // Add user input to terminal
                   setLines(prev => [...prev, { text: `> ${choice}`, type: 'user' }]);
+                  
+                  // Special responses for easter egg flows first
+                  if (userName.toLowerCase() === 'tom cruise') {
+                    await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
+                    setGameState('completed');
+                    return;
+                  }
+                  
+                  if (userName.toLowerCase() === 'ethan hunt') {
+                    await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
+                    setGameState('completed');
+                    return;
+                  }
+                  
+                  if (userName.toLowerCase() === 'pearson reese') {
+                    await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
+                    setGameState('completed');
+                    return;
+                  }
                   
                   // Special responses for Emma (the bride!)
                   if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
@@ -846,6 +1186,22 @@ export function Terminal() {
                   
                   // Add user input to terminal
                   setLines(prev => [...prev, { text: `> ${choice}`, type: 'user' }]);
+                  
+                  // Special responses for easter egg flows first
+                  if (userName.toLowerCase() === 'tom cruise') {
+                    await addLines(easterEggs.tomCruise.responses.decline as TerminalLine[]);
+                    return;
+                  }
+                  
+                  if (userName.toLowerCase() === 'ethan hunt') {
+                    await addLines(easterEggs.ethanHunt.responses.decline as TerminalLine[]);
+                    return;
+                  }
+                  
+                  if (userName.toLowerCase() === 'pearson reese') {
+                    await addLines(easterEggs.pearsonReese.responses.decline as TerminalLine[]);
+                    return;
+                  }
                   
                   // Special responses for Emma (the bride!)
                   if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {

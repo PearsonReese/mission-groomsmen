@@ -85,6 +85,24 @@
     font-size: 16px; /* Prevents zoom on iOS */
   }
   
+  /* Mobile CTA button optimizations */
+  .mobile-cta-container {
+    padding: 0 8px;
+  }
+  
+  .mobile-cta-container button {
+    min-height: 48px; /* Larger touch target for mobile */
+    font-size: 16px; /* Prevents zoom on iOS */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+  }
+  
+  .mobile-cta-container button:active {
+    transform: scale(0.98);
+  }
+  
   /* Ensure terminal content doesn't get cut off by notches */
   .terminal-app-container {
     padding-top: env(safe-area-inset-top);
