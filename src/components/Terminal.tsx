@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { AudioManager } from '@/components/AudioManager';
 import { useAudio } from '@/hooks/useAudio';
 import { apiService } from '@/services/api';
+
 import { 
   groomsmenNames, 
   missionBriefing, 
@@ -966,6 +967,8 @@ export function Terminal() {
           const beauAuthLines = [
             { text: '✅ VERIFICATION SUCCESSFUL', type: 'success' as const, delay: 800 },
             { text: '', type: 'system' as const, delay: 500 },
+            { text: '🔐 ALL VERIFICATION PROTOCOLS COMPLETE', type: 'classified' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 500 },
             ...terminalMessages.authentication.success.standard,
             { text: '', type: 'system' as const, delay: 800 },
             { text: `WELCOME, AGENT ${userName.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
@@ -977,7 +980,7 @@ export function Terminal() {
           setGameState('authentication');
         } else {
           // Incorrect answer
-          await addLines(terminalMessages.errors.invalidBestManResponse as TerminalLine[]);
+          await addLines(terminalMessages.errors.invalidBeauVerification as TerminalLine[]);
         }
         break;
 
@@ -1843,6 +1846,8 @@ export function Terminal() {
               {renderSubmitButton()}
             </form>
           )}
+
+
 
           {/* Desktop input for verification */}
           {gameState === 'verification' && !isTyping && !isMobile && (

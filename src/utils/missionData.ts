@@ -779,6 +779,11 @@ export const terminalMessages = {
       { text: '', type: 'system' as const, delay: 300 },
       { text: '⚠️  INVALID BEST MAN RESPONSE', type: 'error' as const, delay: 600 },
       { text: 'Please enter the correct answer:', type: 'system' as const, delay: 600 }
+    ],
+    invalidBeauVerification: [
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: '⚠️  INVALID BEAU VERIFICATION RESPONSE', type: 'error' as const, delay: 600 },
+      { text: 'Please try again with the correct answer:', type: 'system' as const, delay: 600 }
     ]
   }
 };
