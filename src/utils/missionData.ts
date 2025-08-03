@@ -14,6 +14,7 @@ export const groomsmenNames = [
   "Maison Holes",
   "Adam Simpson",
   "Brent Adams",
+  "David Katz",
   "Emma Howard", // Easter egg - the bride!
   "Jordan Swann" // The groom's blood sister!
 ];
@@ -90,7 +91,6 @@ export const easterEggs = {
         { text: '🎬 Remember: What happens during the wedding stunts, stays in the wedding video forever.', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 1000 },
         { text: '🎬 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
-        { text: '🎬 Check your email for stunt coordination details.', type: 'classified' as const, delay: 800 },
         { text: '🎬 Explosion timing and wall-climbing practice to follow.', type: 'classified' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 800 },
         { text: '✨ Tom Cruise mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
@@ -177,7 +177,6 @@ export const easterEggs = {
         { text: '🕵️ Remember: What happens during the mission, stays classified forever.', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 1000 },
         { text: '🕵️ Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
-        { text: '🕵️ Check your email for infiltration details.', type: 'classified' as const, delay: 800 },
         { text: '🕵️ Disguise training and gadget briefing to follow.', type: 'classified' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 800 },
         { text: '✨ IMF mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
@@ -265,7 +264,6 @@ export const easterEggs = {
         { text: '💍 Remember: What happens on your wedding day, stays in your hearts forever.', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 1000 },
         { text: '💍 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
-        { text: '💍 Check your email for wedding planning details.', type: 'classified' as const, delay: 800 },
         { text: '💍 Tuxedo fittings and groom duties to follow.', type: 'classified' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 800 },
         { text: '✨ Groom mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
@@ -353,7 +351,6 @@ export const easterEggs = {
         { text: '👯 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 1000 },
         { text: '👯 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
-        { text: '👯 Check your email for family coordination details.', type: 'classified' as const, delay: 800 },
         { text: '👯 Family meetings and support planning to follow.', type: 'classified' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 800 },
         { text: '✨ Sister mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
@@ -487,7 +484,9 @@ export const specialPersons = {
     secondAnswers: {
       yes: "Jordan Swann", // Blood sister
       no: "Brad Swann" // Brother-in-law (Best Man)
-    }
+    },
+    beauVerificationQuestion: "Where did the groom spend most of his time in the Superdome?",
+    beauVerificationAnswers: ["bathroom", "the bathroom", "the toilet", "toilet"]
   }
 };
 
@@ -534,6 +533,11 @@ export const verificationQuestions = {
   "Brent Adams": {
     question: "What's funnier than 24?",
     correctAnswers: ["25"],
+    maxAttempts: 3
+  },
+  "David Katz": {
+    question: "What was the first app we built together?",
+    correctAnswers: ["Mindkind"],
     maxAttempts: 3
   }
 };
@@ -843,7 +847,6 @@ export const brideContent = {
       { text: '💖 Remember: What happens on your wedding day, stays in your hearts forever.', type: 'success' as const, delay: 800 },
       { text: '', type: 'system' as const, delay: 1000 },
       { text: '💍 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
-      { text: '💕 Check your email for wedding planning details.', type: 'classified' as const, delay: 800 },
       { text: '👰 Dress fittings and bridal party intel to follow.', type: 'classified' as const, delay: 800 },
       { text: '', type: 'system' as const, delay: 800 },
       { text: '✨ Bride mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
@@ -886,7 +889,6 @@ export const responses = {
   acceptComplete: [
     { text: '', type: 'system' as const, delay: 1000 },
     { text: '📱 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
-    { text: '📧 Check your email for formal invitation details.', type: 'classified' as const, delay: 800 },
     { text: '🤵 Suit fittings and bachelor party intel to follow.', type: 'classified' as const, delay: 800 },
     { text: '', type: 'system' as const, delay: 800 },
     { text: '✨ Mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
@@ -982,7 +984,6 @@ export const bestManContent = {
       { text: '🎖️ Remember: What happens in the best man role, stays in the wedding photos forever.', type: 'success' as const, delay: 800 },
       { text: '', type: 'system' as const, delay: 1000 },
       { text: '🎖️ Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
-      { text: '🎖️ Check your email for best man duties and speech guidelines.', type: 'classified' as const, delay: 800 },
       { text: '🎖️ Suit fittings and bachelor party planning to follow.', type: 'classified' as const, delay: 800 },
       { text: '', type: 'system' as const, delay: 800 },
       { text: '✨ Best man mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },

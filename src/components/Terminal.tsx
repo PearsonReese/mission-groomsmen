@@ -28,7 +28,7 @@ interface TerminalLine {
   delay?: number;
 }
 
-type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'howard_bride_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
+type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'beau_verification' | 'howard_bride_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
 
 export function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -927,22 +927,23 @@ export function Terminal() {
         const answer = input.toLowerCase().trim();
         
         if (answer === 'y' || answer === 'yes') {
-          // Only Beau answers yes - go directly to authentication
+          // Only Beau answers yes - go to Beau verification
           const identifiedSwann = specialPersons.swannFamily.firstAnswers.yes;
           setUserName(identifiedSwann);
           
-          const swannAuthLines = [
+          const beauVerificationLines = [
             ...terminalMessages.swannConfirmation,
             { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
-            ...terminalMessages.authentication.success.standard,
-            { text: '', type: 'system' as const, delay: 800 },
-            { text: `WELCOME, AGENT ${identifiedSwann.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
             { text: '', type: 'system' as const, delay: 500 },
-            { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+            { text: '🔐 ADDITIONAL VERIFICATION REQUIRED FOR BEAU SWANN', type: 'classified' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 500 },
+            { text: specialPersons.swannFamily.beauVerificationQuestion, type: 'system' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 300 },
+            { text: 'Enter your response:', type: 'system' as const, delay: 600 }
           ];
 
-          await addLines(swannAuthLines);
-          setGameState('authentication');
+          await addLines(beauVerificationLines);
+          setGameState('beau_verification');
         } else if (answer === 'n' || answer === 'no') {
           // Both Brad and Jordan answer no, need second question
           const secondQuestionLines = [
@@ -954,6 +955,29 @@ export function Terminal() {
           setGameState('swann_second_question');
         } else {
           await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
+        }
+        break;
+
+      case 'beau_verification':
+        const beauAnswer = input.toLowerCase().trim();
+        
+        if (specialPersons.swannFamily.beauVerificationAnswers.includes(beauAnswer)) {
+          // Correct answer - proceed to authentication
+          const beauAuthLines = [
+            { text: '✅ VERIFICATION SUCCESSFUL', type: 'success' as const, delay: 800 },
+            { text: '', type: 'system' as const, delay: 500 },
+            ...terminalMessages.authentication.success.standard,
+            { text: '', type: 'system' as const, delay: 800 },
+            { text: `WELCOME, AGENT ${userName.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
+            { text: '', type: 'system' as const, delay: 500 },
+            { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+          ];
+
+          await addLines(beauAuthLines);
+          setGameState('authentication');
+        } else {
+          // Incorrect answer
+          await addLines(terminalMessages.errors.invalidBestManResponse as TerminalLine[]);
         }
         break;
 
@@ -1248,13 +1272,13 @@ export function Terminal() {
             // Log mission acceptance
             await apiService.logEvent('mission_accepted', { userName });
                                 await addLines(bestManContent.responses.accept as TerminalLine[]);
-                    setGameState('groom_advice');
-            break;
+            setGameState('groom_advice');
+                    return;
           } else if (choice === 'n' || choice === 'no') {
             // Log mission decline
             await apiService.logEvent('mission_declined', { userName });
             await addLines(bestManContent.responses.decline as TerminalLine[]);
-            break;
+            return;
           } else {
             const errorLines = [
               { text: '', type: 'system' as const, delay: 300 },
@@ -1444,18 +1468,42 @@ export function Terminal() {
 
   const getLineClass = (type: TerminalLine['type']) => {
     switch (type) {
+      case 'system':
+        return 'text-green-400';
       case 'user':
         return 'text-blue-400';
       case 'error':
         return 'text-red-400';
       case 'success':
-        return 'text-green-400';
+        return 'text-green-500';
       case 'classified':
         return 'text-yellow-400 font-bold';
       default:
         return 'text-green-400';
     }
   };
+
+  // Helper function to render submit button with green arrow
+  const renderSubmitButton = () => (
+    <Button
+      type="submit"
+      className="ml-2 bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-2 px-3 rounded border-2 border-green-400 shadow-lg flex-shrink-0"
+      disabled={isTyping}
+    >
+      <svg 
+        className="w-4 h-4" 
+        fill="currentColor" 
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path 
+          fillRule="evenodd" 
+          d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" 
+          clipRule="evenodd" 
+        />
+      </svg>
+    </Button>
+  );
 
   return (
     <div className="terminal-app-container h-screen-safe w-screen bg-black p-2 sm:p-4 font-mono flex flex-col overflow-hidden">
@@ -1501,6 +1549,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
           
@@ -1521,25 +1570,26 @@ export function Terminal() {
                   // Add user input to terminal
                   setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
                   
-                  // Only Beau answers yes - go directly to authentication
+                  // Only Beau answers yes - go to Beau verification
                   const identifiedSwann = specialPersons.swannFamily.firstAnswers.yes;
                   setUserName(identifiedSwann);
                   
                   // Initialize backend session for identified Swann
                   await initializeSession(identifiedSwann);
                   
-                  const swannAuthLines = [
+                  const beauVerificationLines = [
                     ...terminalMessages.swannConfirmation,
                     { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
-                    ...terminalMessages.authentication.success.standard,
-                    { text: '', type: 'system' as const, delay: 800 },
-                    { text: `WELCOME, AGENT ${identifiedSwann.toUpperCase()}`, type: 'classified' as const, delay: 1000 },
                     { text: '', type: 'system' as const, delay: 500 },
-                    { text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 }
+                    { text: '🔐 ADDITIONAL VERIFICATION REQUIRED FOR BEAU SWANN', type: 'classified' as const, delay: 800 },
+                    { text: '', type: 'system' as const, delay: 500 },
+                    { text: specialPersons.swannFamily.beauVerificationQuestion, type: 'system' as const, delay: 800 },
+                    { text: '', type: 'system' as const, delay: 300 },
+                    { text: 'Enter your response:', type: 'system' as const, delay: 600 }
                   ];
 
-                  await addLines(swannAuthLines);
-                  await updateGameState('authentication');
+                  await addLines(beauVerificationLines);
+                  await updateGameState('beau_verification');
                 }}
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
@@ -1658,6 +1708,8 @@ export function Terminal() {
               </Button>
             </div>
           )}
+
+
           
           {/* Mobile CTA Buttons for Howard bride detection */}
           {gameState === 'howard_bride_detection' && !isTyping && isMobile && (
@@ -1748,6 +1800,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
 
@@ -1767,6 +1820,27 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
+            </form>
+          )}
+
+          {/* Input for Beau verification (desktop and mobile) */}
+          {gameState === 'beau_verification' && !isTyping && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Enter your response..."
+                autoFocus
+                disabled={isTyping}
+              />
+              {renderSubmitButton()}
             </form>
           )}
 
@@ -1786,6 +1860,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
 
@@ -1805,6 +1880,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
 
@@ -2122,6 +2198,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
           
@@ -2569,6 +2646,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
 
@@ -2587,6 +2665,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
 
@@ -2605,6 +2684,7 @@ export function Terminal() {
                 autoFocus
                 disabled={isTyping}
               />
+              {renderSubmitButton()}
             </form>
           )}
 
@@ -2710,6 +2790,7 @@ export function Terminal() {
                   placeholder="Type 'restart'..."
                   autoFocus
                 />
+                {renderSubmitButton()}
               </form>
             </div>
           )}
