@@ -3,10 +3,30 @@
 @layer base {
   :root {
     @apply font-mono;
+    /* Custom properties for dynamic viewport height */
+    --vh: 1vh;
+    --dvh: 1dvh;
   }
 
+  html {
+    height: 100%;
+    overflow: hidden;
+  }
+  
   body {
-    @apply min-w-[320px] min-h-screen relative m-0 bg-black text-green-400 overflow-x-hidden;
+    @apply min-w-[320px] relative m-0 bg-black text-green-400 overflow-x-hidden;
+    /* Remove min-h-screen to prevent extra space */
+    height: 100vh;
+    height: 100dvh;
+    height: -webkit-fill-available;
+    /* Ensure no extra space */
+    margin: 0;
+    padding: 0;
+  }
+  
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
   
   /* Terminal-specific styling */
@@ -30,6 +50,34 @@
     animation: scan 0.1s linear infinite;
   }
   
+  /* Dynamic viewport height utilities */
+  .h-screen-safe {
+    /* Modern browsers with dynamic viewport support */
+    height: 100dvh;
+    /* Fallback for older WebKit browsers */
+    height: -webkit-fill-available;
+    /* Final fallback using custom property updated by JS */
+    height: calc(var(--vh, 1vh) * 100);
+  }
+
+  .min-h-screen-safe {
+    /* Modern browsers with dynamic viewport support */
+    min-height: 100dvh;
+    /* Fallback for older WebKit browsers */
+    min-height: -webkit-fill-available;
+    /* Final fallback using custom property updated by JS */
+    min-height: calc(var(--vh, 1vh) * 100);
+  }
+
+  .max-h-screen-safe {
+    /* Modern browsers with dynamic viewport support */
+    max-height: 100dvh;
+    /* Fallback for older WebKit browsers */
+    max-height: -webkit-fill-available;
+    /* Final fallback using custom property updated by JS */
+    max-height: calc(var(--vh, 1vh) * 100);
+  }
+
   /* Scrollbar styling for terminal */
   .scrollbar-thin {
     scrollbar-width: thin;
@@ -88,6 +136,8 @@
   /* Mobile CTA button optimizations */
   .mobile-cta-container {
     padding: 0 8px;
+    /* Ensure no extra margin/padding */
+    margin: 0;
   }
   
   .mobile-cta-container button {
@@ -154,10 +204,48 @@
   
   /* Ensure terminal content doesn't get cut off by notches */
   .terminal-app-container {
+    /* Only use safe area insets for top and sides, not bottom */
     padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    /* Remove bottom padding to prevent extra space */
+    padding-bottom: 0;
+    /* Ensure the container takes full height */
+    height: 100vh;
+    height: 100dvh;
+    height: -webkit-fill-available;
+    height: calc(var(--vh, 1vh) * 100);
+    /* Prevent any overflow */
+    overflow: hidden;
+  }
+  
+  /* Ensure terminal card takes full available space */
+  .terminal-card {
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+  
+  /* Ensure terminal screen doesn't add extra space */
+  .terminal-screen {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure terminal footer doesn't add extra space */
+  .terminal-footer {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.5rem 1rem;
+  }
+  
+  /* Admin Dashboard scrolling fixes */
+  .admin-dashboard-container {
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 }
 

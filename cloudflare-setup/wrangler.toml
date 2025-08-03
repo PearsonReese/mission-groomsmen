@@ -1,0 +1,28 @@
+# Cloudflare Worker Configuration for Mission Groomsmen API
+name = "mission-groomsmen-api"
+main = "worker.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "mission-groomsmen-db"
+database_id = "3fdef0e4-0fef-495f-8882-6d4f704a9f56"  # Replace this with your actual database ID from wrangler d1 create
+
+# Environment variables (for public settings)
+[vars]
+# Add any public environment variables here if needed
+
+# Secret environment variables are set via: wrangler secret put ADMIN_PASSWORD
+# Required secrets:
+# - ADMIN_PASSWORD: Password for admin dashboard access
+
+# Route pattern (optional - defaults to *.your-subdomain.workers.dev)
+# routes = [
+#   { pattern = "api.your-domain.com/*", zone_name = "your-domain.com" }
+# ]
+
+# Development settings
+[dev]
+local_protocol = "http"
+port = 8787

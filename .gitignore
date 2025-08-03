@@ -22,6 +22,12 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .env.production.local
 .env.local
 
+# Cloudflare local development variables
+.dev.vars
+
+# Wrangler cache and state
+.wrangler/
+
 # caches
 .eslintcache
 .cache

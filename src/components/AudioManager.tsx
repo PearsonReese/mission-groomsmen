@@ -9,6 +9,7 @@ import {
   DialogHeader, 
   DialogTitle 
 } from '@/components/ui/dialog';
+import { apiService } from '@/services/api';
 
 interface AudioManagerProps {
   audio: ReturnType<typeof import('@/hooks/useAudio').useAudio>;
@@ -23,6 +24,8 @@ export function AudioManager({ audio, onAudioEnabled, showDialog = true }: Audio
     try {
       await audio.play();
       console.log('🎵 Audio started successfully');
+      // Log audio enable event
+      await apiService.logAudioEvent('play');
     } catch (error) {
       console.error('🎵 Failed to start audio:', error);
     }
@@ -32,6 +35,8 @@ export function AudioManager({ audio, onAudioEnabled, showDialog = true }: Audio
 
   const handleSkip = () => {
     console.log('🎵 User clicked Continue Silent');
+    // Log audio skip event
+    apiService.logAudioEvent('skip').catch(console.error);
     audio.dismissAudioPrompt();
     onAudioEnabled?.();
   };
@@ -48,14 +53,12 @@ export function AudioManager({ audio, onAudioEnabled, showDialog = true }: Audio
     e.stopPropagation();
     console.log('🎵 Play/Pause button clicked');
     await audio.togglePlay();
+    // Log audio toggle event
+    const action = audio.isPlaying ? 'pause' : 'play';
+    await apiService.logAudioEvent(action);
   };
 
-  const handleMuteClick = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('🎵 Mute button clicked');
-    audio.toggleMute();
-  };
+
 
   // Audio permission dialog
   return (
@@ -127,26 +130,15 @@ export function AudioManager({ audio, onAudioEnabled, showDialog = true }: Audio
         
         <div className="audio-control-buttons flex space-x-2 flex-shrink-0">
           {audio.canPlay && !audio.isLoading && !audio.hasError && (
-            <>
-              <Button 
-                onClick={handlePlayPauseClick}
-                onTouchEnd={handlePlayPauseClick}
-                variant="outline" 
-                size="sm" 
-                className="audio-play-pause-button border-green-500 text-green-400 hover:bg-green-500/10 touch-manipulation"
-              >
-                {audio.isPlaying ? '⏸️' : '▶️'}
-              </Button>
-              <Button 
-                onClick={handleMuteClick}
-                onTouchEnd={handleMuteClick}
-                variant="outline" 
-                size="sm" 
-                className="audio-mute-button border-green-500 text-green-400 hover:bg-green-500/10 touch-manipulation"
-              >
-                {audio.isMuted ? '🔇' : '🔊'}
-              </Button>
-            </>
+            <Button 
+              onClick={handlePlayPauseClick}
+              onTouchEnd={handlePlayPauseClick}
+              variant="outline" 
+              size="sm" 
+              className="audio-play-pause-button border-green-500 text-green-400 hover:bg-green-500/10 touch-manipulation"
+            >
+              {audio.isPlaying ? '⏸️' : '▶️'}
+            </Button>
           )}
         </div>
       </div>

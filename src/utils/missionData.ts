@@ -288,7 +288,7 @@ export const easterEggs = {
 
   // Secret sister flow
   jordanSwann: {
-    names: ["jordan swann", "jordan", "swann", "sister", "blood sister", "jordan swann", "the sister"],
+    names: ["jordan swann", "jordan", "swann", "sister", "blood sister", "the sister"],
     detection: "👯 👯 👯 BLOOD SISTER DETECTED 👯 👯 👯",
     welcome: "👯 WELCOME, BLOOD SISTER JORDAN SWANN 👯",
     clearance: "👯 CLEARANCE LEVEL: FAMILY",
@@ -420,14 +420,6 @@ export const easterEggs = {
         { text: '🕵️ Your mission will be completed with impossible precision!', type: 'classified' as const, delay: 800 }
       ]
     },
-    "sister": {
-      message: [
-        { text: '', type: 'system' as const, delay: 300 },
-        { text: '👯 👯 👯 BLOOD SISTER DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
-        { text: '👯 Jordan Swann, is that you?', type: 'success' as const, delay: 800 },
-        { text: '👯 Try entering "Jordan Swann" for a special sister mission!', type: 'classified' as const, delay: 800 }
-      ]
-    },
     "family": {
       message: [
         { text: '', type: 'system' as const, delay: 300 },
@@ -481,7 +473,7 @@ export const specialPersons = {
       privileges: "🎖️ BEST MAN PRIVILEGES: SUPREME",
       status: "🎖️ BEST MAN STATUS: CONFIRMED"
     },
-    securityQuestion: "What's the best battery brand to use to hit the Pentagon?",
+    securityQuestion: "What's the best battery brand to use to hit the Pen-tagon?",
     securityAnswer: "Billo"
   },
   swannFamily: {
@@ -521,7 +513,7 @@ export const verificationQuestions = {
   },
   "Sam Rojas": {
     question: "What delicious dessert was getting cooked up as we nearly burned our apartment down in college?",
-    correctAnswers: ["brownies", "brownie"],
+    correctAnswers: ["brownies", "brownie", "weed brownies"],
     maxAttempts: 3
   },
   "Mark Williard": {
@@ -536,12 +528,12 @@ export const verificationQuestions = {
   },
   "Adam Simpson": {
     question: "You're one of the few people I've ever played video games with with money on the line... what game were we playing?",
-    correctAnswers: ["rocket league"],
+    correctAnswers: ["rocket league", "RL"],
     maxAttempts: 3
   },
   "Brent Adams": {
-    question: "What's the greatest TV show ever created on Earth?",
-    correctAnswers: ["spongebob", "spongebob squarepants", "sponge bob"],
+    question: "What's funnier than 24?",
+    correctAnswers: ["25"],
     maxAttempts: 3
   }
 };
@@ -663,7 +655,7 @@ export const terminalMessages = {
     { text: '', type: 'system' as const, delay: 500 },
     { text: '🔐 ULTIMATE SECURITY QUESTION FOR BEST MAN VERIFICATION:', type: 'classified' as const, delay: 1000 },
     { text: '', type: 'system' as const, delay: 300 },
-    { text: 'What\'s the best battery brand to use to hit the Pentagon?', type: 'system' as const, delay: 800 },
+    { text: 'What\'s the best battery brand to use to hit the Pen-tagon?', type: 'system' as const, delay: 800 },
     { text: '', type: 'system' as const, delay: 300 },
     { text: 'Enter your response:', type: 'system' as const, delay: 600 }
   ],
@@ -1009,4 +1001,40 @@ export const bestManContent = {
       { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
     ]
   }
+};
+
+// =============================================================================
+// GROOM ADVICE DATA
+// =============================================================================
+
+export const groomAdviceData = {
+  question: "Any advice for / funny stories about the groom? Responses may or may not be shared in the group chat",
+  prompt: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '📝 FINAL MISSION DEBRIEFING 📝', type: 'classified' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: 'Before we conclude your mission briefing, we need one final piece of intel...', type: 'system' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 300 },
+    { text: '🔍 INTELLIGENCE GATHERING REQUEST:', type: 'classified' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 300 },
+    { text: 'Any advice for / funny stories about the groom?', type: 'system' as const, delay: 800 },
+    { text: 'Responses may or may not be shared in the group chat', type: 'system' as const, delay: 600 },
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: 'Enter your response below (or leave blank to skip):', type: 'system' as const, delay: 600 }
+  ],
+  submit: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '📝 INTELLIGENCE RECORDED 📝', type: 'success' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: 'Your response has been logged in the classified database.', type: 'success' as const, delay: 800 },
+    { text: 'This information will be processed and may be shared with the team.', type: 'success' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 }
+  ],
+  skip: [
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: '📝 INTELLIGENCE GATHERING SKIPPED 📝', type: 'system' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 },
+    { text: 'No problem! Your mission briefing is complete.', type: 'system' as const, delay: 800 },
+    { text: '', type: 'system' as const, delay: 500 }
+  ]
 };

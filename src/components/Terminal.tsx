@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { AudioManager } from '@/components/AudioManager';
 import { useAudio } from '@/hooks/useAudio';
+import { apiService } from '@/services/api';
 import { 
   groomsmenNames, 
   missionBriefing, 
@@ -15,7 +17,8 @@ import {
   brideContent,
   bestManContent,
   missionPrompts,
-  easterEggs
+  easterEggs,
+  groomAdviceData
 } from '@/utils/missionData';
 
 interface TerminalLine {
@@ -24,7 +27,7 @@ interface TerminalLine {
   delay?: number;
 }
 
-type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'howard_gender' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'completed';
+type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'howard_bride_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'groom_advice' | 'completed';
 
 export function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -40,6 +43,9 @@ export function Terminal() {
   const [verificationAttempts, setVerificationAttempts] = useState(0);
   const [currentVerificationUser, setCurrentVerificationUser] = useState('');
   const [pendingSwanns, setPendingSwanns] = useState<string[]>([]);
+  const [unauthorizedAttempts, setUnauthorizedAttempts] = useState(0);
+  const [groomAdvice, setGroomAdvice] = useState('');
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const introStartedRef = useRef(false);
@@ -56,6 +62,45 @@ export function Terminal() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Dynamic viewport height handler for mobile browsers
+  useEffect(() => {
+    let ticking = false;
+    
+    const updateViewportHeight = () => {
+      // Calculate actual viewport height and set as CSS custom property
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      ticking = false;
+    };
+
+    const throttledUpdate = () => {
+      if (!ticking) {
+        requestAnimationFrame(updateViewportHeight);
+        ticking = true;
+      }
+    };
+
+    // Set initial height
+    updateViewportHeight();
+
+    // Update on resize and orientation change (immediate)
+    window.addEventListener('resize', throttledUpdate, { passive: true });
+    window.addEventListener('orientationchange', updateViewportHeight, { passive: true });
+    
+    // Update on scroll (throttled for performance)
+    window.addEventListener('scroll', throttledUpdate, { passive: true });
+
+    // Also update when the page visibility changes (mobile browser UI changes)
+    document.addEventListener('visibilitychange', updateViewportHeight);
+
+    return () => {
+      window.removeEventListener('resize', throttledUpdate);
+      window.removeEventListener('orientationchange', updateViewportHeight);
+      window.removeEventListener('scroll', throttledUpdate);
+      document.removeEventListener('visibilitychange', updateViewportHeight);
+    };
   }, []);
 
   // Konami code detection
@@ -106,11 +151,11 @@ export function Terminal() {
     const focusStates = [
       'name_input', 
       'swann_second_question', 
-      'howard_gender', 
       'best_man_authentication', 
       'verification', 
       'authentication', 
       'mission_choice',
+      'groom_advice',
       'completed'
     ];
     
@@ -152,11 +197,11 @@ export function Terminal() {
     const focusStates = [
       'name_input', 
       'swann_second_question', 
-      'howard_gender', 
       'best_man_authentication', 
       'verification', 
       'authentication', 
       'mission_choice',
+      'groom_advice',
       'completed'
     ];
     
@@ -180,6 +225,7 @@ export function Terminal() {
     console.log('%c🎬 MISSION IMPOSSIBLE WEDDING INVITATION 🎬', 'color: #00ff00; font-size: 20px; font-weight: bold;');
     console.log('%c🕵️ Welcome to the classified groomsman recruitment system!', 'color: #00ff00; font-size: 14px;');
     console.log('%c💍 This terminal is designed to recruit the most elite groomsmen for Operation: Eternal Bond', 'color: #00ff00; font-size: 14px;');
+    console.log('%c🚨 SECURITY NOTICE: 3 unauthorized attempts will trigger lockdown', 'color: #ff0000; font-size: 14px;');
     console.log('%c🎮 Try typing the Konami code (↑↑↓↓←→←→BA) for a secret surprise!', 'color: #ffff00; font-size: 14px;');
     console.log('%c🎬 Or try entering names like "Tom Cruise", "Ethan Hunt", or "Pearson Reese" for special missions!', 'color: #ffff00; font-size: 14px;');
     console.log('%c💥 Type "self destruct" or "mission impossible" for more easter eggs!', 'color: #ff0000; font-size: 14px;');
@@ -198,6 +244,8 @@ export function Terminal() {
   // Handle Konami code activation
   const handleKonamiCode = async () => {
     await addLines(easterEggs.konamiCode.message);
+    // Log Konami code discovery
+    await apiService.logEasterEgg('konami_code', { userName });
   };
 
   // Check for magic string easter eggs
@@ -207,6 +255,8 @@ export function Terminal() {
     for (const [magicString, easterEgg] of Object.entries(easterEggs.magicStrings)) {
       if (inputLower.includes(magicString.toLowerCase())) {
         await addLines(easterEgg.message);
+        // Log magic string discovery
+        await apiService.logEasterEgg('magic_string', { string: magicString, input, userName });
         return true;
       }
     }
@@ -279,14 +329,51 @@ export function Terminal() {
     setGameState('name_input');
   };
 
+  const initializeSession = async (userName: string) => {
+    try {
+      const sessionId = await apiService.startSession(userName);
+      if (sessionId) {
+        setSessionId(sessionId);
+        // Log authentication attempt
+        await apiService.logAuthenticationAttempt(userName, true);
+      }
+    } catch (error) {
+      console.error('Failed to initialize session:', error);
+      // Don't break the app if backend is down
+    }
+  };
+
+  // Helper function to update game state and backend session
+  const updateGameState = async (newState: GameState, completedMission: boolean = false) => {
+    setGameState(newState);
+    await apiService.updateSession(newState, completedMission);
+  };
+
   // Restart the terminal experience
   const restartTerminal = async () => {
+    // Log restart event before clearing session
+    if (userName) {
+      const sessionParts = sessionId ? sessionId.split('_') : [];
+      const sessionStartTime = sessionParts.length > 1 && sessionParts[1] ? parseInt(sessionParts[1]) : Date.now();
+      await apiService.logEvent('session_restart', { 
+        userName,
+        previousGameState: gameState,
+        sessionDuration: Date.now() - sessionStartTime
+      });
+    }
+    
     setLines([]);
     setCurrentInput('');
     setGameState('intro');
     setUserName('');
     setIsTyping(false);
+    setUnauthorizedAttempts(0); // Reset unauthorized attempts on restart
+    setGroomAdvice(''); // Reset groom advice on restart
+    setSessionId(null); // Clear session ID
     introStartedRef.current = false;
+    
+    // Clear session from backend
+    apiService.clearSession();
     
     // Scroll to top of terminal
     if (terminalRef.current) {
@@ -297,64 +384,18 @@ export function Terminal() {
     await startIntroSequence();
   };
 
-  // Enhanced fuzzy name matching for full names
+  // Exact last name matching for groomsmen
   const findMatchingGroomsman = (input: string): string | null => {
     const inputLower = input.toLowerCase().trim();
     
-    // Exact match first
-    const exactMatch = groomsmenNames.find(name => 
-      name.toLowerCase() === inputLower
-    );
-    if (exactMatch) return exactMatch;
-
-    // Try to match against each groomsman
-    const fuzzyMatch = groomsmenNames.find(name => {
-      const fullNameLower = name.toLowerCase();
-      const nameParts = fullNameLower.split(' ');
-      const inputParts = inputLower.split(' ');
-      
-      // Check if input matches first name only
-      if (inputParts.length === 1) {
-        const inputWord = inputParts[0];
-        const firstName = nameParts[0];
-        // Match first name exactly or partially
-        if (firstName && inputWord && (firstName.startsWith(inputWord) || firstName.includes(inputWord))) {
-          return true;
-        }
-        // Also check if it matches the last name
-        if (nameParts.length > 1) {
-          const lastName = nameParts[1];
-          if (lastName && inputWord && (lastName.startsWith(inputWord) || lastName.includes(inputWord))) {
-            return true;
-          }
-        }
-      }
-      
-      // Check if input matches multiple parts (first + last name)
-      if (inputParts.length >= 2) {
-        const firstName = nameParts[0];
-        const inputFirstName = inputParts[0];
-        // Try to match first name and last name
-        const firstNameMatch = firstName && inputFirstName && (firstName.includes(inputFirstName) || inputFirstName.includes(firstName));
-        const lastNameMatch = nameParts.length > 1 && (() => {
-          const lastName = nameParts[1];
-          const inputLastName = inputParts[1];
-          return lastName && inputLastName && (lastName.includes(inputLastName) || inputLastName.includes(lastName));
-        })();
-        if (firstNameMatch && lastNameMatch) {
-          return true;
-        }
-      }
-      
-      // Fallback: check if any input part matches any name part
-      return nameParts.some(namePart => 
-        inputParts.some(inputPart => 
-          namePart.includes(inputPart) || inputPart.includes(namePart)
-        )
-      );
+    // Find groomsman whose last name exactly matches the input
+    const matchedGroomsman = groomsmenNames.find(name => {
+      const nameParts = name.toLowerCase().split(' ');
+      const lastName = nameParts[nameParts.length - 1]; // Get the last part as the last name
+      return lastName === inputLower;
     });
     
-    return fuzzyMatch || null;
+    return matchedGroomsman || null;
   };
 
   // Check if input matches multiple Swann family members
@@ -362,19 +403,11 @@ export function Terminal() {
     const inputLower = input.toLowerCase().trim();
     
     return specialPersons.swannFamily.names.filter(name => {
-      const fullNameLower = name.toLowerCase();
-      const nameParts = fullNameLower.split(' ');
-      const firstName = nameParts[0];
+      const nameParts = name.toLowerCase().split(' ');
+      const lastName = nameParts[nameParts.length - 1]; // Get the last part as the last name
       
-      // Check if input matches first name or last name or is just "swann"
-      if (inputLower === 'swann' || 
-          (firstName && (firstName.startsWith(inputLower) || 
-          firstName.includes(inputLower) ||
-          inputLower.includes(firstName)))) {
-        return true;
-      }
-      
-      return false;
+      // Check if input matches the last name exactly
+      return lastName === inputLower;
     });
   };
 
@@ -414,7 +447,14 @@ export function Terminal() {
       setLines(prev => [...prev, { text: `> `, type: 'user' }]);
       
       // Security check: Only allow authorized users to access briefing
-      const authorizedUser = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
+      // Check if user is a groomsman OR an easter egg character
+      const isGroomsman = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
+      const isEasterEgg = easterEggs.tomCruise.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+                          easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+                          easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+                          easterEggs.jordanSwann.names.some(name => name.toLowerCase() === userName.toLowerCase());
+      
+      const authorizedUser = isGroomsman || isEasterEgg;
       
       if (!authorizedUser) {
         // Unauthorized user trying to access briefing - block them
@@ -546,7 +586,23 @@ export function Terminal() {
 
     switch (gameState) {
       case 'name_input':
-        // Check for easter egg celebrity flows first
+        // Check for Swann disambiguation first (before easter egg flows)
+        const swannMatches = findAllSwannMatches(input);
+        
+        if (swannMatches.length > 1) {
+          // Multiple Swann family members detected - ask disambiguation question
+          setPendingSwanns(swannMatches);
+          const disambiguationLines = [
+            ...terminalMessages.swannDisambiguation,
+            { text: specialPersons.swannFamily.firstQuestion, type: 'system' as const, delay: 800 }
+          ];
+          
+          await addLines(disambiguationLines);
+          await updateGameState('swann_disambiguation');
+          break;
+        }
+        
+        // Check for easter egg celebrity flows (after Swann disambiguation)
         const easterEggFlow = checkEasterEggFlows(input);
         if (easterEggFlow) {
           let easterEggData;
@@ -565,12 +621,22 @@ export function Terminal() {
               easterEggData = easterEggs.pearsonReese;
               easterEggName = 'Pearson Reese';
               break;
+            case 'jordanSwann':
+              easterEggData = easterEggs.jordanSwann;
+              easterEggName = 'Jordan Swann';
+              break;
             default:
               break;
           }
           
           if (easterEggData && easterEggName) {
             setUserName(easterEggName);
+            
+            // Initialize backend session for easter egg user
+            await initializeSession(easterEggName);
+            
+            // Log easter egg activation
+            await apiService.logEasterEgg(easterEggFlow, { userName: easterEggName });
             
             const authLines: TerminalLine[] = [
               ...terminalMessages.authentication.verifying,
@@ -585,46 +651,34 @@ export function Terminal() {
             ];
             
             await addLines(authLines);
-            setGameState('authentication');
+            await updateGameState('authentication');
             return;
           }
         }
         
-        // Check for Swann disambiguation first
-        const swannMatches = findAllSwannMatches(input);
-        
-        if (swannMatches.length > 1) {
-          // Multiple Swann family members detected - ask disambiguation question
-          setPendingSwanns(swannMatches);
-          const disambiguationLines = [
-            ...terminalMessages.swannDisambiguation,
-            { text: specialPersons.swannFamily.firstQuestion, type: 'system' as const, delay: 800 }
-          ];
-          
-          await addLines(disambiguationLines);
-          setGameState('swann_disambiguation');
-          break;
-        }
-        
         const matchedName = findMatchingGroomsman(input);
         setUserName(matchedName || input);
+        
+        // Initialize backend session
+        await initializeSession(matchedName || input);
 
         // Special case: last name Howard - ask for gender to determine flow
         const inputLower = input.toLowerCase().trim();
-        const isHoward = inputLower === 'howard' || inputLower.endsWith(' howard');
-        const isEmma = inputLower === 'emma howard';
-        if (isHoward && !isEmma) {
-          const howardGenderLines: TerminalLine[] = [
+        const isHoward = inputLower === 'howard';
+        if (isHoward) {
+          const howardBrideDetectionLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
-            { text: '🛡️  HOWARD FAMILY CONNECTION DETECTED', type: 'classified', delay: 800 },
+            { text: '💍 POTENTIAL BRIDE-TO-BE DETECTED', type: 'classified', delay: 800 },
             { text: '', type: 'system', delay: 500 },
             { text: 'Multiple Howard family members detected in system...', type: 'system', delay: 800 },
-            { text: 'Please specify your gender for proper authentication:', type: 'system', delay: 800 },
+            { text: 'Additional verification required for proper authentication:', type: 'system', delay: 800 },
             { text: '', type: 'system', delay: 300 },
-            { text: 'Type M for MALE or F for FEMALE:', type: 'system', delay: 600 }
+            { text: 'Have you ever kissed the soon to be groom?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
           ];
-          await addLines(howardGenderLines);
-          setGameState('howard_gender');
+          await addLines(howardBrideDetectionLines);
+          await updateGameState('howard_bride_detection');
           break;
         }
 
@@ -650,34 +704,57 @@ export function Terminal() {
             );
           }
         } else {
-          // Check for close matches to provide helpful feedback
-          const inputLower = input.toLowerCase();
-          const possibleMatches = groomsmenNames.filter(name => {
-            const nameLower = name.toLowerCase();
-            const firstName = nameLower.split(' ')[0] || '';
-            const lastName = nameLower.split(' ')[1] || '';
-            
-            // Check for partial matches
-            return firstName.includes(inputLower) || 
-                   lastName.includes(inputLower) || 
-                   inputLower.includes(firstName) ||
-                   (lastName && inputLower.includes(lastName));
+          // Track unauthorized access attempts
+          const currentAttempts = unauthorizedAttempts + 1;
+          setUnauthorizedAttempts(currentAttempts);
+          
+          // Log unauthorized access attempt
+          await apiService.logEvent('unauthorized_access_attempt', { 
+            userName: input, 
+            attemptNumber: currentAttempts,
+            maxAttempts: 3 
           });
-
+          
           authLines.push(
             { text: `❌ IDENTITY NOT IN DATABASE: ${input.toUpperCase()}`, type: 'error', delay: 800 },
+            { text: `🚨 UNAUTHORIZED ACCESS ATTEMPT #${currentAttempts}`, type: 'error', delay: 800 },
             ...(terminalMessages.errors.unauthorized as TerminalLine[])
           );
 
-          if (possibleMatches.length > 0) {
+          if (currentAttempts >= 3) {
+            // Max attempts exceeded - security lockdown
+            await apiService.logEvent('security_lockdown', { 
+              userName: input, 
+              totalAttempts: currentAttempts,
+              reason: 'max_unauthorized_attempts_exceeded'
+            });
+            
             authLines.push(
               { text: '', type: 'system', delay: 500 },
-              { text: `💡 Did you mean: ${possibleMatches[0]}?`, type: 'system', delay: 800 },
-              { text: 'Please try entering your full name as it appears on the groomsman list.', type: 'system', delay: 800 }
+              { text: '🚨 SECURITY LOCKDOWN ACTIVATED 🚨', type: 'error', delay: 1000 },
+              { text: '📞 INCIDENT REPORTED TO SECURITY', type: 'error', delay: 800 },
+              { text: '🔒 TERMINAL ACCESS PERMANENTLY BLOCKED', type: 'error', delay: 800 },
+              { text: '', type: 'system', delay: 500 },
+              { text: 'Connection terminated.', type: 'error', delay: 1000 }
             );
+            
+            await addLines(authLines);
+            setGameState('completed');
+            return;
+          } else {
+            // Show remaining attempts and stay in name_input state
+            const remainingAttempts = 3 - currentAttempts;
+            authLines.push(
+              { text: '', type: 'system', delay: 500 },
+              { text: `⚠️  WARNING: ${remainingAttempts} attempt${remainingAttempts > 1 ? 's' : ''} remaining before security lockdown`, type: 'error', delay: 800 },
+              { text: '', type: 'system', delay: 500 },
+              { text: 'Please enter your correct last name to access the system.', type: 'system', delay: 800 }
+            );
+            
+            await addLines(authLines);
+            // Stay in name_input state to allow more attempts
+            return;
           }
-
-          authLines.push(...(terminalMessages.errors.lockdown as TerminalLine[]));
         }
 
         // Only show welcome message and proceed if user is authorized
@@ -753,31 +830,18 @@ export function Terminal() {
           await addLines(authLines);
           setGameState('authentication');
         } else {
-          // Unauthorized access - no further progression
+          // This should never be reached now since unauthorized users are handled above
+          // But keeping as a fallback just in case
           await addLines(authLines);
-          setGameState('completed'); // Lock them out, don't allow progression
+          setGameState('completed');
         }
         break;
 
-      case 'howard_gender':
-        const gender = input.toLowerCase().trim();
+      case 'howard_bride_detection':
+        const kissAnswer = input.toLowerCase().trim();
         
-        if (gender === 'm' || gender === 'male') {
-          // Will Howard - groomsman flow
-          setUserName('Will Howard');
-          const willAuthLines: TerminalLine[] = [
-            { text: '', type: 'system', delay: 500 },
-            { text: '✓ IDENTITY CONFIRMED: WILL HOWARD', type: 'success', delay: 800 },
-            { text: '🛡️  GROOMSMAN & BRIDE\'S BROTHER CLEARANCE GRANTED', type: 'success', delay: 800 },
-            { text: '', type: 'system', delay: 500 },
-            { text: 'Welcome, Will! You have special access as both groomsman and the bride\'s brother.', type: 'classified', delay: 1000 },
-            { text: '', type: 'system', delay: 500 },
-            { text: terminalMessages.authentication.prompts.standard, type: 'system', delay: 800 }
-          ];
-          await addLines(willAuthLines);
-          setGameState('authentication');
-        } else if (gender === 'f' || gender === 'female') {
-          // Emma Howard - fiancée flow
+        if (kissAnswer === 'y' || kissAnswer === 'yes') {
+          // Emma Howard - fiancée flow (answered yes to kissing)
           setUserName('Emma Howard');
           const emmaAuthLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
@@ -794,12 +858,26 @@ export function Terminal() {
           ];
           await addLines(emmaAuthLines);
           setGameState('authentication');
+        } else if (kissAnswer === 'n' || kissAnswer === 'no') {
+          // Will Howard - groomsman flow (answered no to kissing)
+          setUserName('Will Howard');
+          const willAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: '✓ IDENTITY CONFIRMED: WILL HOWARD', type: 'success', delay: 800 },
+            { text: '🛡️  GROOMSMAN & BRIDE\'S BROTHER CLEARANCE GRANTED', type: 'success', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Welcome, Will! You have special access as both groomsman and the bride\'s brother.', type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: terminalMessages.authentication.prompts.standard, type: 'system', delay: 800 }
+          ];
+          await addLines(willAuthLines);
+          setGameState('authentication');
         } else {
-          // Invalid gender response
+          // Invalid response
           const errorLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 300 },
-            { text: '⚠️  INVALID GENDER RESPONSE', type: 'error', delay: 600 },
-            { text: 'Please type M for MALE or F for FEMALE:', type: 'system', delay: 600 }
+            { text: '⚠️  INVALID RESPONSE', type: 'error', delay: 600 },
+            { text: 'Please type Y for YES or N for NO:', type: 'system', delay: 600 }
           ];
           await addLines(errorLines);
         }
@@ -897,10 +975,7 @@ export function Terminal() {
           
           // Start Best Man authentication
           const bestManAuthLines = [
-            ...terminalMessages.bestManAuthentication,
-            { text: specialPersons.bestMan.securityQuestion, type: 'system' as const, delay: 800 },
-            { text: '', type: 'system' as const, delay: 300 },
-            { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+            ...terminalMessages.bestManAuthentication
           ];
           
           await addLines(bestManAuthLines);
@@ -933,7 +1008,7 @@ export function Terminal() {
         } else {
           // Check if this is Jordan Swann for easter egg flow
           if (identifiedSwann.toLowerCase() === 'jordan swann') {
-            // Jordan Swann easter egg flow
+            // Jordan Swann easter egg flow - show special messages but continue to authentication
             const jordanSwannAuthLines: TerminalLine[] = [
               ...terminalMessages.swannConfirmation,
               { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
@@ -946,6 +1021,9 @@ export function Terminal() {
               { text: '', type: 'system' as const, delay: 500 },
               { text: 'Press ENTER to receive your special mission briefing...', type: 'system' as const, delay: 800 }
             ];
+            
+            // Log Jordan Swann easter egg activation
+            await apiService.logEasterEgg('jordanSwann', { userName: identifiedSwann });
             
             await addLines(jordanSwannAuthLines);
             setGameState('authentication');
@@ -981,8 +1059,23 @@ export function Terminal() {
           const currentAttempts = verificationAttempts + 1;
           setVerificationAttempts(currentAttempts);
           
+          // Log verification failure
+          await apiService.logEvent('verification_failure', {
+            userName: currentVerificationUser,
+            attemptNumber: currentAttempts,
+            maxAttempts: verificationData.maxAttempts,
+            question: verificationData.question
+          });
+          
           if (currentAttempts >= verificationData.maxAttempts) {
             // Max attempts exceeded - lockout
+            await apiService.logEvent('verification_lockout', {
+              userName: currentVerificationUser,
+              totalAttempts: currentAttempts,
+              maxAttempts: verificationData.maxAttempts,
+              reason: 'max_verification_attempts_exceeded'
+            });
+            
             await addLines(terminalMessages.verificationLockout);
             setGameState('completed');
           } else {
@@ -1014,7 +1107,7 @@ export function Terminal() {
         if (userName.toLowerCase() === 'tom cruise') {
           if (choice === 'y' || choice === 'yes') {
             await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
-            setGameState('completed');
+            setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             await addLines(easterEggs.tomCruise.responses.decline as TerminalLine[]);
@@ -1034,7 +1127,7 @@ export function Terminal() {
         if (userName.toLowerCase() === 'ethan hunt') {
           if (choice === 'y' || choice === 'yes') {
             await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
-            setGameState('completed');
+            setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             await addLines(easterEggs.ethanHunt.responses.decline as TerminalLine[]);
@@ -1054,7 +1147,7 @@ export function Terminal() {
         if (userName.toLowerCase() === 'pearson reese') {
           if (choice === 'y' || choice === 'yes') {
             await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
-            setGameState('completed');
+            setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             await addLines(easterEggs.pearsonReese.responses.decline as TerminalLine[]);
@@ -1074,7 +1167,7 @@ export function Terminal() {
         if (userName.toLowerCase() === 'jordan swann') {
           if (choice === 'y' || choice === 'yes') {
             await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
-            setGameState('completed');
+            setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             await addLines(easterEggs.jordanSwann.responses.decline as TerminalLine[]);
@@ -1095,7 +1188,7 @@ export function Terminal() {
         if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
           if (choice === 'y' || choice === 'yes') {
             await addLines(brideContent.responses.accept as TerminalLine[]);
-            setGameState('completed');
+            setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             await addLines(brideContent.responses.decline as TerminalLine[]);
@@ -1116,7 +1209,7 @@ export function Terminal() {
         if (userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
           if (choice === 'y' || choice === 'yes') {
             await addLines(bestManContent.responses.accept as TerminalLine[]);
-            setGameState('completed');
+            setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             await addLines(bestManContent.responses.decline as TerminalLine[]);
@@ -1134,6 +1227,9 @@ export function Terminal() {
         }
         
         if (choice === 'y' || choice === 'yes') {
+          // Log mission acceptance
+          await apiService.logEvent('mission_accepted', { userName });
+          
           const acceptLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
             { text: '🎯 MISSION ACCEPTED 🎯', type: 'success', delay: 800 },
@@ -1147,8 +1243,11 @@ export function Terminal() {
           acceptLines.push(...(responses.acceptComplete as TerminalLine[]));
 
           await addLines(acceptLines);
-          setGameState('completed');
+          setGameState('groom_advice');
         } else if (choice === 'n' || choice === 'no') {
+          // Log mission decline
+          await apiService.logEvent('mission_declined', { userName });
+          
           const declineLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
             { text: '❌ MISSION DECLINED', type: 'error', delay: 800 },
@@ -1163,8 +1262,60 @@ export function Terminal() {
 
           await addLines(declineLines);
         } else {
+          // Log invalid response
+          await apiService.logEvent('invalid_mission_response', { 
+            userName, 
+            response: choice 
+          });
+          
           await addLines(terminalMessages.errors.invalidResponse as TerminalLine[]);
         }
+        break;
+
+      case 'groom_advice':
+        // Show the groom advice prompt if not already shown
+        if (!lines.some(line => line.text.includes('FINAL MISSION DEBRIEFING'))) {
+          await addLines(groomAdviceData.prompt);
+        }
+        
+        // Handle the groom advice submission
+        if (groomAdvice.trim()) {
+          // User provided advice - Save to backend
+          const saveSuccess = await apiService.submitGroomAdvice(userName, groomAdvice);
+          
+          // Log groom advice submission
+          await apiService.logEvent('groom_advice_submitted', {
+            userName,
+            adviceLength: groomAdvice.length,
+            saveSuccess
+          });
+          
+          if (saveSuccess) {
+            await addLines(groomAdviceData.submit);
+            console.log(`✅ Groom advice saved from ${userName}`);
+          } else {
+            await addLines(groomAdviceData.submit); // Still show success to user
+            console.log(`⚠️ Groom advice failed to save from ${userName}:`, groomAdvice);
+          }
+        } else {
+          // User skipped - log skip event
+          await apiService.logEvent('groom_advice_skipped', { userName });
+          await addLines(groomAdviceData.skip);
+        }
+        
+        // Update session as completed
+        await apiService.updateSession('completed', true);
+        await apiService.logMissionComplete(userName);
+        
+        // Log mission completion with additional details
+        await apiService.logEvent('mission_completed', {
+          userName,
+          groomAdviceProvided: !!groomAdvice.trim(),
+          adviceLength: groomAdvice.trim().length,
+          gameState: 'completed'
+        });
+        
+        setGameState('completed');
         break;
     }
   };
@@ -1185,7 +1336,7 @@ export function Terminal() {
   };
 
   return (
-    <div className="terminal-app-container h-screen w-screen bg-black p-2 sm:p-4 font-mono flex flex-col overflow-hidden">
+    <div className="terminal-app-container h-screen-safe w-screen bg-black p-2 sm:p-4 font-mono flex flex-col overflow-hidden">
       {/* Audio Manager - shows popup or controls */}
       {showAudioManager && (
         <AudioManager 
@@ -1198,7 +1349,7 @@ export function Terminal() {
         />
       )}
       
-      <Card className="terminal-card flex-1 flex flex-col w-full max-w-none sm:max-w-4xl mx-auto bg-black border-green-500 border-2 shadow-2xl shadow-green-500/20 min-h-0 max-h-full">
+      <Card className="terminal-card flex-1 flex flex-col w-full max-w-none sm:max-w-4xl mx-auto bg-black border-green-500 border-2 shadow-2xl shadow-green-500/20 min-h-0">
         <div 
           ref={terminalRef}
           className="terminal-screen flex-1 overflow-y-auto p-3 sm:p-6 space-y-1 scrollbar-thin scrollbar-track-black scrollbar-thumb-green-500 text-sm sm:text-base min-h-0"
@@ -1213,7 +1364,7 @@ export function Terminal() {
           ))}
           
           {/* Input line */}
-          {(gameState === 'name_input' || gameState === 'howard_gender' || gameState === 'best_man_authentication') && !isTyping && (
+          {(gameState === 'name_input' || gameState === 'best_man_authentication') && !isTyping && (
             <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
               <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
               <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
@@ -1224,7 +1375,7 @@ export function Terminal() {
                 value={currentInput}
                 onChange={(e) => setCurrentInput(e.target.value)}
                 className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
-                placeholder=""
+                placeholder="Enter your last name..."
                 autoFocus
                 disabled={isTyping}
               />
@@ -1239,12 +1390,21 @@ export function Terminal() {
                   const answer = 'y';
                   setCurrentInput('');
                   
+                  // Log mobile CTA interaction
+                  await apiService.logEvent('mobile_cta_used', {
+                    action: 'swann_disambiguation_yes',
+                    answer
+                  });
+                  
                   // Add user input to terminal
                   setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
                   
                   // Only Beau answers yes - go directly to authentication
                   const identifiedSwann = specialPersons.swannFamily.firstAnswers.yes;
                   setUserName(identifiedSwann);
+                  
+                  // Initialize backend session for identified Swann
+                  await initializeSession(identifiedSwann);
                   
                   const swannAuthLines = [
                     ...terminalMessages.swannConfirmation,
@@ -1257,7 +1417,7 @@ export function Terminal() {
                   ];
 
                   await addLines(swannAuthLines);
-                  setGameState('authentication');
+                  await updateGameState('authentication');
                 }}
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
@@ -1305,6 +1465,9 @@ export function Terminal() {
                   const identifiedSwann = specialPersons.swannFamily.secondAnswers.yes;
                   setUserName(identifiedSwann);
                   
+                  // Initialize backend session for identified Swann
+                  await initializeSession(identifiedSwann);
+                  
                   // Jordan Swann easter egg flow
                   const jordanSwannAuthLines: TerminalLine[] = [
                     ...terminalMessages.swannConfirmation,
@@ -1319,8 +1482,11 @@ export function Terminal() {
                     { text: 'Press ENTER to receive your special mission briefing...', type: 'system' as const, delay: 800 }
                   ];
 
+                  // Log Jordan Swann easter egg activation
+                  await apiService.logEasterEgg('jordanSwann', { userName: identifiedSwann });
+
                   await addLines(jordanSwannAuthLines);
-                  setGameState('authentication');
+                  await updateGameState('authentication');
                 }}
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
@@ -1340,6 +1506,9 @@ export function Terminal() {
                   const identifiedSwann = specialPersons.swannFamily.secondAnswers.no;
                   setUserName(identifiedSwann);
                   
+                  // Initialize backend session for identified Swann
+                  await initializeSession(identifiedSwann);
+                  
                   const swannAuthLines = [
                     ...terminalMessages.swannConfirmation,
                     { text: `✓ IDENTITY CONFIRMED: ${identifiedSwann.toUpperCase()}`, type: 'success' as const, delay: 800 },
@@ -1354,19 +1523,89 @@ export function Terminal() {
                   
                   // Start Best Man authentication
                   const bestManAuthLines = [
-                    ...terminalMessages.bestManAuthentication,
-                    { text: specialPersons.bestMan.securityQuestion, type: 'system' as const, delay: 800 },
-                    { text: '', type: 'system' as const, delay: 300 },
-                    { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                    ...terminalMessages.bestManAuthentication
                   ];
                   
                   await addLines(bestManAuthLines);
-                  setGameState('best_man_authentication');
+                  await updateGameState('best_man_authentication');
                 }}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
                 disabled={isTyping}
               >
                 ❌ NO
+              </Button>
+            </div>
+          )}
+          
+          {/* Mobile CTA Buttons for Howard bride detection */}
+          {gameState === 'howard_bride_detection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  // Emma Howard - fiancée flow (answered yes to kissing)
+                  setUserName('Emma Howard');
+                  
+                  // Initialize backend session for Emma
+                  await initializeSession('Emma Howard');
+                  
+                  const emmaAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: specialPersons.bride.titles.detection, type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: '💍 FIANCÉE CLEARANCE LEVEL: MAXIMUM', type: 'success', delay: 800 },
+                    { text: '👰 FIANCÉE PRIVILEGES: UNLIMITED', type: 'success', delay: 600 },
+                    { text: '💕 FIANCÉE STATUS: CONFIRMED', type: 'success', delay: 600 },
+                    { text: '', type: 'system', delay: 800 },
+                    { text: specialPersons.bride.titles.welcome, type: 'classified', delay: 1000 },
+                    { text: '💍 You have special access to the wedding planning terminal', type: 'classified', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: terminalMessages.authentication.prompts.bride, type: 'system', delay: 800 }
+                  ];
+                  await addLines(emmaAuthLines);
+                  await updateGameState('authentication');
+                }}
+                className="w-full bg-pink-500 hover:bg-pink-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-pink-400 shadow-lg"
+                disabled={isTyping}
+              >
+                💕 YES
+              </Button>
+              
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  
+                  // Add user input to terminal
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  
+                  // Will Howard - groomsman flow (answered no to kissing)
+                  setUserName('Will Howard');
+                  
+                  // Initialize backend session for Will
+                  await initializeSession('Will Howard');
+                  
+                  const willAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: '✓ IDENTITY CONFIRMED: WILL HOWARD', type: 'success', delay: 800 },
+                    { text: '🛡️  GROOMSMAN & BRIDE\'S BROTHER CLEARANCE GRANTED', type: 'success', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Welcome, Will! You have special access as both groomsman and the bride\'s brother.', type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: terminalMessages.authentication.prompts.standard, type: 'system', delay: 800 }
+                  ];
+                  await addLines(willAuthLines);
+                  await updateGameState('authentication');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                🛡️ NO
               </Button>
             </div>
           )}
@@ -1428,8 +1667,27 @@ export function Terminal() {
             </form>
           )}
 
+          {/* Mobile input for verification (non-Kris Tarver users) */}
+          {gameState === 'verification' && !isTyping && isMobile && currentVerificationUser !== 'Kris Tarver' && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Enter your response..."
+                autoFocus
+                disabled={isTyping}
+              />
+            </form>
+          )}
+
           {/* Mobile CTA Buttons for verification state */}
-          {gameState === 'verification' && !isTyping && isMobile && (
+          {gameState === 'verification' && !isTyping && isMobile && currentVerificationUser === 'Kris Tarver' && (
             <div className="mobile-cta-container mt-4 space-y-3">
               <Button
                 onClick={async () => {
@@ -1452,14 +1710,29 @@ export function Terminal() {
                     ];
                     
                     await addLines(successLines);
-                    setGameState('authentication');
+                    await updateGameState('authentication');
                   } else {
                     // Incorrect answer
                     const currentAttempts = verificationAttempts + 1;
                     setVerificationAttempts(currentAttempts);
                     
+                    // Log verification failure
+                    await apiService.logEvent('verification_failure', {
+                      userName: currentVerificationUser,
+                      attemptNumber: currentAttempts,
+                      maxAttempts: verificationData.maxAttempts,
+                      question: verificationData.question
+                    });
+                    
                     if (currentAttempts >= verificationData.maxAttempts) {
                       // Max attempts exceeded - lockout
+                      await apiService.logEvent('verification_lockout', {
+                        userName: currentVerificationUser,
+                        totalAttempts: currentAttempts,
+                        maxAttempts: verificationData.maxAttempts,
+                        reason: 'max_verification_attempts_exceeded'
+                      });
+                      
                       await addLines(terminalMessages.verificationLockout);
                       setGameState('completed');
                     } else {
@@ -1505,14 +1778,29 @@ export function Terminal() {
                     ];
                     
                     await addLines(successLines);
-                    setGameState('authentication');
+                    await updateGameState('authentication');
                   } else {
                     // Incorrect answer
                     const currentAttempts = verificationAttempts + 1;
                     setVerificationAttempts(currentAttempts);
                     
+                    // Log verification failure
+                    await apiService.logEvent('verification_failure', {
+                      userName: currentVerificationUser,
+                      attemptNumber: currentAttempts,
+                      maxAttempts: verificationData.maxAttempts,
+                      question: verificationData.question
+                    });
+                    
                     if (currentAttempts >= verificationData.maxAttempts) {
                       // Max attempts exceeded - lockout
+                      await apiService.logEvent('verification_lockout', {
+                        userName: currentVerificationUser,
+                        totalAttempts: currentAttempts,
+                        maxAttempts: verificationData.maxAttempts,
+                        reason: 'max_verification_attempts_exceeded'
+                      });
+                      
                       await addLines(terminalMessages.verificationLockout);
                       setGameState('completed');
                     } else {
@@ -1552,7 +1840,14 @@ export function Terminal() {
                   setLines(prev => [...prev, { text: `> `, type: 'user' }]);
                   
                   // Security check: Only allow authorized users to access briefing
-                  const authorizedUser = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
+                  // Check if user is a groomsman OR an easter egg character
+                  const isGroomsman = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
+                  const isEasterEgg = easterEggs.tomCruise.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+                                      easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+                                      easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+                                      easterEggs.jordanSwann.names.some(name => name.toLowerCase() === userName.toLowerCase());
+                  
+                  const authorizedUser = isGroomsman || isEasterEgg;
                   
                   if (!authorizedUser) {
                     // Unauthorized user trying to access briefing - block them
@@ -1570,8 +1865,56 @@ export function Terminal() {
                     return;
                   }
                   
-                  // Handle the authentication case - check if it's Emma for special briefing
-                  if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
+                  // Handle the authentication case - check for special briefings
+                  if (userName.toLowerCase() === 'tom cruise') {
+                    // Tom Cruise easter egg briefing
+                    const tomCruiseBriefingLines = [
+                      ...easterEggs.tomCruise.mission.header,
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      ...easterEggs.tomCruise.mission.parameters,
+                      ...easterEggs.tomCruise.mission.equipment,
+                      ...easterEggs.tomCruise.mission.footer
+                    ];
+
+                    await addLines(tomCruiseBriefingLines);
+                    setGameState('mission_choice');
+                  } else if (userName.toLowerCase() === 'ethan hunt') {
+                    // Ethan Hunt easter egg briefing
+                    const ethanHuntBriefingLines = [
+                      ...easterEggs.ethanHunt.mission.header,
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      ...easterEggs.ethanHunt.mission.parameters,
+                      ...easterEggs.ethanHunt.mission.equipment,
+                      ...easterEggs.ethanHunt.mission.footer
+                    ];
+
+                    await addLines(ethanHuntBriefingLines);
+                    setGameState('mission_choice');
+                  } else if (userName.toLowerCase() === 'pearson reese') {
+                    // Pearson Reese easter egg briefing
+                    const pearsonReeseBriefingLines = [
+                      ...easterEggs.pearsonReese.mission.header,
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      ...easterEggs.pearsonReese.mission.parameters,
+                      ...easterEggs.pearsonReese.mission.equipment,
+                      ...easterEggs.pearsonReese.mission.footer
+                    ];
+
+                    await addLines(pearsonReeseBriefingLines);
+                    setGameState('mission_choice');
+                  } else if (userName.toLowerCase() === 'jordan swann') {
+                    // Jordan Swann easter egg briefing
+                    const jordanSwannBriefingLines = [
+                      ...easterEggs.jordanSwann.mission.header,
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      ...easterEggs.jordanSwann.mission.parameters,
+                      ...easterEggs.jordanSwann.mission.equipment,
+                      ...easterEggs.jordanSwann.mission.footer
+                    ];
+
+                    await addLines(jordanSwannBriefingLines);
+                    setGameState('mission_choice');
+                  } else if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
                     // Build the complete bride mission briefing from structured data
                     const fianceeBriefingLines = [
                       ...brideContent.mission.header,
@@ -1630,6 +1973,8 @@ export function Terminal() {
                   ? '🕵️ RECEIVE IMF BRIEFING'
                   : userName.toLowerCase() === 'pearson reese'
                   ? '💍 RECEIVE GROOM BRIEFING'
+                  : userName.toLowerCase() === 'jordan swann'
+                  ? '👯 RECEIVE SISTER BRIEFING'
                   : userName.toLowerCase() === specialPersons.bride.name.toLowerCase() 
                   ? '💍 RECEIVE FIANCÉE BRIEFING' 
                   : userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()
@@ -1691,16 +2036,19 @@ export function Terminal() {
                   // Special responses for Emma (the bride!)
                   if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
                     await addLines(brideContent.responses.accept as TerminalLine[]);
-                    setGameState('completed');
+                    setGameState('groom_advice');
                     return;
                   }
                   
                   // Special responses for Best Man
                   if (userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
                     await addLines(bestManContent.responses.accept as TerminalLine[]);
-                    setGameState('completed');
+                    setGameState('groom_advice');
                     return;
                   }
+                  
+                  // Log mission acceptance
+                  await apiService.logEvent('mission_accepted', { userName });
                   
                   // Standard groomsman response
                   const acceptLines: TerminalLine[] = [
@@ -1716,7 +2064,7 @@ export function Terminal() {
                   acceptLines.push(...(responses.acceptComplete as TerminalLine[]));
 
                   await addLines(acceptLines);
-                  setGameState('completed');
+                  setGameState('groom_advice');
                 }}
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
@@ -1760,6 +2108,9 @@ export function Terminal() {
                     return;
                   }
                   
+                  // Log mission decline
+                  await apiService.logEvent('mission_declined', { userName });
+                  
                   // Standard groomsman response
                   const declineLines: TerminalLine[] = [
                     { text: '', type: 'system', delay: 500 },
@@ -1782,6 +2133,100 @@ export function Terminal() {
               </Button>
             </div>
           )}
+
+          {/* Mobile CTA Buttons for groom advice state */}
+          {gameState === 'groom_advice' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4">
+              <div className="mb-3 text-green-400 text-sm text-center">
+                Enter your response below (or leave blank to skip):
+              </div>
+              <Textarea
+                value={groomAdvice}
+                onChange={(e) => setGroomAdvice(e.target.value)}
+                className="terminal-textarea bg-transparent border-green-500 text-green-400 focus:ring-green-500 focus:border-green-400 font-mono text-sm resize-none mb-3"
+                placeholder="Share your advice or any funny stories about the groom... Responses may or may not be shared in the groomsmen's group chat"
+                rows={4}
+                autoFocus
+                disabled={isTyping}
+              />
+              <div className="space-y-3">
+                <Button
+                  onClick={async () => {
+                    // Handle the groom advice submission
+                    if (groomAdvice.trim()) {
+                      // User provided advice - Save to backend
+                      const saveSuccess = await apiService.submitGroomAdvice(userName, groomAdvice);
+                      
+                      // Log groom advice submission
+                      await apiService.logEvent('groom_advice_submitted', {
+                        userName,
+                        adviceLength: groomAdvice.length,
+                        saveSuccess
+                      });
+                      
+                      if (saveSuccess) {
+                        await addLines(groomAdviceData.submit);
+                        console.log(`✅ Groom advice saved from ${userName}`);
+                      } else {
+                        await addLines(groomAdviceData.submit); // Still show success to user
+                        console.log(`⚠️ Groom advice failed to save from ${userName}:`, groomAdvice);
+                      }
+                    } else {
+                      // User skipped - log skip event
+                      await apiService.logEvent('groom_advice_skipped', { userName });
+                      await addLines(groomAdviceData.skip);
+                    }
+                    
+                    // Update session as completed
+                    await apiService.updateSession('completed', true);
+                    await apiService.logMissionComplete(userName);
+                    
+                    // Log mission completion with additional details
+                    await apiService.logEvent('mission_completed', {
+                      userName,
+                      groomAdviceProvided: !!groomAdvice.trim(),
+                      adviceLength: groomAdvice.trim().length,
+                      gameState: 'completed'
+                    });
+                    
+                    setGameState('completed');
+                  }}
+                  className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                  disabled={isTyping}
+                >
+                  📝 SUBMIT
+                </Button>
+                
+                <Button
+                  onClick={async () => {
+                    setGroomAdvice('');
+                    
+                    // User skipped - log skip event
+                    await apiService.logEvent('groom_advice_skipped', { userName });
+                    await addLines(groomAdviceData.skip);
+                    
+                    // Update session as completed
+                    await apiService.updateSession('completed', true);
+                    await apiService.logMissionComplete(userName);
+                    
+                    // Log mission completion with additional details
+                    await apiService.logEvent('mission_completed', {
+                      userName,
+                      groomAdviceProvided: false,
+                      adviceLength: 0,
+                      gameState: 'completed'
+                    });
+                    
+                    setGameState('completed');
+                  }}
+                  className="w-full bg-gray-500 hover:bg-gray-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-gray-400 shadow-lg"
+                  disabled={isTyping}
+                >
+                  ⏭️ SKIP
+                </Button>
+              </div>
+            </div>
+          )}
           
           {/* Desktop input for mission choice state */}
           {gameState === 'mission_choice' && !isTyping && !isMobile && (
@@ -1799,6 +2244,63 @@ export function Terminal() {
                 disabled={isTyping}
               />
             </form>
+          )}
+
+          {/* Groom advice textarea for desktop */}
+          {gameState === 'groom_advice' && !isTyping && !isMobile && (
+            <div className="terminal-groom-advice mt-4">
+              <div className="mb-2 text-green-400 text-sm sm:text-base">
+                Enter your response below (or leave blank to skip):
+              </div>
+              <form onSubmit={handleSubmit} className="terminal-input-form">
+                <Textarea
+                  value={groomAdvice}
+                  onChange={(e) => setGroomAdvice(e.target.value)}
+                  className="terminal-textarea bg-transparent border-green-500 text-green-400 focus:ring-green-500 focus:border-green-400 font-mono text-sm sm:text-base resize-none"
+                  placeholder="Share your advice or any funny stories about the groom... Responses may or may not be shared in the groomsmen's group chat"
+                  rows={4}
+                  autoFocus
+                  disabled={isTyping}
+                />
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    type="submit"
+                    className="bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-2 px-4 rounded border-2 border-green-400 shadow-lg"
+                    disabled={isTyping}
+                  >
+                    📝 SUBMIT
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={async () => {
+                      setGroomAdvice('');
+                      
+                      // User skipped - log skip event
+                      await apiService.logEvent('groom_advice_skipped', { userName });
+                      await addLines(groomAdviceData.skip);
+                      
+                      // Update session as completed
+                      await apiService.updateSession('completed', true);
+                      await apiService.logMissionComplete(userName);
+                      
+                      // Log mission completion with additional details
+                      await apiService.logEvent('mission_completed', {
+                        userName,
+                        groomAdviceProvided: false,
+                        adviceLength: 0,
+                        gameState: 'completed'
+                      });
+                      
+                      setGameState('completed');
+                    }}
+                    className="bg-gray-500 hover:bg-gray-600 text-white font-mono font-bold py-2 px-4 rounded border-2 border-gray-400 shadow-lg"
+                    disabled={isTyping}
+                  >
+                    ⏭️ SKIP
+                  </Button>
+                </div>
+              </form>
+            </div>
           )}
           
           {/* Show typing indicator */}
