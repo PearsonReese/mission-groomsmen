@@ -1106,10 +1106,14 @@ export function Terminal() {
         // Special responses for easter egg flows first
         if (userName.toLowerCase() === 'tom cruise') {
           if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
             await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
             setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
             await addLines(easterEggs.tomCruise.responses.decline as TerminalLine[]);
             break;
           } else {
@@ -1126,10 +1130,14 @@ export function Terminal() {
         
         if (userName.toLowerCase() === 'ethan hunt') {
           if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
             await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
             setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
             await addLines(easterEggs.ethanHunt.responses.decline as TerminalLine[]);
             break;
           } else {
@@ -1146,10 +1154,14 @@ export function Terminal() {
         
         if (userName.toLowerCase() === 'pearson reese') {
           if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
             await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
             setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
             await addLines(easterEggs.pearsonReese.responses.decline as TerminalLine[]);
             break;
           } else {
@@ -1166,10 +1178,14 @@ export function Terminal() {
         
         if (userName.toLowerCase() === 'jordan swann') {
           if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
             await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
             setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
             await addLines(easterEggs.jordanSwann.responses.decline as TerminalLine[]);
             break;
           } else {
@@ -1187,10 +1203,14 @@ export function Terminal() {
         // Special responses for Emma (the bride!)
         if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
           if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
             await addLines(brideContent.responses.accept as TerminalLine[]);
             setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
             await addLines(brideContent.responses.decline as TerminalLine[]);
             break;
           } else {
@@ -1208,10 +1228,14 @@ export function Terminal() {
         // Special responses for Best Man
         if (userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
           if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
             await addLines(bestManContent.responses.accept as TerminalLine[]);
             setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
             await addLines(bestManContent.responses.decline as TerminalLine[]);
             break;
           } else {
@@ -2016,25 +2040,41 @@ export function Terminal() {
                   
                   // Special responses for easter egg flows first
                   if (userName.toLowerCase() === 'tom cruise') {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
                     await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
-                    setGameState('completed');
+                    setGameState('groom_advice');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'ethan hunt') {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
                     await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
-                    setGameState('completed');
+                    setGameState('groom_advice');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'pearson reese') {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
                     await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
-                    setGameState('completed');
+                    setGameState('groom_advice');
+                    return;
+                  }
+                  
+                  if (userName.toLowerCase() === 'jordan swann') {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
+                    await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
+                    setGameState('groom_advice');
                     return;
                   }
                   
                   // Special responses for Emma (the bride!)
                   if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
                     await addLines(brideContent.responses.accept as TerminalLine[]);
                     setGameState('groom_advice');
                     return;
@@ -2042,6 +2082,8 @@ export function Terminal() {
                   
                   // Special responses for Best Man
                   if (userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
                     await addLines(bestManContent.responses.accept as TerminalLine[]);
                     setGameState('groom_advice');
                     return;
@@ -2082,28 +2124,45 @@ export function Terminal() {
                   
                   // Special responses for easter egg flows first
                   if (userName.toLowerCase() === 'tom cruise') {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
                     await addLines(easterEggs.tomCruise.responses.decline as TerminalLine[]);
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'ethan hunt') {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
                     await addLines(easterEggs.ethanHunt.responses.decline as TerminalLine[]);
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'pearson reese') {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
                     await addLines(easterEggs.pearsonReese.responses.decline as TerminalLine[]);
+                    return;
+                  }
+                  
+                  if (userName.toLowerCase() === 'jordan swann') {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
+                    await addLines(easterEggs.jordanSwann.responses.decline as TerminalLine[]);
                     return;
                   }
                   
                   // Special responses for Emma (the bride!)
                   if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
                     await addLines(brideContent.responses.decline as TerminalLine[]);
                     return;
                   }
                   
                   // Special responses for Best Man
                   if (userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
                     await addLines(bestManContent.responses.decline as TerminalLine[]);
                     return;
                   }
