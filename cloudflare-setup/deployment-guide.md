@@ -141,10 +141,9 @@ bun run build
 
 ```bash
 # In cloudflare-setup directory
-wrangler dev --local --persist
+wrangler dev --local
 
 # This starts a local server at http://localhost:8787
-# --persist keeps your D1 data between restarts
 ```
 
 ### **Run Frontend Locally**

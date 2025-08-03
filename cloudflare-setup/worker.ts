@@ -767,24 +767,111 @@ async function deleteSession(request: Request, env: Env, sessionIdentifier: stri
   }
 
   try {
-    // Delete session and related data (using user_name as identifier from frontend)
-    await env.DB.prepare(`DELETE FROM analytics_events WHERE session_id IN (SELECT session_id FROM user_sessions WHERE user_name = ?)`).bind(sessionIdentifier).run();
-    await env.DB.prepare(`DELETE FROM contact_info WHERE user_name = ?`).bind(sessionIdentifier).run();
-    await env.DB.prepare(`DELETE FROM groom_advice WHERE user_name = ?`).bind(sessionIdentifier).run();
-    await env.DB.prepare(`DELETE FROM user_sessions WHERE user_name = ?`).bind(sessionIdentifier).run();
+    console.log('Attempting to delete session for user:', sessionIdentifier);
+
+    // First, check if the session exists and get all related data
+    const sessionCheck = await env.DB.prepare(`
+      SELECT session_id, user_name FROM user_sessions WHERE user_name = ?
+    `).bind(sessionIdentifier).first();
+
+    if (!sessionCheck) {
+      console.log('Session not found for user:', sessionIdentifier);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Session not found' 
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      });
+    }
+
+    const sessionId = sessionCheck.session_id;
+    console.log('Found session ID:', sessionId);
+
+    // Check what data exists for this session
+    const analyticsCount = await env.DB.prepare(`
+      SELECT COUNT(*) as count FROM analytics_events WHERE session_id = ?
+    `).bind(sessionId).first();
+
+    const contactCount = await env.DB.prepare(`
+      SELECT COUNT(*) as count FROM contact_info WHERE session_id = ?
+    `).bind(sessionId).first();
+
+    const adviceCount = await env.DB.prepare(`
+      SELECT COUNT(*) as count FROM groom_advice WHERE session_id = ?
+    `).bind(sessionId).first();
+
+    console.log('Data counts before deletion:', {
+      analytics: analyticsCount?.count || 0,
+      contact: contactCount?.count || 0,
+      advice: adviceCount?.count || 0
+    });
+
+    // Delete all related data using session_id (more reliable than user_name)
+    // 1. Delete analytics events
+    const analyticsResult = await env.DB.prepare(`
+      DELETE FROM analytics_events WHERE session_id = ?
+    `).bind(sessionId).run();
+
+    // 2. Delete contact info
+    const contactResult = await env.DB.prepare(`
+      DELETE FROM contact_info WHERE session_id = ?
+    `).bind(sessionId).run();
+
+    // 3. Delete groom advice
+    const adviceResult = await env.DB.prepare(`
+      DELETE FROM groom_advice WHERE session_id = ?
+    `).bind(sessionId).run();
+
+    // 4. Finally delete the user session
+    const sessionResult = await env.DB.prepare(`
+      DELETE FROM user_sessions WHERE session_id = ?
+    `).bind(sessionId).run();
+
+    console.log('Delete operation results:', {
+      analytics: analyticsResult?.meta?.changes || 0,
+      contact: contactResult?.meta?.changes || 0,
+      advice: adviceResult?.meta?.changes || 0,
+      session: sessionResult?.meta?.changes || 0
+    });
+
+    // Verify deletion
+    const verifySession = await env.DB.prepare(`
+      SELECT COUNT(*) as count FROM user_sessions WHERE session_id = ?
+    `).bind(sessionId).first();
+
+    if (verifySession?.count > 0) {
+      console.error('Session still exists after deletion attempt');
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Session deletion failed - session still exists' 
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      });
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'Session deleted successfully' 
+      message: 'Session deleted successfully',
+      deletedRecords: {
+        analytics: analyticsResult?.meta?.changes || 0,
+        contact: contactResult?.meta?.changes || 0,
+        advice: adviceResult?.meta?.changes || 0,
+        session: sessionResult?.meta?.changes || 0
+      },
+      sessionId: sessionId
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders() }
     });
   } catch (error) {
     console.error('Delete error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ 
       success: false, 
-      error: 'Failed to delete session' 
+      error: 'Failed to delete session',
+      details: errorMessage
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders() }

@@ -173,10 +173,17 @@ export function AdminDashboard() {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        console.log('Delete successful:', result);
         await loadAllData();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Delete failed:', errorData);
+        alert(`Failed to delete session: ${errorData.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error('Failed to delete session:', err);
+      alert('Failed to delete session: Network error');
     }
   };
 
