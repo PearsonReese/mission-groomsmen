@@ -1038,3 +1038,68 @@ export const groomAdviceData = {
     { text: '', type: 'system' as const, delay: 500 }
   ]
 };
+
+// =============================================================================
+// CONTACT INFORMATION COLLECTION DATA
+// =============================================================================
+
+export const contactInfoData = {
+  email: {
+    prompt: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '📧 CONTACT INFORMATION GATHERING 📧', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'For mission coordination and formal invitation delivery...', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: '🔍 EMAIL ADDRESS REQUEST:', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: 'Please provide your email address for mission updates:', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Enter your email address:', type: 'system' as const, delay: 600 }
+    ],
+    submit: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '📧 EMAIL ADDRESS RECORDED 📧', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Your email has been added to the mission database.', type: 'success' as const, delay: 800 },
+      { text: 'Formal invitation and updates will be sent to this address.', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 }
+    ],
+    skip: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '📧 EMAIL ADDRESS SKIPPED 📧', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'No problem! We\'ll contact you through other channels.', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 }
+    ]
+  },
+  address: {
+    prompt: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '📮 MAILING ADDRESS REQUEST 📮', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'For formal invitation delivery and mission materials...', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: '🔍 MAILING ADDRESS REQUEST:', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: 'Please provide your mailing address for formal invitation:', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Enter your mailing address:', type: 'system' as const, delay: 600 }
+    ],
+    submit: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '📮 MAILING ADDRESS RECORDED 📮', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Your address has been added to the mission database.', type: 'success' as const, delay: 800 },
+      { text: 'Formal invitation will be mailed to this address.', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 }
+    ],
+    skip: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '📮 MAILING ADDRESS SKIPPED 📮', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'No problem! We\'ll coordinate through other channels.', type: 'system' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 }
+    ]
+  }
+};

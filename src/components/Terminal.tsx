@@ -18,7 +18,8 @@ import {
   bestManContent,
   missionPrompts,
   easterEggs,
-  groomAdviceData
+  groomAdviceData,
+  contactInfoData
 } from '@/utils/missionData';
 
 interface TerminalLine {
@@ -27,7 +28,7 @@ interface TerminalLine {
   delay?: number;
 }
 
-type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'howard_bride_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'groom_advice' | 'completed';
+type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'howard_bride_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
 
 export function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -45,6 +46,8 @@ export function Terminal() {
   const [pendingSwanns, setPendingSwanns] = useState<string[]>([]);
   const [unauthorizedAttempts, setUnauthorizedAttempts] = useState(0);
   const [groomAdvice, setGroomAdvice] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userAddress, setUserAddress] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -155,6 +158,8 @@ export function Terminal() {
       'verification', 
       'authentication', 
       'mission_choice',
+      'email_collection',
+      'address_collection',
       'groom_advice',
       'completed'
     ];
@@ -201,6 +206,8 @@ export function Terminal() {
       'verification', 
       'authentication', 
       'mission_choice',
+      'email_collection',
+      'address_collection',
       'groom_advice',
       'completed'
     ];
@@ -369,6 +376,8 @@ export function Terminal() {
     setIsTyping(false);
     setUnauthorizedAttempts(0); // Reset unauthorized attempts on restart
     setGroomAdvice(''); // Reset groom advice on restart
+    setUserEmail(''); // Reset email on restart
+    setUserAddress(''); // Reset address on restart
     setSessionId(null); // Clear session ID
     introStartedRef.current = false;
     
@@ -657,14 +666,11 @@ export function Terminal() {
         }
         
         const matchedName = findMatchingGroomsman(input);
-        setUserName(matchedName || input);
         
-        // Initialize backend session
-        await initializeSession(matchedName || input);
-
         // Special case: last name Howard - ask for gender to determine flow
+        // Only trigger this if we don't have an exact match (i.e., not Emma Howard)
         const inputLower = input.toLowerCase().trim();
-        const isHoward = inputLower === 'howard';
+        const isHoward = inputLower === 'howard' && !matchedName;
         if (isHoward) {
           const howardBrideDetectionLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
@@ -681,6 +687,11 @@ export function Terminal() {
           await updateGameState('howard_bride_detection');
           break;
         }
+        
+        setUserName(matchedName || input);
+        
+        // Initialize backend session
+        await initializeSession(matchedName || input);
 
         const authLines: TerminalLine[] = [...terminalMessages.authentication.verifying];
 
@@ -843,6 +854,9 @@ export function Terminal() {
         if (kissAnswer === 'y' || kissAnswer === 'yes') {
           // Emma Howard - fiancée flow (answered yes to kissing)
           setUserName('Emma Howard');
+          
+          // Initialize backend session for Emma
+          await initializeSession('Emma Howard');
           const emmaAuthLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
             { text: specialPersons.bride.titles.detection, type: 'classified', delay: 1000 },
@@ -861,6 +875,9 @@ export function Terminal() {
         } else if (kissAnswer === 'n' || kissAnswer === 'no') {
           // Will Howard - groomsman flow (answered no to kissing)
           setUserName('Will Howard');
+          
+          // Initialize backend session for Will
+          await initializeSession('Will Howard');
           const willAuthLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
             { text: '✓ IDENTITY CONFIRMED: WILL HOWARD', type: 'success', delay: 800 },
@@ -1108,8 +1125,8 @@ export function Terminal() {
           if (choice === 'y' || choice === 'yes') {
             // Log mission acceptance
             await apiService.logEvent('mission_accepted', { userName });
-            await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                                await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
+                    setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             // Log mission decline
@@ -1132,8 +1149,8 @@ export function Terminal() {
           if (choice === 'y' || choice === 'yes') {
             // Log mission acceptance
             await apiService.logEvent('mission_accepted', { userName });
-            await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                                await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
+                    setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             // Log mission decline
@@ -1156,8 +1173,8 @@ export function Terminal() {
           if (choice === 'y' || choice === 'yes') {
             // Log mission acceptance
             await apiService.logEvent('mission_accepted', { userName });
-            await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                                await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
+                    setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             // Log mission decline
@@ -1180,8 +1197,8 @@ export function Terminal() {
           if (choice === 'y' || choice === 'yes') {
             // Log mission acceptance
             await apiService.logEvent('mission_accepted', { userName });
-            await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                                await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
+                    setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             // Log mission decline
@@ -1205,8 +1222,8 @@ export function Terminal() {
           if (choice === 'y' || choice === 'yes') {
             // Log mission acceptance
             await apiService.logEvent('mission_accepted', { userName });
-            await addLines(brideContent.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                                await addLines(brideContent.responses.accept as TerminalLine[]);
+                    setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             // Log mission decline
@@ -1230,8 +1247,8 @@ export function Terminal() {
           if (choice === 'y' || choice === 'yes') {
             // Log mission acceptance
             await apiService.logEvent('mission_accepted', { userName });
-            await addLines(bestManContent.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                                await addLines(bestManContent.responses.accept as TerminalLine[]);
+                    setGameState('groom_advice');
             break;
           } else if (choice === 'n' || choice === 'no') {
             // Log mission decline
@@ -1267,7 +1284,10 @@ export function Terminal() {
           acceptLines.push(...(responses.acceptComplete as TerminalLine[]));
 
           await addLines(acceptLines);
-          setGameState('groom_advice');
+          
+          // Show email collection prompt
+          await addLines(contactInfoData.email.prompt);
+          setGameState('email_collection');
         } else if (choice === 'n' || choice === 'no') {
           // Log mission decline
           await apiService.logEvent('mission_declined', { userName });
@@ -1293,6 +1313,82 @@ export function Terminal() {
           });
           
           await addLines(terminalMessages.errors.invalidResponse as TerminalLine[]);
+        }
+        break;
+
+      case 'email_collection':
+        const email = input.trim();
+        
+        if (email) {
+          // Basic email validation
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (emailRegex.test(email)) {
+            setUserEmail(email);
+            
+            // Submit email to backend
+            const saveSuccess = await apiService.submitEmail(userName, email);
+            
+            // Log email collection
+            await apiService.logEvent('email_collected', { 
+              userName, 
+              email,
+              saveSuccess
+            });
+            
+            await addLines(contactInfoData.email.submit);
+            
+            // Show address collection prompt
+            await addLines(contactInfoData.address.prompt);
+            setGameState('address_collection');
+          } else {
+            // Invalid email format
+            await apiService.logEvent('invalid_email_format', { 
+              userName, 
+              email 
+            });
+            
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID EMAIL FORMAT', type: 'error' as const, delay: 600 },
+              { text: 'Please enter a valid email address:', type: 'system' as const, delay: 600 }
+            ];
+            
+            await addLines(errorLines);
+          }
+        } else {
+          // User skipped email
+          await apiService.logEvent('email_skipped', { userName });
+          await addLines(contactInfoData.email.skip);
+          
+          // Show address collection prompt
+          await addLines(contactInfoData.address.prompt);
+          setGameState('address_collection');
+        }
+        break;
+
+      case 'address_collection':
+        const address = input.trim();
+        
+        if (address) {
+          setUserAddress(address);
+          
+          // Submit address to backend
+          const saveSuccess = await apiService.submitAddress(userName, address);
+          
+          // Log address collection
+          await apiService.logEvent('address_collected', { 
+            userName, 
+            address,
+            saveSuccess
+          });
+          
+          await addLines(contactInfoData.address.submit);
+          setGameState('groom_advice');
+        } else {
+          // User skipped address
+          await apiService.logEvent('address_skipped', { userName });
+          await addLines(contactInfoData.address.skip);
+          setGameState('groom_advice');
         }
         break;
 
@@ -1336,6 +1432,8 @@ export function Terminal() {
           userName,
           groomAdviceProvided: !!groomAdvice.trim(),
           adviceLength: groomAdvice.trim().length,
+          emailProvided: !!userEmail.trim(),
+          addressProvided: !!userAddress.trim(),
           gameState: 'completed'
         });
         
@@ -2042,32 +2140,32 @@ export function Terminal() {
                   if (userName.toLowerCase() === 'tom cruise') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                    await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
-                    setGameState('groom_advice');
+                                await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'ethan hunt') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                    await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
-                    setGameState('groom_advice');
+                                await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'pearson reese') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                    await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
-                    setGameState('groom_advice');
+                                await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'jordan swann') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                    await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
-                    setGameState('groom_advice');
+                                await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
                     return;
                   }
                   
@@ -2075,8 +2173,8 @@ export function Terminal() {
                   if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                    await addLines(brideContent.responses.accept as TerminalLine[]);
-                    setGameState('groom_advice');
+                                await addLines(brideContent.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
                     return;
                   }
                   
@@ -2084,8 +2182,8 @@ export function Terminal() {
                   if (userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                    await addLines(bestManContent.responses.accept as TerminalLine[]);
-                    setGameState('groom_advice');
+                                await addLines(bestManContent.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
                     return;
                   }
                   
@@ -2106,7 +2204,10 @@ export function Terminal() {
                   acceptLines.push(...(responses.acceptComplete as TerminalLine[]));
 
                   await addLines(acceptLines);
-                  setGameState('groom_advice');
+                  
+                  // Show email collection prompt
+                  await addLines(contactInfoData.email.prompt);
+                  setGameState('email_collection');
                 }}
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
@@ -2190,6 +2291,172 @@ export function Terminal() {
               >
                 ❌ DECLINE MISSION
               </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for email collection state */}
+          {gameState === 'email_collection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4">
+              <div className="mb-3 text-green-400 text-sm text-center">
+                Please provide your email address for mission updates:
+              </div>
+              <Input
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input bg-transparent border-green-500 text-green-400 focus:ring-green-500 focus:border-green-400 font-mono text-sm mb-3"
+                placeholder="Enter your email address..."
+                autoFocus
+                disabled={isTyping}
+              />
+              <div className="space-y-3">
+                <Button
+                  onClick={async () => {
+                    const email = currentInput.trim();
+                    setCurrentInput('');
+                    
+                    // Add user input to terminal
+                    setLines(prev => [...prev, { text: `> ${email}`, type: 'user' }]);
+                    
+                    if (email) {
+                      // Basic email validation
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                      if (emailRegex.test(email)) {
+                        setUserEmail(email);
+                        
+                        // Submit email to backend
+                        const saveSuccess = await apiService.submitEmail(userName, email);
+                        
+                        // Log email collection
+                        await apiService.logEvent('email_collected', { 
+                          userName, 
+                          email,
+                          saveSuccess
+                        });
+                        
+                        await addLines(contactInfoData.email.submit);
+                        
+                        // Show address collection prompt
+                        await addLines(contactInfoData.address.prompt);
+                        setGameState('address_collection');
+                      } else {
+                        // Invalid email format
+                        await apiService.logEvent('invalid_email_format', { 
+                          userName, 
+                          email 
+                        });
+                        
+                        const errorLines = [
+                          { text: '', type: 'system' as const, delay: 300 },
+                          { text: '⚠️  INVALID EMAIL FORMAT', type: 'error' as const, delay: 600 },
+                          { text: 'Please enter a valid email address:', type: 'system' as const, delay: 600 }
+                        ];
+                        
+                        await addLines(errorLines);
+                      }
+                    } else {
+                      // User skipped email
+                      await apiService.logEvent('email_skipped', { userName });
+                      await addLines(contactInfoData.email.skip);
+                      
+                      // Show address collection prompt
+                      await addLines(contactInfoData.address.prompt);
+                      setGameState('address_collection');
+                    }
+                  }}
+                  className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                  disabled={isTyping}
+                >
+                  📧 SUBMIT EMAIL
+                </Button>
+                
+                <Button
+                  onClick={async () => {
+                    setCurrentInput('');
+                    
+                    // User skipped email
+                    await apiService.logEvent('email_skipped', { userName });
+                    await addLines(contactInfoData.email.skip);
+                    
+                    // Show address collection prompt
+                    await addLines(contactInfoData.address.prompt);
+                    setGameState('address_collection');
+                  }}
+                  className="w-full bg-gray-500 hover:bg-gray-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-gray-400 shadow-lg"
+                  disabled={isTyping}
+                >
+                  ⏭️ SKIP EMAIL
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for address collection state */}
+          {gameState === 'address_collection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4">
+              <div className="mb-3 text-green-400 text-sm text-center">
+                Please provide your mailing address for formal invitation:
+              </div>
+              <Textarea
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-textarea bg-transparent border-green-500 text-green-400 focus:ring-green-500 focus:border-green-400 font-mono text-sm resize-none mb-3"
+                placeholder="Enter your mailing address..."
+                rows={3}
+                autoFocus
+                disabled={isTyping}
+              />
+              <div className="space-y-3">
+                <Button
+                  onClick={async () => {
+                    const address = currentInput.trim();
+                    setCurrentInput('');
+                    
+                    // Add user input to terminal
+                    setLines(prev => [...prev, { text: `> ${address}`, type: 'user' }]);
+                    
+                    if (address) {
+                      setUserAddress(address);
+                      
+                      // Submit address to backend
+                      const saveSuccess = await apiService.submitAddress(userName, address);
+                      
+                      // Log address collection
+                      await apiService.logEvent('address_collected', { 
+                        userName, 
+                        address,
+                        saveSuccess
+                      });
+                      
+                      await addLines(contactInfoData.address.submit);
+                      setGameState('groom_advice');
+                    } else {
+                      // User skipped address
+                      await apiService.logEvent('address_skipped', { userName });
+                      await addLines(contactInfoData.address.skip);
+                      setGameState('groom_advice');
+                    }
+                  }}
+                  className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                  disabled={isTyping}
+                >
+                  📮 SUBMIT ADDRESS
+                </Button>
+                
+                <Button
+                  onClick={async () => {
+                    setCurrentInput('');
+                    
+                    // User skipped address
+                    await apiService.logEvent('address_skipped', { userName });
+                    await addLines(contactInfoData.address.skip);
+                    setGameState('groom_advice');
+                  }}
+                  className="w-full bg-gray-500 hover:bg-gray-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-gray-400 shadow-lg"
+                  disabled={isTyping}
+                >
+                  ⏭️ SKIP ADDRESS
+                </Button>
+              </div>
             </div>
           )}
 
@@ -2287,6 +2554,42 @@ export function Terminal() {
             </div>
           )}
           
+          {/* Desktop input for email collection state */}
+          {gameState === 'email_collection' && !isTyping && !isMobile && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Enter your email address..."
+                autoFocus
+                disabled={isTyping}
+              />
+            </form>
+          )}
+
+          {/* Desktop input for address collection state */}
+          {gameState === 'address_collection' && !isTyping && !isMobile && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Enter your mailing address..."
+                autoFocus
+                disabled={isTyping}
+              />
+            </form>
+          )}
+
           {/* Desktop input for mission choice state */}
           {gameState === 'mission_choice' && !isTyping && !isMobile && (
             <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">

@@ -126,6 +126,47 @@ class ApiService {
     });
   }
 
+  // Submit contact information
+  async submitContactInfo(userName: string, email?: string, address?: string): Promise<boolean> {
+    if (!this.sessionId) {
+      console.log(`⚠️ Cannot submit contact info: No session ID available`);
+      return false;
+    }
+
+    console.log(`📧 Submitting contact info from ${userName}`, { 
+      hasEmail: !!email, 
+      hasAddress: !!address,
+      emailLength: email?.length || 0,
+      addressLength: address?.length || 0
+    });
+    
+    const result = await this.makeRequest('/api/contact-info', {
+      method: 'POST',
+      body: JSON.stringify({
+        sessionId: this.sessionId,
+        userName,
+        email,
+        address,
+      }),
+    });
+
+    const success = result.success === true;
+    console.log(`📝 Contact info submission ${success ? '✅ succeeded' : '❌ failed'}`);
+    return success;
+  }
+
+  // Submit email address
+  async submitEmail(userName: string, email: string): Promise<boolean> {
+    console.log(`📧 Submitting email for ${userName}: ${email}`);
+    return this.submitContactInfo(userName, email);
+  }
+
+  // Submit mailing address
+  async submitAddress(userName: string, address: string): Promise<boolean> {
+    console.log(`📮 Submitting address for ${userName} (${address.length} chars)`);
+    return this.submitContactInfo(userName, undefined, address);
+  }
+
   // Submit groom advice
   async submitGroomAdvice(userName: string, advice: string): Promise<boolean> {
     if (!this.sessionId) {
