@@ -589,7 +589,7 @@ This mission will test your loyalty, friendship, and ability to look handsome in
 
 ---LINE---
 
-As always, should you or any of your groomsman team be caught having too much fun, the groom will disavow any knowledge of your actions.
+As always, should you or any of your groomsmen team be caught having too much fun, the groom will disavow any knowledge of your actions.
 
 This message will self-destruct in... just kidding, you'll want to save the date.
   `.trim()
@@ -874,7 +874,7 @@ export const responses = {
     "Standby for further instructions...",
     "Welcome to the team, Agent. Your country (and the happy couple) thanks you.",
     "Mission briefing packet will be delivered via secure channels.",
-    "Remember: What happens in the groomsman chat, stays in the groomsman chat."
+    "Remember: What happens in the groomsmen chat, stays in the groomsmen chat."
   ],
   decline: [
     "This is... unexpected. Please reconsider, Agent.",
@@ -890,7 +890,7 @@ export const responses = {
     { text: '🤵 Suit fittings and bachelor party intel to follow.', type: 'classified' as const, delay: 800 },
     { text: '', type: 'system' as const, delay: 800 },
     { text: '✨ Mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
-    { text: 'Just kidding! Welcome to the team, groomsman! 🎉', type: 'success' as const, delay: 1500 }
+    { text: 'Just kidding! Welcome to the team, groomsmen! 🎉', type: 'success' as const, delay: 1500 }
   ],
   declinePrompt: [
     { text: '', type: 'system' as const, delay: 1000 },
