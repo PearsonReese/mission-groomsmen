@@ -15,9 +15,89 @@ export const groomsmenNames = [
   "Adam Simpson",
   "Brent Adams",
   "David Katz",
+  "Levi Jones",
   "Emma Howard", // Easter egg - the bride!
   "Jordan Swann" // The groom's blood sister!
 ];
+
+// =============================================================================
+// FAMILY AND FRIENDS NAMES CONFIGURATION - Easily updatable list for family and friends
+// =============================================================================
+export const familyAndFriendsNames = [
+  "Chapman",
+  "Drake",
+  "Porter",
+  "Glassmoyer",
+  "Moye",
+  "Fox",
+  "Truss",
+  "Kaiser",
+  "Bishop",
+  // Ava Tarver
+  "Keyes",
+  "Fatt",
+  "Chang",
+  "Burggraf",
+  "Pozath",
+  "Cordero",
+  "Hays",
+];
+
+// =============================================================================
+// VERIFICATION QUESTIONS FOR INDIVIDUAL GROOMSMEN
+// =============================================================================
+export const verificationQuestions = {
+  "Jordan Yan": {
+    question: "Where did we meet for the first time in person?",
+    correctAnswers: ["the basement", "basement"],
+    maxAttempts: 3
+  },
+  "Kris Tarver": {
+    question: "Some would say this mission is TOP SECRET while others might say...",
+    correctAnswers: ["top notch"],
+    maxAttempts: 3
+  },
+  "Tel Holland": {
+    question: "What N64 game did we play endlessly?",
+    correctAnswers: ["mario 64", "super mario 64", "super smash bros", "smash bros", "mario", "smash"],
+    maxAttempts: 3
+  },
+  "Sam Rojas": {
+    question: "What delicious dessert was getting cooked up as we nearly burned our apartment down in college?",
+    correctAnswers: ["brownies", "brownie", "weed brownies"],
+    maxAttempts: 3
+  },
+  "Mark Williard": {
+    question: "What do we like to call one another in the bedroom?",
+    correctAnswers: ["boo"],
+    maxAttempts: 3
+  },
+  "Maison Holes": {
+    question: "Speaking of Holes, what mythical creature did we like to f*** in high school?",
+    correctAnswers: ["unicorn", "a unicorn"],
+    maxAttempts: 3
+  },
+  "Adam Simpson": {
+    question: "You're one of the few people I've ever played video games with with money on the line... what game were we playing?",
+    correctAnswers: ["rocket league", "RL"],
+    maxAttempts: 3
+  },
+  "Brent Adams": {
+    question: "What's funnier than 24?",
+    correctAnswers: ["25"],
+    maxAttempts: 3
+  },
+  "David Katz": {
+    question: "What was the first app we built together?",
+    correctAnswers: ["Mindkind"],
+    maxAttempts: 3
+  },
+  "Levi Jones": {
+    question: "We played soccer together on a team named after something that keeps you warm and bright - what was it?",
+    correctAnswers: ["Blazers", "Blazer"],
+    maxAttempts: 3
+  }
+};
 
 // =============================================================================
 // EASTER EGGS - Hidden Mission Impossible Features
@@ -297,7 +377,7 @@ export const easterEggs = {
         { text: '', type: 'system' as const, delay: 500 },
         { text: '👯 👯 👯 FAMILY TRANSMISSION 👯 👯 👯', type: 'classified' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 500 },
-        { text: 'TOP SECRET - FAMILY EYES ONLY', type: 'classified' as const, delay: 600 },
+        { text: 'TOP SECRET - FAMILY AND FRIENDS EYES ONLY', type: 'classified' as const, delay: 600 },
         { text: 'MISSION CODE: OPERATION: SISTER SUPPORT', type: 'classified' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 500 },
         { text: 'Your mission, should you choose to accept it, is to support your brother Pearson in this epic wedding mission!', type: 'system' as const, delay: 1000 },
@@ -330,7 +410,7 @@ export const easterEggs = {
       ],
       footer: [
         { text: '', type: 'system' as const, delay: 500 },
-        { text: 'This mission will test your family bonds, sisterly instincts, and ability to keep everyone happy. The success of Operation: Sister Support depends on your love for your brother.', type: 'system' as const, delay: 1000 },
+        { text: 'This mission will test your family and friends bonds, sisterly instincts, and ability to keep everyone happy. The success of Operation: Sister Support depends on your love for your brother.', type: 'system' as const, delay: 1000 },
         { text: '', type: 'system' as const, delay: 500 },
         { text: '---LINE---', type: 'system' as const, delay: 300 },
         { text: '', type: 'system' as const, delay: 500 },
@@ -344,9 +424,9 @@ export const easterEggs = {
         { text: '', type: 'system' as const, delay: 500 },
         { text: '👯 SISTER MISSION ACCEPTED 👯', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 500 },
-        { text: '👯 EXCELLENT! Your commitment to family has been confirmed.', type: 'success' as const, delay: 800 },
-        { text: '👯 Standby for family coordination and support duties...', type: 'success' as const, delay: 800 },
-        { text: '👯 Welcome to the most important family mission ever!', type: 'success' as const, delay: 800 },
+        { text: '👯 EXCELLENT! Your commitment to family and friends has been confirmed.', type: 'success' as const, delay: 800 },
+{ text: '👯 Standby for family coordination and support duties...', type: 'success' as const, delay: 800 },
+{ text: '👯 Welcome to the most important family mission ever!', type: 'success' as const, delay: 800 },
         { text: '👯 You\'re going to be the best sister ever!', type: 'success' as const, delay: 800 },
         { text: '👯 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 1000 },
@@ -362,9 +442,9 @@ export const easterEggs = {
         { text: '', type: 'system' as const, delay: 500 },
         { text: '👯 This is... unexpected. Please reconsider, Sister Jordan.', type: 'error' as const, delay: 800 },
         { text: '👯 Your family mission requires your specific skill set.', type: 'error' as const, delay: 800 },
-        { text: '👯 Are you sure? The fate of family harmony depends on you.', type: 'error' as const, delay: 800 },
+{ text: '👯 Are you sure? The fate of family harmony depends on you.', type: 'error' as const, delay: 800 },
         { text: '👯 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
-        { text: '👯 Your family love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+        { text: '👯 Your family and friends love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
         { text: '', type: 'system' as const, delay: 1000 },
         { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
       ]
@@ -417,11 +497,11 @@ export const easterEggs = {
         { text: '🕵️ Your mission will be completed with impossible precision!', type: 'classified' as const, delay: 800 }
       ]
     },
-    "family": {
+    "familyAndFriends": {
       message: [
         { text: '', type: 'system' as const, delay: 300 },
-        { text: '👯 👯 👯 FAMILY CONNECTION DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
-        { text: '👯 Family bonds are the strongest mission support!', type: 'success' as const, delay: 800 },
+        { text: '👯 👯 👯 FAMILY AND FRIENDS CONNECTION DETECTED 👯 👯 👯', type: 'classified' as const, delay: 800 },
+{ text: '👯 Family and friends bonds are the strongest mission support!', type: 'success' as const, delay: 800 },
       ]
     }
   }
@@ -487,58 +567,6 @@ export const specialPersons = {
     },
     beauVerificationQuestion: "Where did the groom spend most of his time in the Superdome?",
     beauVerificationAnswers: ["bathroom", "the bathroom", "the toilet", "toilet"]
-  }
-};
-
-// =============================================================================
-// VERIFICATION QUESTIONS FOR INDIVIDUAL GROOMSMEN
-// =============================================================================
-
-export const verificationQuestions = {
-  "Jordan Yan": {
-    question: "Where did we meet for the first time in person?",
-    correctAnswers: ["the basement", "basement"],
-    maxAttempts: 3
-  },
-  "Kris Tarver": {
-    question: "Some would say this mission is TOP SECRET while others might say...",
-    correctAnswers: ["top notch"],
-    maxAttempts: 3
-  },
-  "Tel Holland": {
-    question: "What N64 game did we play endlessly?",
-    correctAnswers: ["mario 64", "super mario 64", "super smash bros", "smash bros", "mario", "smash"],
-    maxAttempts: 3
-  },
-  "Sam Rojas": {
-    question: "What delicious dessert was getting cooked up as we nearly burned our apartment down in college?",
-    correctAnswers: ["brownies", "brownie", "weed brownies"],
-    maxAttempts: 3
-  },
-  "Mark Williard": {
-    question: "What do we like to call one another in the bedroom?",
-    correctAnswers: ["boo"],
-    maxAttempts: 3
-  },
-  "Maison Holes": {
-    question: "Speaking of Holes, what mythical creature did we like to butt f*** in high school?",
-    correctAnswers: ["unicorn", "a unicorn"],
-    maxAttempts: 3
-  },
-  "Adam Simpson": {
-    question: "You're one of the few people I've ever played video games with with money on the line... what game were we playing?",
-    correctAnswers: ["rocket league", "RL"],
-    maxAttempts: 3
-  },
-  "Brent Adams": {
-    question: "What's funnier than 24?",
-    correctAnswers: ["25"],
-    maxAttempts: 3
-  },
-  "David Katz": {
-    question: "What was the first app we built together?",
-    correctAnswers: ["Mindkind"],
-    maxAttempts: 3
   }
 };
 
@@ -685,7 +713,7 @@ export const terminalMessages = {
   swannSecondQuestion: [
     { text: '', type: 'system' as const, delay: 500 },
     { text: '🔍 ADDITIONAL VERIFICATION REQUIRED', type: 'classified' as const, delay: 800 },
-    { text: 'RESOLVING FAMILY RELATIONSHIP...', type: 'system' as const, delay: 800 },
+    { text: 'RESOLVING FAMILY AND FRIENDS RELATIONSHIP...', type: 'system' as const, delay: 800 },
     { text: '', type: 'system' as const, delay: 500 },
     { text: '🧬 FOLLOW-UP SECURITY QUESTION:', type: 'classified' as const, delay: 1000 },
     { text: '', type: 'system' as const, delay: 300 },

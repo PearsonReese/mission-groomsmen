@@ -20,7 +20,8 @@ import {
   missionPrompts,
   easterEggs,
   groomAdviceData,
-  contactInfoData
+  contactInfoData,
+  familyAndFriendsNames
 } from '@/utils/missionData';
 
 interface TerminalLine {
@@ -29,7 +30,7 @@ interface TerminalLine {
   delay?: number;
 }
 
-type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'beau_verification' | 'howard_bride_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
+type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'beau_verification' | 'howard_bride_detection' | 'howard_younger_brother_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
 
 export function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -457,14 +458,16 @@ export function Terminal() {
       setLines(prev => [...prev, { text: `> `, type: 'user' }]);
       
       // Security check: Only allow authorized users to access briefing
-      // Check if user is a groomsman OR an easter egg character
+      // Check if user is a groomsman, an easter egg character, Howard Family, or other family members
       const isGroomsman = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
       const isEasterEgg = easterEggs.tomCruise.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                           easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                           easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                           easterEggs.jordanSwann.names.some(name => name.toLowerCase() === userName.toLowerCase());
+      const isHowardFamily = userName.toLowerCase() === 'howard family';
+      const isOtherFamily = userName.toLowerCase().includes(' family') && !isHowardFamily;
       
-      const authorizedUser = isGroomsman || isEasterEgg;
+      const authorizedUser = isGroomsman || isEasterEgg || isHowardFamily || isOtherFamily;
       
       if (!authorizedUser) {
         // Unauthorized user trying to access briefing - block them
@@ -554,6 +557,93 @@ export function Terminal() {
         ];
 
         await addLines(bestManBriefingLines);
+        setGameState('mission_choice');
+      } else if (userName.toLowerCase() === 'howard family') {
+        // Howard Family briefing
+        const howardFamilyBriefingLines = [
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: '🏠 FAMILY BRIEFING - HOWARD FAMILY 🏠', type: 'classified' as const, delay: 800 },
+          { text: 'TOP SECRET - FAMILY EYES ONLY', type: 'classified' as const, delay: 600 },
+          { text: 'MISSION CODE: OPERATION: FAMILY SUPPORT', type: 'classified' as const, delay: 600 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'Your mission, should you choose to accept it, is to support the bride and groom in this epic wedding mission!', type: 'system' as const, delay: 1000 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'FAMILY MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+          { text: '---LINE---', type: 'system' as const, delay: 300 },
+          { text: '', type: 'system' as const, delay: 200 },
+          { text: '👰 TARGET EVENT: Family Wedding Support', type: 'system' as const, delay: 600 },
+          { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+          { text: '👰 RECEPTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: 'FAMILY MISSION PARAMETERS:', type: 'classified' as const, delay: 800 },
+          { text: '• Provide emotional support to the bride and groom', type: 'system' as const, delay: 400 },
+          { text: '• Share family wisdom and advice', type: 'system' as const, delay: 400 },
+          { text: '• Coordinate with other family members', type: 'system' as const, delay: 400 },
+          { text: '• Ensure everyone feels welcome and included', type: 'system' as const, delay: 400 },
+          { text: '• Capture precious family moments', type: 'system' as const, delay: 400 },
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: 'SPECIAL FAMILY EQUIPMENT:', type: 'classified' as const, delay: 800 },
+          { text: '• Family love and support', type: 'system' as const, delay: 400 },
+          { text: '• Generations of family wisdom', type: 'system' as const, delay: 400 },
+          { text: '• Smile for family photos', type: 'system' as const, delay: 400 },
+          { text: '• Unlimited hugs and encouragement', type: 'system' as const, delay: 400 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'This mission will test your family bonds, love for the bride and groom, and ability to make everyone feel special. The success of Operation: Family Support depends on your family love.', type: 'system' as const, delay: 1000 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: '---LINE---', type: 'system' as const, delay: 300 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: '🏠 DO YOU ACCEPT THIS FAMILY MISSION? 🏠', type: 'classified' as const, delay: 1000 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+        ];
+
+        await addLines(howardFamilyBriefingLines);
+        setGameState('mission_choice');
+      } else if (isOtherFamily) {
+        // Generic family and friends briefing for other family members
+        const familyName = userName.replace(' Family', '');
+        const genericFamilyBriefingLines = [
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: `🏠 FAMILY AND FRIENDS BRIEFING - ${familyName.toUpperCase()} FAMILY 🏠`, type: 'classified' as const, delay: 800 },
+          { text: 'TOP SECRET - FAMILY AND FRIENDS EYES ONLY', type: 'classified' as const, delay: 600 },
+          { text: 'MISSION CODE: OPERATION: FAMILY AND FRIENDS SUPPORT', type: 'classified' as const, delay: 600 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'Your mission, should you choose to accept it, is to support the bride and groom in this epic wedding mission!', type: 'system' as const, delay: 1000 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'FAMILY AND FRIENDS MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+          { text: '---LINE---', type: 'system' as const, delay: 300 },
+          { text: '', type: 'system' as const, delay: 200 },
+          { text: '👰 TARGET EVENT: Family Wedding Support', type: 'system' as const, delay: 600 },
+          { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+          { text: '👰 RECEPTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: 'FAMILY AND FRIENDS MISSION PARAMETERS:', type: 'classified' as const, delay: 800 },
+          { text: '• Provide emotional support to the bride and groom', type: 'system' as const, delay: 400 },
+          { text: '• Share wisdom and advice', type: 'system' as const, delay: 400 },
+          { text: '• Coordinate with other family and friends', type: 'system' as const, delay: 400 },
+          { text: '• Ensure everyone feels welcome and included', type: 'system' as const, delay: 400 },
+          { text: '• Capture precious moments', type: 'system' as const, delay: 400 },
+          { text: '', type: 'system' as const, delay: 300 },
+          { text: 'SPECIAL FAMILY AND FRIENDS EQUIPMENT:', type: 'classified' as const, delay: 800 },
+          { text: '• Family and friends love and support', type: 'system' as const, delay: 400 },
+          { text: '• Generations of wisdom', type: 'system' as const, delay: 400 },
+          { text: '• Smile for photos', type: 'system' as const, delay: 400 },
+          { text: '• Unlimited hugs and encouragement', type: 'system' as const, delay: 400 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'This mission will test your family and friends bonds, love for the bride and groom, and ability to make everyone feel special. The success of Operation: Family Support depends on your family love.', type: 'system' as const, delay: 1000 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: '---LINE---', type: 'system' as const, delay: 300 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: '🏠 DO YOU ACCEPT THIS FAMILY AND FRIENDS MISSION? 🏠', type: 'classified' as const, delay: 1000 },
+          { text: '', type: 'system' as const, delay: 500 },
+          { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+        ];
+
+        await addLines(genericFamilyBriefingLines);
         setGameState('mission_choice');
       } else {
         // Standard groomsman briefing
@@ -671,7 +761,7 @@ export function Terminal() {
         // Special case: last name Howard - ask for gender to determine flow
         // Only trigger this if we don't have an exact match (i.e., not Emma Howard)
         const inputLower = input.toLowerCase().trim();
-        const isHoward = inputLower === 'howard' && !matchedName;
+        const isHoward = inputLower === 'howard';
         if (isHoward) {
           const howardBrideDetectionLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
@@ -686,6 +776,31 @@ export function Terminal() {
           ];
           await addLines(howardBrideDetectionLines);
           await updateGameState('howard_bride_detection');
+          break;
+        }
+
+        // Check for family and friends names (not Reese or Howard)
+        const isFamilyName = familyAndFriendsNames.some(name => name.toLowerCase() === inputLower);
+        if (isFamilyName) {
+          const familyName = familyAndFriendsNames.find(name => name.toLowerCase() === inputLower);
+          const familyAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 ${familyName?.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 WELCOME, ${familyName?.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+            { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+            { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+            { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+          ];
+          
+          setUserName(`${familyName} Family`);
+          await initializeSession(`${familyName} Family`);
+          await addLines(familyAuthLines);
+          await updateGameState('authentication');
           break;
         }
         
@@ -874,10 +989,31 @@ export function Terminal() {
           await addLines(emmaAuthLines);
           setGameState('authentication');
         } else if (kissAnswer === 'n' || kissAnswer === 'no') {
-          // Will Howard - groomsman flow (answered no to kissing)
+          // Ask follow-up question to differentiate Will from other Howard family members
+          const brotherQuestionLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Are you the fun (the bride might say annoying) younger brother?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
+          ];
+          await addLines(brotherQuestionLines);
+          setGameState('howard_younger_brother_detection');
+        } else {
+          // Invalid response
+          const errorLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 300 },
+            { text: '⚠️  INVALID RESPONSE', type: 'error', delay: 600 },
+            { text: 'Please type Y for YES or N for NO:', type: 'system', delay: 600 }
+          ];
+          await addLines(errorLines);
+        }
+        break;
+
+      case 'howard_younger_brother_detection':
+        const brotherAnswer = input.toLowerCase().trim();
+        if (brotherAnswer === 'y' || brotherAnswer === 'yes') {
+          // Will Howard - groomsman flow
           setUserName('Will Howard');
-          
-          // Initialize backend session for Will
           await initializeSession('Will Howard');
           const willAuthLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
@@ -890,8 +1026,22 @@ export function Terminal() {
           ];
           await addLines(willAuthLines);
           setGameState('authentication');
+        } else if (brotherAnswer === 'n' || brotherAnswer === 'no') {
+          // Generic Howard family path
+          setUserName('Howard Family');
+          await initializeSession('Howard Family');
+          const familyAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: '✓ IDENTITY CONFIRMED: HOWARD FAMILY', type: 'success', delay: 800 },
+            { text: '👪 FAMILY CLEARANCE GRANTED', type: 'success', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Welcome, Howard family member! You now have access to the family and friends briefing and invitation coordination portal.', type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+          ];
+          await addLines(familyAuthLines);
+          setGameState('authentication');
         } else {
-          // Invalid response
           const errorLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 300 },
             { text: '⚠️  INVALID RESPONSE', type: 'error', delay: 600 },
@@ -1147,6 +1297,9 @@ export function Terminal() {
       case 'mission_choice':
         const choice = input.toLowerCase().trim();
         
+        // Check if user is a family member (not Howard Family)
+        const isOtherFamily = userName.toLowerCase().includes(' family') && userName.toLowerCase() !== 'howard family';
+        
         // Special responses for easter egg flows first
         if (userName.toLowerCase() === 'tom cruise') {
           if (choice === 'y' || choice === 'yes') {
@@ -1286,6 +1439,122 @@ export function Terminal() {
             const errorLines = [
               { text: '', type: 'system' as const, delay: 300 },
               { text: '⚠️  INVALID BEST MAN RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
+
+            await addLines(errorLines);
+            break;
+          }
+        }
+        
+        // Special responses for Howard Family
+        if (userName.toLowerCase() === 'howard family') {
+          if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
+            
+            const howardFamilyAcceptLines: TerminalLine[] = [
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '🏠 FAMILY MISSION ACCEPTED 🏠', type: 'success' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '🏠 EXCELLENT! Your commitment to the bride and groom has been confirmed.', type: 'success' as const, delay: 800 },
+              { text: '🏠 Standby for family coordination and support duties...', type: 'success' as const, delay: 800 },
+              { text: '🏠 Welcome to the most important family mission ever!', type: 'success' as const, delay: 800 },
+              { text: '🏠 You\'re going to be the best family member ever!', type: 'success' as const, delay: 800 },
+              { text: '🏠 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 1000 },
+              { text: '🏠 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+              { text: '🏠 Family meetings and support planning to follow.', type: 'classified' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 800 },
+              { text: '✨ Family mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+              { text: 'Just kidding! Welcome to the most important family mission ever! 🏠', type: 'success' as const, delay: 1500 }
+            ];
+            
+            await addLines(howardFamilyAcceptLines);
+            setGameState('groom_advice');
+            break;
+          } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
+            
+            const howardFamilyDeclineLines: TerminalLine[] = [
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '💔 FAMILY MISSION DECLINED', type: 'error' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '🏠 This is... unexpected. Please reconsider, Family Member.', type: 'error' as const, delay: 800 },
+              { text: '🏠 Your family mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+              { text: '🏠 Are you sure? The fate of family harmony depends on you.', type: 'error' as const, delay: 800 },
+              { text: '🏠 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+              { text: '🏠 Your family love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 1000 },
+              { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+            ];
+            
+            await addLines(howardFamilyDeclineLines);
+            break;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID FAMILY RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
+
+            await addLines(errorLines);
+            break;
+          }
+        }
+        
+        // Special responses for other family members
+        if (isOtherFamily) {
+          if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
+            
+            const familyName = userName.replace(' Family', '');
+            const familyAcceptLines: TerminalLine[] = [
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '🏠 FAMILY AND FRIENDS MISSION ACCEPTED 🏠', type: 'success' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '🏠 EXCELLENT! Your commitment to the bride and groom has been confirmed.', type: 'success' as const, delay: 800 },
+              { text: '🏠 Standby for coordination and support duties...', type: 'success' as const, delay: 800 },
+              { text: '🏠 Welcome to the most important mission ever!', type: 'success' as const, delay: 800 },
+              { text: `🏠 You're going to be the best ${familyName} family member ever!`, type: 'success' as const, delay: 800 },
+              { text: '🏠 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 1000 },
+              { text: '🏠 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+              { text: '🏠 Family and friends meetings and support planning to follow.', type: 'classified' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 800 },
+              { text: '✨ Family and friends mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+              { text: 'Just kidding! Welcome to the most important family and friends mission ever! 🏠', type: 'success' as const, delay: 1500 }
+            ];
+            
+            await addLines(familyAcceptLines);
+            setGameState('groom_advice');
+            break;
+          } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
+            
+            const familyName = userName.replace(' Family', '');
+            const familyDeclineLines: TerminalLine[] = [
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '💔 FAMILY MISSION DECLINED', type: 'error' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: '🏠 This is... unexpected. Please reconsider.', type: 'error' as const, delay: 800 },
+              { text: '🏠 Your family and friends mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+              { text: `🏠 Are you sure? The fate of wedding harmony depends on you.`, type: 'error' as const, delay: 800 },
+              { text: '🏠 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+              { text: '🏠 Your family and friends love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 1000 },
+              { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+            ];
+            
+            await addLines(familyDeclineLines);
+            break;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID FAMILY RESPONSE', type: 'error' as const, delay: 600 },
               { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
             ];
 
@@ -1761,12 +2030,35 @@ export function Terminal() {
                   // Add user input to terminal
                   setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
                   
-                  // Will Howard - groomsman flow (answered no to kissing)
+                  // Ask follow-up question about younger brother
+                  const brotherQuestionLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Are you the fun (the bride might say annoying) younger brother?', type: 'system', delay: 800 },
+                    { text: '', type: 'system', delay: 300 },
+                    { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
+                  ];
+                  await addLines(brotherQuestionLines);
+                  await updateGameState('howard_younger_brother_detection');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                🛡️ NO
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for Howard younger brother detection */}
+          {gameState === 'howard_younger_brother_detection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  // Will Howard flow
                   setUserName('Will Howard');
-                  
-                  // Initialize backend session for Will
                   await initializeSession('Will Howard');
-                  
                   const willAuthLines: TerminalLine[] = [
                     { text: '', type: 'system', delay: 500 },
                     { text: '✓ IDENTITY CONFIRMED: WILL HOWARD', type: 'success', delay: 800 },
@@ -1779,14 +2071,60 @@ export function Terminal() {
                   await addLines(willAuthLines);
                   await updateGameState('authentication');
                 }}
+                className="w-full bg-green-500 hover:bg-green-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  // Generic Howard family path
+                  setUserName('Howard Family');
+                  await initializeSession('Howard Family');
+                  const familyAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: '✓ IDENTITY CONFIRMED: HOWARD FAMILY', type: 'success', delay: 800 },
+                    { text: '👪 FAMILY CLEARANCE GRANTED', type: 'success', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Welcome, Howard family member! You now have access to the family and friends briefing and invitation coordination portal.', type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+                  ];
+                  await addLines(familyAuthLines);
+                  await updateGameState('authentication');
+                }}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
                 disabled={isTyping}
               >
-                🛡️ NO
+                👪 NO
               </Button>
             </div>
           )}
-          
+
+          {/* Desktop input for Howard younger brother detection */}
+          {gameState === 'howard_younger_brother_detection' && !isTyping && !isMobile && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Type Y for YES or N for NO..."
+                autoFocus
+                disabled={isTyping}
+              />
+              {renderSubmitButton()}
+            </form>
+          )}
+
           {/* Desktop input for Swann disambiguation */}
           {gameState === 'swann_disambiguation' && !isTyping && !isMobile && (
             <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
@@ -2043,14 +2381,16 @@ export function Terminal() {
                   setLines(prev => [...prev, { text: `> `, type: 'user' }]);
                   
                   // Security check: Only allow authorized users to access briefing
-                  // Check if user is a groomsman OR an easter egg character
+                  // Check if user is a groomsman, an easter egg character, Howard Family, or other family members
                   const isGroomsman = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
                   const isEasterEgg = easterEggs.tomCruise.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                                       easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                                       easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                                       easterEggs.jordanSwann.names.some(name => name.toLowerCase() === userName.toLowerCase());
+                  const isHowardFamily = userName.toLowerCase() === 'howard family';
+                  const isOtherFamily = userName.toLowerCase().includes(' family') && !isHowardFamily;
                   
-                  const authorizedUser = isGroomsman || isEasterEgg;
+                  const authorizedUser = isGroomsman || isEasterEgg || isHowardFamily || isOtherFamily;
                   
                   if (!authorizedUser) {
                     // Unauthorized user trying to access briefing - block them
@@ -2141,6 +2481,93 @@ export function Terminal() {
 
                     await addLines(bestManBriefingLines);
                     setGameState('mission_choice');
+                  } else if (userName.toLowerCase() === 'howard family') {
+                            // Howard Family briefing
+        const howardFamilyBriefingLines = [
+          { text: '', type: 'system' as const, delay: 300 },
+                                { text: '🏠 FAMILY AND FRIENDS BRIEFING - HOWARD FAMILY 🏠', type: 'classified' as const, delay: 800 },
+                      { text: 'TOP SECRET - FAMILY AND FRIENDS EYES ONLY', type: 'classified' as const, delay: 600 },
+                      { text: 'MISSION CODE: OPERATION: FAMILY SUPPORT', type: 'classified' as const, delay: 600 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'Your mission, should you choose to accept it, is to support the bride and groom in this epic wedding mission!', type: 'system' as const, delay: 1000 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'FAMILY MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+                      { text: '---LINE---', type: 'system' as const, delay: 300 },
+                      { text: '', type: 'system' as const, delay: 200 },
+                      { text: '👰 TARGET EVENT: Family Wedding Support', type: 'system' as const, delay: 600 },
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+                      { text: '👰 RECEPTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'FAMILY MISSION PARAMETERS:', type: 'classified' as const, delay: 800 },
+                      { text: '• Provide emotional support to the bride and groom', type: 'system' as const, delay: 400 },
+                      { text: '• Share family wisdom and advice', type: 'system' as const, delay: 400 },
+                      { text: '• Coordinate with other family members', type: 'system' as const, delay: 400 },
+                      { text: '• Ensure everyone feels welcome and included', type: 'system' as const, delay: 400 },
+                      { text: '• Capture precious family moments', type: 'system' as const, delay: 400 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'SPECIAL FAMILY EQUIPMENT:', type: 'classified' as const, delay: 800 },
+                      { text: '• Family love and support', type: 'system' as const, delay: 400 },
+                      { text: '• Generations of family wisdom', type: 'system' as const, delay: 400 },
+                      { text: '• Camera for family photos', type: 'system' as const, delay: 400 },
+                      { text: '• Unlimited hugs and encouragement', type: 'system' as const, delay: 400 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'This mission will test your family bonds, love for the bride and groom, and ability to make everyone feel special. The success of Operation: Family Support depends on your family love.', type: 'system' as const, delay: 1000 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '---LINE---', type: 'system' as const, delay: 300 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 DO YOU ACCEPT THIS FAMILY MISSION? 🏠', type: 'classified' as const, delay: 1000 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+                    ];
+
+                    await addLines(howardFamilyBriefingLines);
+                    setGameState('mission_choice');
+                  } else if (isOtherFamily) {
+                    // Generic family and friends briefing for other family members
+                    const familyName = userName.replace(' Family', '');
+                    const genericFamilyBriefingLines = [
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: `🏠 FAMILY AND FRIENDS BRIEFING - ${familyName.toUpperCase()} FAMILY 🏠`, type: 'classified' as const, delay: 800 },
+                      { text: 'TOP SECRET - FAMILY AND FRIENDS EYES ONLY', type: 'classified' as const, delay: 600 },
+                      { text: 'MISSION CODE: OPERATION: FAMILY AND FRIENDS SUPPORT', type: 'classified' as const, delay: 600 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'Your mission, should you choose to accept it, is to support the bride and groom in this epic wedding mission!', type: 'system' as const, delay: 1000 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'FAMILY AND FRIENDS MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+                      { text: '---LINE---', type: 'system' as const, delay: 300 },
+                      { text: '', type: 'system' as const, delay: 200 },
+                      { text: '👰 TARGET EVENT: Family and Friends Wedding Support', type: 'system' as const, delay: 600 },
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+                      { text: '👰 RECEPTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'FAMILY AND FRIENDS MISSION PARAMETERS:', type: 'classified' as const, delay: 800 },
+                      { text: '• Provide emotional support to the bride and groom', type: 'system' as const, delay: 400 },
+                      { text: '• Share wisdom and advice', type: 'system' as const, delay: 400 },
+                      { text: '• Coordinate with other family and friends', type: 'system' as const, delay: 400 },
+                      { text: '• Ensure everyone feels welcome and included', type: 'system' as const, delay: 400 },
+                      { text: '• Capture precious moments', type: 'system' as const, delay: 400 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'SPECIAL FAMILY AND FRIENDS EQUIPMENT:', type: 'classified' as const, delay: 800 },
+                      { text: '• Family and friends love and support', type: 'system' as const, delay: 400 },
+                      { text: '• Generations of wisdom', type: 'system' as const, delay: 400 },
+                      { text: '• Smile for photos', type: 'system' as const, delay: 400 },
+                      { text: '• Unlimited hugs and encouragement', type: 'system' as const, delay: 400 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'This mission will test your family and friends bonds, love for the bride and groom, and ability to make everyone feel special. The success of Operation: Family Support depends on your family love.', type: 'system' as const, delay: 1000 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '---LINE---', type: 'system' as const, delay: 300 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 DO YOU ACCEPT THIS FAMILY AND FRIENDS MISSION? 🏠', type: 'classified' as const, delay: 1000 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+                    ];
+
+                    await addLines(genericFamilyBriefingLines);
+                    setGameState('mission_choice');
                   } else {
                     // Standard groomsman briefing
                     const briefingLines = [
@@ -2182,6 +2609,10 @@ export function Terminal() {
                   ? '💍 RECEIVE FIANCÉE BRIEFING' 
                   : userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()
                   ? '🎖️ RECEIVE BEST MAN BRIEFING'
+                  : userName.toLowerCase() === 'howard family'
+                  ? '🏠 RECEIVE FAMILY AND FRIENDS BRIEFING'
+                  : userName.toLowerCase().includes(' family')
+                  ? '🏠 RECEIVE FAMILY AND FRIENDS BRIEFING'
                   : '📋 RECEIVE MISSION BRIEFING'
                 }
               </Button>
@@ -2222,32 +2653,44 @@ export function Terminal() {
                   if (userName.toLowerCase() === 'tom cruise') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                                await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                    await addLines(easterEggs.tomCruise.responses.accept as TerminalLine[]);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'ethan hunt') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                                await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                    await addLines(easterEggs.ethanHunt.responses.accept as TerminalLine[]);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'pearson reese') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                                await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                    await addLines(easterEggs.pearsonReese.responses.accept as TerminalLine[]);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
                     return;
                   }
                   
                   if (userName.toLowerCase() === 'jordan swann') {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                                await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                    await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
                     return;
                   }
                   
@@ -2255,8 +2698,11 @@ export function Terminal() {
                   if (userName.toLowerCase() === specialPersons.bride.name.toLowerCase()) {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                                await addLines(brideContent.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                    await addLines(brideContent.responses.accept as TerminalLine[]);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
                     return;
                   }
                   
@@ -2264,8 +2710,72 @@ export function Terminal() {
                   if (userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()) {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
-                                await addLines(bestManContent.responses.accept as TerminalLine[]);
-            setGameState('groom_advice');
+                    await addLines(bestManContent.responses.accept as TerminalLine[]);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
+                    return;
+                  }
+                  
+                  // Special responses for Howard Family
+                  if (userName.toLowerCase() === 'howard family') {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
+                    
+                    const howardFamilyAcceptLines: TerminalLine[] = [
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 FAMILY MISSION ACCEPTED 🏠', type: 'success' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 EXCELLENT! Your commitment to the bride and groom has been confirmed.', type: 'success' as const, delay: 800 },
+                      { text: '🏠 Standby for family coordination and support duties...', type: 'success' as const, delay: 800 },
+                      { text: '🏠 Welcome to the most important family mission ever!', type: 'success' as const, delay: 800 },
+                      { text: '🏠 You\'re going to be the best family member ever!', type: 'success' as const, delay: 800 },
+                      { text: '🏠 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 1000 },
+                      { text: '🏠 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+                      { text: '🏠 Family meetings and support planning to follow.', type: 'classified' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 800 },
+                      { text: '✨ Family mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+                      { text: 'Just kidding! Welcome to the most important family mission ever! 🏠', type: 'success' as const, delay: 1500 }
+                    ];
+                    
+                    await addLines(howardFamilyAcceptLines);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
+                    return;
+                  }
+                  
+                  // Special responses for other family members
+                  if (userName.toLowerCase().includes(' family') && userName.toLowerCase() !== 'howard family') {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
+                    
+                    const familyName = userName.replace(' Family', '');
+                    const familyAcceptLines: TerminalLine[] = [
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 FAMILY AND FRIENDS MISSION ACCEPTED 🏠', type: 'success' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 EXCELLENT! Your commitment to the bride and groom has been confirmed.', type: 'success' as const, delay: 800 },
+                      { text: '🏠 Standby for coordination and support duties...', type: 'success' as const, delay: 800 },
+                      { text: '🏠 Welcome to the most important mission ever!', type: 'success' as const, delay: 800 },
+                      { text: `🏠 You're going to be the best ${familyName} family member ever!`, type: 'success' as const, delay: 800 },
+                      { text: '🏠 Remember: What happens in the family, stays in the family forever.', type: 'success' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 1000 },
+                      { text: '🏠 Save this date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+                      { text: '🏠 Family and friends meetings and support planning to follow.', type: 'classified' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 800 },
+                      { text: '✨ Family and friends mission briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+                      { text: 'Just kidding! Welcome to the most important family and friends mission ever! 🏠', type: 'success' as const, delay: 1500 }
+                    ];
+                    
+                    await addLines(familyAcceptLines);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
                     return;
                   }
                   
@@ -2347,6 +2857,51 @@ export function Terminal() {
                     // Log mission decline
                     await apiService.logEvent('mission_declined', { userName });
                     await addLines(bestManContent.responses.decline as TerminalLine[]);
+                    return;
+                  }
+                  
+                  // Special responses for Howard Family
+                  if (userName.toLowerCase() === 'howard family') {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
+                    
+                    const howardFamilyDeclineLines: TerminalLine[] = [
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '💔 FAMILY MISSION DECLINED', type: 'error' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 This is... unexpected. Please reconsider, Family Member.', type: 'error' as const, delay: 800 },
+                      { text: '🏠 Your family mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+                      { text: '🏠 Are you sure? The fate of family harmony depends on you.', type: 'error' as const, delay: 800 },
+                      { text: '🏠 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+                      { text: '🏠 Your family love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 1000 },
+                      { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+                    ];
+                    
+                    await addLines(howardFamilyDeclineLines);
+                    return;
+                  }
+                  
+                  // Special responses for other family members
+                  if (userName.toLowerCase().includes(' family') && userName.toLowerCase() !== 'howard family') {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
+                    
+                    const familyName = userName.replace(' Family', '');
+                    const familyDeclineLines: TerminalLine[] = [
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '💔 FAMILY MISSION DECLINED', type: 'error' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 500 },
+                      { text: '🏠 This is... unexpected. Please reconsider.', type: 'error' as const, delay: 800 },
+                      { text: '🏠 Your family and friends mission requires your specific skill set.', type: 'error' as const, delay: 800 },
+                      { text: `🏠 Are you sure? The fate of wedding harmony depends on you.`, type: 'error' as const, delay: 800 },
+                      { text: '🏠 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
+                      { text: '🏠 Your family and friends love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 1000 },
+                      { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+                    ];
+                    
+                    await addLines(familyDeclineLines);
                     return;
                   }
                   
@@ -2552,7 +3107,7 @@ export function Terminal() {
                 value={groomAdvice}
                 onChange={(e) => setGroomAdvice(e.target.value)}
                 className="terminal-textarea bg-transparent border-green-500 text-green-400 focus:ring-green-500 focus:border-green-400 font-mono text-sm resize-none mb-3"
-                placeholder="Share your advice or any funny stories about the groom... Responses may or may not be shared in the groomsmen's group chat"
+                placeholder="Share your advice or any funny stories about the bride or groom... Responses may or may not be shared in the groomsmen's group chat"
                 rows={4}
                 autoFocus
                 disabled={isTyping}
@@ -2704,7 +3259,7 @@ export function Terminal() {
                   value={groomAdvice}
                   onChange={(e) => setGroomAdvice(e.target.value)}
                   className="terminal-textarea bg-transparent border-green-500 text-green-400 focus:ring-green-500 focus:border-green-400 font-mono text-sm sm:text-base resize-none"
-                  placeholder="Share your advice or any funny stories about the groom... Responses may or may not be shared in the groomsmen's group chat"
+                  placeholder="Share your advice or any funny stories about the bride or groom... Responses may or may not be shared in the groomsmen's group chat"
                   rows={4}
                   autoFocus
                   disabled={isTyping}
