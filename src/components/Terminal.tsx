@@ -30,7 +30,7 @@ interface TerminalLine {
   delay?: number;
 }
 
-type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'beau_verification' | 'howard_bride_detection' | 'howard_younger_brother_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
+type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'reese_groom_question' | 'beau_verification' | 'howard_bride_detection' | 'howard_younger_brother_detection' | 'tarver_groomsman_detection' | 'holland_groomsman_detection' | 'williard_groomsman_detection' | 'jones_groomsman_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
 
 export function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -701,6 +701,21 @@ export function Terminal() {
           await updateGameState('swann_disambiguation');
           break;
         }
+
+        // Handle Reese family / groom question
+        if (input.toLowerCase().trim() === 'reese') {
+          const reeseQuestionLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: '🏠 REESE FAMILY MEMBER DETECTED', type: 'classified', delay: 800 },
+            { text: 'Are you the one getting married?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type or press Y for YES or N for NO:', type: 'system', delay: 600 }
+          ];
+
+          await addLines(reeseQuestionLines);
+          await updateGameState('reese_groom_question');
+          break;
+        }
         
         // Check for easter egg celebrity flows (after Swann disambiguation)
         const easterEggFlow = checkEasterEggFlows(input);
@@ -776,6 +791,61 @@ export function Terminal() {
           ];
           await addLines(howardBrideDetectionLines);
           await updateGameState('howard_bride_detection');
+          break;
+                }
+
+        // Branching for last names that overlap with groomsmen
+        if (inputLower === 'tarver') {
+          const tarverDetectionLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: '🎯 POTENTIAL TARVER GROOMSMAN DETECTED', type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Multiple Tarver family members detected in system...', type: 'system', delay: 800 },
+            { text: 'Do you potentially see yourself as a groomsman for Pearson?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
+          ];
+          await addLines(tarverDetectionLines);
+          await updateGameState('tarver_groomsman_detection');
+          break;
+        } else if (inputLower === 'holland') {
+          const hollandDetectionLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: '🎯 POTENTIAL HOLLAND GROOMSMAN DETECTED', type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Multiple Holland family members detected in system...', type: 'system', delay: 800 },
+            { text: 'Do you potentially see yourself as a groomsman for Pearson?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
+          ];
+          await addLines(hollandDetectionLines);
+          await updateGameState('holland_groomsman_detection');
+          break;
+        } else if (inputLower === 'williard') {
+          const williardDetectionLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: '🎯 POTENTIAL WILLIARD GROOMSMAN DETECTED', type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Multiple Williard family members detected in system...', type: 'system', delay: 800 },
+            { text: 'Do you potentially see yourself as a groomsman for Pearson?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
+          ];
+          await addLines(williardDetectionLines);
+          await updateGameState('williard_groomsman_detection');
+          break;
+        } else if (inputLower === 'jones') {
+          const jonesDetectionLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: '🎯 POTENTIAL JONES GROOMSMAN DETECTED', type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Multiple Jones family members detected in system...', type: 'system', delay: 800 },
+            { text: 'Do you potentially see yourself as a groomsman for Pearson?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
+          ];
+          await addLines(jonesDetectionLines);
+          await updateGameState('jones_groomsman_detection');
           break;
         }
 
@@ -1051,6 +1121,230 @@ export function Terminal() {
         }
         break;
 
+      case 'tarver_groomsman_detection': {
+        const tarverAnswer = input.toLowerCase().trim();
+        if (tarverAnswer === 'y' || tarverAnswer === 'yes') {
+          const groomsman = 'Kris Tarver';
+          setUserName(groomsman);
+          await initializeSession(groomsman);
+          const authLines: TerminalLine[] = [
+            ...terminalMessages.authentication.verifying,
+            { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+          ];
+          if (needsVerification(groomsman)) {
+            authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+            await addLines(authLines);
+            setCurrentVerificationUser(groomsman);
+            setVerificationAttempts(0);
+            const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+            const verificationLines = [
+              ...terminalMessages.verificationStart,
+              { text: verificationData.question, type: 'system' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+            ];
+            await addLines(verificationLines);
+            setGameState('verification');
+            return;
+          } else {
+            authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+            authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+            await addLines(authLines);
+            setGameState('authentication');
+          }
+        } else if (tarverAnswer === 'n' || tarverAnswer === 'no') {
+          const familyName = 'Tarver';
+          setUserName(`${familyName} Family`);
+          await initializeSession(`${familyName} Family`);
+          const familyAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+            { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+            { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+            { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+          ];
+          await addLines(familyAuthLines);
+          setGameState('authentication');
+        } else {
+          await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
+        }
+      }
+      break;
+
+      case 'holland_groomsman_detection': {
+        const hollandAnswer = input.toLowerCase().trim();
+        if (hollandAnswer === 'y' || hollandAnswer === 'yes') {
+          const groomsman = 'Tel Holland';
+          setUserName(groomsman);
+          await initializeSession(groomsman);
+          const authLines: TerminalLine[] = [
+            ...terminalMessages.authentication.verifying,
+            { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+          ];
+          if (needsVerification(groomsman)) {
+            authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+            await addLines(authLines);
+            setCurrentVerificationUser(groomsman);
+            setVerificationAttempts(0);
+            const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+            const verificationLines = [
+              ...terminalMessages.verificationStart,
+              { text: verificationData.question, type: 'system' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+            ];
+            await addLines(verificationLines);
+            setGameState('verification');
+            return;
+          } else {
+            authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+            authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+            await addLines(authLines);
+            setGameState('authentication');
+          }
+        } else if (hollandAnswer === 'n' || hollandAnswer === 'no') {
+          const familyName = 'Holland';
+          setUserName(`${familyName} Family`);
+          await initializeSession(`${familyName} Family`);
+          const familyAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+            { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+            { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+            { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+          ];
+          await addLines(familyAuthLines);
+          setGameState('authentication');
+        } else {
+          await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
+        }
+      }
+      break;
+
+      case 'williard_groomsman_detection': {
+        const williardAnswer = input.toLowerCase().trim();
+        if (williardAnswer === 'y' || williardAnswer === 'yes') {
+          const groomsman = 'Mark Williard';
+          setUserName(groomsman);
+          await initializeSession(groomsman);
+          const authLines: TerminalLine[] = [
+            ...terminalMessages.authentication.verifying,
+            { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+          ];
+          if (needsVerification(groomsman)) {
+            authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+            await addLines(authLines);
+            setCurrentVerificationUser(groomsman);
+            setVerificationAttempts(0);
+            const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+            const verificationLines = [
+              ...terminalMessages.verificationStart,
+              { text: verificationData.question, type: 'system' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+            ];
+            await addLines(verificationLines);
+            setGameState('verification');
+            return;
+          } else {
+            authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+            authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+            await addLines(authLines);
+            setGameState('authentication');
+          }
+        } else if (williardAnswer === 'n' || williardAnswer === 'no') {
+          const familyName = 'Williard';
+          setUserName(`${familyName} Family`);
+          await initializeSession(`${familyName} Family`);
+          const familyAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+            { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+            { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+            { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+          ];
+          await addLines(familyAuthLines);
+          setGameState('authentication');
+        } else {
+          await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
+        }
+      }
+      break;
+
+      case 'jones_groomsman_detection': {
+        const jonesAnswer = input.toLowerCase().trim();
+        if (jonesAnswer === 'y' || jonesAnswer === 'yes') {
+          const groomsman = 'Levi Jones';
+          setUserName(groomsman);
+          await initializeSession(groomsman);
+          const authLines: TerminalLine[] = [
+            ...terminalMessages.authentication.verifying,
+            { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+          ];
+          if (needsVerification(groomsman)) {
+            authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+            await addLines(authLines);
+            setCurrentVerificationUser(groomsman);
+            setVerificationAttempts(0);
+            const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+            const verificationLines = [
+              ...terminalMessages.verificationStart,
+              { text: verificationData.question, type: 'system' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+            ];
+            await addLines(verificationLines);
+            setGameState('verification');
+            return;
+          } else {
+            authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+            authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+            await addLines(authLines);
+            setGameState('authentication');
+          }
+        } else if (jonesAnswer === 'n' || jonesAnswer === 'no') {
+          const familyName = 'Jones';
+          setUserName(`${familyName} Family`);
+          await initializeSession(`${familyName} Family`);
+          const familyAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+            { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+            { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+            { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+          ];
+          await addLines(familyAuthLines);
+          setGameState('authentication');
+        } else {
+          await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
+        }
+      }
+      break;
+
       case 'best_man_authentication':
         const bestManAnswer = input.toLowerCase().trim();
         
@@ -1133,6 +1427,54 @@ export function Terminal() {
           await addLines(terminalMessages.errors.invalidBeauVerification as TerminalLine[]);
         }
         break;
+
+      case 'reese_groom_question': {
+        const reeseAns = input.toLowerCase().trim();
+        if (reeseAns === 'y' || reeseAns === 'yes') {
+          const groomName = 'Pearson Reese';
+          setUserName(groomName);
+          await initializeSession(groomName);
+
+          const groomData = easterEggs.pearsonReese;
+          const groomAuthLines: TerminalLine[] = [
+            ...terminalMessages.authentication.verifying,
+            { text: groomData.detection, type: 'classified', delay: 1000 },
+            { text: groomData.clearance, type: 'success', delay: 800 },
+            { text: groomData.privileges, type: 'success', delay: 600 },
+            { text: groomData.status, type: 'success', delay: 600 },
+            { text: '', type: 'system', delay: 800 },
+            { text: groomData.welcome, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your special groom mission briefing...', type: 'system', delay: 800 }
+          ];
+
+          await addLines(groomAuthLines);
+          setGameState('authentication');
+        } else if (reeseAns === 'n' || reeseAns === 'no') {
+          const familyName = 'Reese';
+          setUserName(`${familyName} Family`);
+          await initializeSession(`${familyName} Family`);
+
+          const familyAuthLines: TerminalLine[] = [
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+            { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+            { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+            { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+            { text: '', type: 'system', delay: 500 },
+            { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+          ];
+
+          await addLines(familyAuthLines);
+          setGameState('authentication');
+        } else {
+          await addLines(terminalMessages.errors.invalidBiometric as TerminalLine[]);
+        }
+        break; }
 
       case 'swann_second_question':
         const secondAnswer = input.toLowerCase().trim();
@@ -1817,7 +2159,7 @@ export function Terminal() {
                 value={currentInput}
                 onChange={(e) => setCurrentInput(e.target.value)}
                 className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
-                placeholder="Enter your last name..."
+                placeholder={gameState === 'name_input' ? 'Enter your last name...' : 'Type Y for YES or N for NO...'}
                 autoFocus
                 disabled={isTyping}
               />
@@ -1885,6 +2227,76 @@ export function Terminal() {
                   
                   await addLines(secondQuestionLines);
                   setGameState('swann_second_question');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ❌ NO
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for Reese groom question */}
+          {gameState === 'reese_groom_question' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const groomName = 'Pearson Reese';
+                  setUserName(groomName);
+                  await initializeSession(groomName);
+
+                  const groomData = easterEggs.pearsonReese;
+                  const groomAuthLines: TerminalLine[] = [
+                    ...terminalMessages.authentication.verifying,
+                    { text: groomData.detection, type: 'classified', delay: 1000 },
+                    { text: groomData.clearance, type: 'success', delay: 800 },
+                    { text: groomData.privileges, type: 'success', delay: 600 },
+                    { text: groomData.status, type: 'success', delay: 600 },
+                    { text: '', type: 'system', delay: 800 },
+                    { text: groomData.welcome, type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Press ENTER to receive your special groom mission briefing...', type: 'system', delay: 800 }
+                  ];
+
+                  await addLines(groomAuthLines);
+                  await updateGameState('authentication');
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const familyName = 'Reese';
+                  setUserName(`${familyName} Family`);
+                  await initializeSession(`${familyName} Family`);
+
+                  const familyAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+                    { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+                    { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+                    { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+                  ];
+
+                  await addLines(familyAuthLines);
+                  setGameState('authentication');
                 }}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
                 disabled={isTyping}
@@ -2105,8 +2517,353 @@ export function Terminal() {
             </div>
           )}
 
+          {/* Mobile CTA Buttons for Tarver groomsman detection */}
+          {gameState === 'tarver_groomsman_detection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const groomsman = 'Kris Tarver';
+                  setUserName(groomsman);
+                  await initializeSession(groomsman);
+
+                  const authLines: TerminalLine[] = [
+                    ...terminalMessages.authentication.verifying,
+                    { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+                  ];
+
+                  if (needsVerification(groomsman)) {
+                    authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+                    await addLines(authLines);
+                    setCurrentVerificationUser(groomsman);
+                    setVerificationAttempts(0);
+
+                    const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+                    const verificationLines = [
+                      ...terminalMessages.verificationStart,
+                      { text: verificationData.question, type: 'system' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                    ];
+                    await addLines(verificationLines);
+                    setGameState('verification');
+                    return;
+                  } else {
+                    authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+                    authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+                    await addLines(authLines);
+                    setGameState('authentication');
+                  }
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const familyName = 'Tarver';
+                  setUserName(`${familyName} Family`);
+                  await initializeSession(`${familyName} Family`);
+
+                  const familyAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+                    { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+                    { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+                    { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+                  ];
+
+                  await addLines(familyAuthLines);
+                  setGameState('authentication');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ❌ NO
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for Holland groomsman detection */}
+          {gameState === 'holland_groomsman_detection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const groomsman = 'Tel Holland';
+                  setUserName(groomsman);
+                  await initializeSession(groomsman);
+
+                  const authLines: TerminalLine[] = [
+                    ...terminalMessages.authentication.verifying,
+                    { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+                  ];
+
+                  if (needsVerification(groomsman)) {
+                    authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+                    await addLines(authLines);
+                    setCurrentVerificationUser(groomsman);
+                    setVerificationAttempts(0);
+
+                    const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+                    const verificationLines = [
+                      ...terminalMessages.verificationStart,
+                      { text: verificationData.question, type: 'system' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                    ];
+                    await addLines(verificationLines);
+                    setGameState('verification');
+                    return;
+                  } else {
+                    authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+                    authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+                    await addLines(authLines);
+                    setGameState('authentication');
+                  }
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES
+              </Button>
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const familyName = 'Holland';
+                  setUserName(`${familyName} Family`);
+                  await initializeSession(`${familyName} Family`);
+
+                  const familyAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+                    { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+                    { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+                    { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+                  ];
+
+                  await addLines(familyAuthLines);
+                  setGameState('authentication');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ❌ NO
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for Williard groomsman detection */}
+          {gameState === 'williard_groomsman_detection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const groomsman = 'Mark Williard';
+                  setUserName(groomsman);
+                  await initializeSession(groomsman);
+
+                  const authLines: TerminalLine[] = [
+                    ...terminalMessages.authentication.verifying,
+                    { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+                  ];
+
+                  if (needsVerification(groomsman)) {
+                    authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+                    await addLines(authLines);
+                    setCurrentVerificationUser(groomsman);
+                    setVerificationAttempts(0);
+
+                    const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+                    const verificationLines = [
+                      ...terminalMessages.verificationStart,
+                      { text: verificationData.question, type: 'system' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                    ];
+                    await addLines(verificationLines);
+                    setGameState('verification');
+                    return;
+                  } else {
+                    authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+                    authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+                    await addLines(authLines);
+                    setGameState('authentication');
+                  }
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES
+              </Button>
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const familyName = 'Williard';
+                  setUserName(`${familyName} Family`);
+                  await initializeSession(`${familyName} Family`);
+
+                  const familyAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+                    { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+                    { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+                    { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+                  ];
+
+                  await addLines(familyAuthLines);
+                  setGameState('authentication');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ❌ NO
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for Jones groomsman detection */}
+          {gameState === 'jones_groomsman_detection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const groomsman = 'Levi Jones';
+                  setUserName(groomsman);
+                  await initializeSession(groomsman);
+
+                  const authLines: TerminalLine[] = [
+                    ...terminalMessages.authentication.verifying,
+                    { text: `✓ IDENTITY CONFIRMED: ${groomsman.toUpperCase()}`, type: 'success', delay: 800 }
+                  ];
+
+                  if (needsVerification(groomsman)) {
+                    authLines.push({ text: '🔐 ADDITIONAL VERIFICATION REQUIRED', type: 'classified', delay: 800 });
+                    await addLines(authLines);
+                    setCurrentVerificationUser(groomsman);
+                    setVerificationAttempts(0);
+
+                    const verificationData = verificationQuestions[groomsman as keyof typeof verificationQuestions];
+                    const verificationLines = [
+                      ...terminalMessages.verificationStart,
+                      { text: verificationData.question, type: 'system' as const, delay: 800 },
+                      { text: '', type: 'system' as const, delay: 300 },
+                      { text: 'Enter your response:', type: 'system' as const, delay: 600 }
+                    ];
+                    await addLines(verificationLines);
+                    setGameState('verification');
+                    return;
+                  } else {
+                    authLines.push(...(terminalMessages.authentication.success.standard as TerminalLine[]));
+                    authLines.push({ text: terminalMessages.authentication.prompts.standard, type: 'system' as const, delay: 800 });
+                    await addLines(authLines);
+                    setGameState('authentication');
+                  }
+                }}
+                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ✅ YES
+              </Button>
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+
+                  const familyName = 'Jones';
+                  setUserName(`${familyName} Family`);
+                  await initializeSession(`${familyName} Family`);
+
+                  const familyAuthLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 ${familyName.toUpperCase()} FAMILY DETECTED`, type: 'classified', delay: 800 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 WELCOME, ${familyName.toUpperCase()} FAMILY MEMBER`, type: 'classified', delay: 800 },
+                    { text: '🏠 FAMILY CLEARANCE LEVEL: GRANTED', type: 'success', delay: 800 },
+                    { text: '🏠 FAMILY PRIVILEGES: FAMILY AND FRIENDS BRIEFING ACCESS', type: 'success', delay: 600 },
+                    { text: '🏠 FAMILY STATUS: CONFIRMED', type: 'success', delay: 600 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: `🏠 Welcome to the ${familyName} family and friends briefing!`, type: 'classified', delay: 1000 },
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+                  ];
+
+                  await addLines(familyAuthLines);
+                  setGameState('authentication');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                ❌ NO
+              </Button>
+            </div>
+          )}
+
           {/* Desktop input for Howard younger brother detection */}
           {gameState === 'howard_younger_brother_detection' && !isTyping && !isMobile && (
+            <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
+              <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
+              <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>
+                █
+              </span>
+              <Input
+                ref={inputRef}
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                className="terminal-input flex-1 bg-transparent border-none text-green-400 focus:ring-0 focus:outline-none p-0 font-mono text-sm sm:text-base min-w-0"
+                placeholder="Type Y for YES or N for NO..."
+                autoFocus
+                disabled={isTyping}
+              />
+              {renderSubmitButton()}
+            </form>
+          )}
+
+          {/* Desktop input for Reese groom question */}
+          {gameState === 'reese_groom_question' && !isTyping && !isMobile && (
             <form onSubmit={handleSubmit} className="terminal-input-form flex items-center mt-4 touch-manipulation">
               <span className="terminal-prompt text-green-400 mr-1 sm:mr-2 text-sm sm:text-base">&gt;</span>
               <span className={`terminal-cursor mr-1 ${showCursor ? 'opacity-100' : 'opacity-0'} text-green-400 text-sm sm:text-base`}>

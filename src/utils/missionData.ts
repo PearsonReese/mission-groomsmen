@@ -33,7 +33,10 @@ export const familyAndFriendsNames = [
   "Truss",
   "Kaiser",
   "Bishop",
-  // Ava Tarver
+  "Williard",
+  "Jones",
+  "Holland",
+  "Tarver",
   "Keyes",
   "Fatt",
   "Chang",
@@ -41,6 +44,7 @@ export const familyAndFriendsNames = [
   "Pozath",
   "Cordero",
   "Hays",
+  "Reese",
 ];
 
 // =============================================================================
