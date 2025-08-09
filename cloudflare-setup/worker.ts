@@ -262,6 +262,14 @@ async function submitContactInfo(request: Request, env: Env): Promise<Response> 
   };
 
   try {
+    // Normalize potentially undefined values to null for safe SQL binding
+    const email = (typeof data.email === 'string' && data.email.trim().length > 0)
+      ? data.email.trim()
+      : null;
+    const address = (typeof data.address === 'string' && data.address.trim().length > 0)
+      ? data.address.trim()
+      : null;
+
     // Check if contact info already exists for this session
     const existing = await env.DB.prepare(`
       SELECT id FROM contact_info WHERE session_id = ?
@@ -277,7 +285,7 @@ async function submitContactInfo(request: Request, env: Env): Promise<Response> 
             address_collected_at = CASE WHEN ? IS NOT NULL THEN CURRENT_TIMESTAMP ELSE address_collected_at END,
             updated_at = CURRENT_TIMESTAMP
         WHERE session_id = ?
-      `).bind(data.email, data.address, data.email, data.address, data.sessionId).run();
+      `).bind(email, address, email, address, data.sessionId).run();
     } else {
       // Insert new record
       await env.DB.prepare(`
@@ -286,10 +294,10 @@ async function submitContactInfo(request: Request, env: Env): Promise<Response> 
       `).bind(
         data.sessionId, 
         data.userName, 
-        data.email, 
-        data.address,
-        data.email ? new Date().toISOString() : null,
-        data.address ? new Date().toISOString() : null
+        email, 
+        address,
+        email ? new Date().toISOString() : null,
+        address ? new Date().toISOString() : null
       ).run();
     }
 
@@ -299,21 +307,26 @@ async function submitContactInfo(request: Request, env: Env): Promise<Response> 
     
     if (data.email !== undefined) {
       updateFields.push('email_collected = ?');
-      updateValues.push(!!data.email);
+      updateValues.push(!!email);
     }
     
     if (data.address !== undefined) {
       updateFields.push('address_collected = ?');
-      updateValues.push(!!data.address);
+      updateValues.push(!!address);
     }
     
     if (updateFields.length > 0) {
-      updateValues.push(data.sessionId);
-      await env.DB.prepare(`
-        UPDATE user_sessions 
-        SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
-        WHERE session_id = ?
-      `).bind(...updateValues).run();
+      try {
+        updateValues.push(data.sessionId);
+        await env.DB.prepare(`
+          UPDATE user_sessions 
+          SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+          WHERE session_id = ?
+        `).bind(...updateValues).run();
+      } catch (sessionUpdateError) {
+        // If columns don't exist (older schema), log and continue without failing request
+        console.warn('Non-fatal session update error (contact flags):', sessionUpdateError);
+      }
     }
 
     return new Response(JSON.stringify({ 
@@ -325,9 +338,11 @@ async function submitContactInfo(request: Request, env: Env): Promise<Response> 
     });
   } catch (error) {
     console.error('Database error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ 
       success: false, 
-      error: 'Failed to submit contact information' 
+      error: 'Failed to submit contact information',
+      details: errorMessage
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders() }
@@ -507,7 +522,7 @@ async function getAllContactInfo(request: Request, env: Env): Promise<Response> 
   try {
     console.log('Fetching contact info from database...');
     const contactInfo = await env.DB.prepare(`
-      SELECT user_name, email_address, mailing_address, 
+      SELECT user_name, email_address, mailing_address,
              email_collected_at, address_collected_at
       FROM contact_info
       ORDER BY COALESCE(email_collected_at, address_collected_at, created_at) DESC
@@ -696,7 +711,7 @@ async function exportData(request: Request, env: Env, exportType: string): Promi
 
       case 'contact':
         const contact = await env.DB.prepare(`
-          SELECT user_name, email_address, mailing_address, 
+          SELECT user_name, email_address, mailing_address,
                  email_collected_at, address_collected_at
           FROM contact_info
           ORDER BY created_at DESC

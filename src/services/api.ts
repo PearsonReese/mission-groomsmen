@@ -57,7 +57,22 @@ class ApiService {
         },
       });
 
-      const responseData = await response.json();
+      // Some error responses may not be JSON; guard parsing
+      let responseData: any = null;
+      const contentType = response.headers.get('Content-Type') || '';
+      if (contentType.includes('application/json')) {
+        try {
+          responseData = await response.json();
+        } catch (_) {
+          responseData = null;
+        }
+      } else {
+        try {
+          responseData = await response.text();
+        } catch (_) {
+          responseData = null;
+        }
+      }
       
       // Log successful response
       console.log(`✅ [${timestamp}] API Response [${requestId}]:`, {
@@ -68,7 +83,8 @@ class ApiService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const reason = typeof responseData === 'string' ? responseData : (responseData?.error || response.statusText);
+        throw new Error(`HTTP ${response.status}: ${reason}`);
       }
 
       return responseData;
@@ -166,6 +182,7 @@ class ApiService {
     console.log(`📮 Submitting address for ${userName} (${address.length} chars)`);
     return this.submitContactInfo(userName, undefined, address);
   }
+
 
   // Submit groom advice
   async submitGroomAdvice(userName: string, advice: string): Promise<boolean> {
