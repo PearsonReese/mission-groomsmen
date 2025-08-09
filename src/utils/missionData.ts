@@ -21,6 +21,24 @@ export const groomsmenNames = [
 ];
 
 // =============================================================================
+// BRIDESMAIDS NAMES CONFIGURATION - Enter last names to authenticate
+// =============================================================================
+export const bridesmaidNames = [
+  "Zoe Howard",
+  "Brooke Betik",
+  "Madison Coplen",
+  "Addy Ostlien",
+  "Presley Saenz",
+  "Justine Tam",
+  "Courtney Kranz",
+  "Shannon Terrell",
+  "Trinity Thomas",
+  "Shelby Jordan",
+  "Molly Brown",
+  "Juan Garcia",
+];
+
+// =============================================================================
 // FAMILY AND FRIENDS NAMES CONFIGURATION - Easily updatable list for family and friends
 // =============================================================================
 export const familyAndFriendsNames = [
@@ -45,6 +63,25 @@ export const familyAndFriendsNames = [
   "Cordero",
   "Hays",
   "Reese",
+  "Dawson",
+  "Pearson",
+  "McDonough",
+  "Vegter",
+  "Vick",
+  "Garrison",
+  "Hall",
+  "Campbell",
+  "Campi",
+  "Riordan",
+  "Reeve",
+  "Jackson",
+  "Morgan",
+  "Harvey",
+  "Liendo",
+  "Hernandez",
+  "Fales",
+  "Proctor",
+  "White",
 ];
 
 // =============================================================================
@@ -130,7 +167,7 @@ export const easterEggs = {
         { text: '---LINE---', type: 'system' as const, delay: 300 },
         { text: '', type: 'system' as const, delay: 200 },
         { text: '🎬 TARGET EVENT: Your Epic Wedding Entrance', type: 'system' as const, delay: 600 },
-        { text: '⏰ TIME: [CLASSIFIED - You\'ll know when the music hits]', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 300 },
         { text: '🎬 PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
         { text: '🎬 SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
@@ -216,7 +253,7 @@ export const easterEggs = {
         { text: '---LINE---', type: 'system' as const, delay: 300 },
         { text: '', type: 'system' as const, delay: 200 },
         { text: '🕵️ TARGET EVENT: Wedding Infiltration', type: 'system' as const, delay: 600 },
-        { text: '⏰ TIME: [CLASSIFIED - Mission briefing to follow]', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 300 },
         { text: '🕵️ PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
         { text: '🕵️ SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
@@ -283,7 +320,8 @@ export const easterEggs = {
 
   // Secret groom flow
   pearsonReese: {
-    names: ["pearson reese", "pearson", "reese", "groom", "pearson reese", "the groom"],
+    // Only keep the full canonical name here so direct name checks elsewhere don't match partials
+    names: ["pearson reese", "groom"],
     detection: "💍 💍 💍 GROOM DETECTED 💍 💍 💍",
     welcome: "💍 WELCOME, GROOM PEARSON REESE 💍",
     clearance: "💍 CLEARANCE LEVEL: GROOM",
@@ -303,7 +341,7 @@ export const easterEggs = {
         { text: '---LINE---', type: 'system' as const, delay: 300 },
         { text: '', type: 'system' as const, delay: 200 },
         { text: '💍 TARGET EVENT: Your Wedding Day', type: 'system' as const, delay: 600 },
-        { text: '⏰ TIME: [CLASSIFIED - You probably know this better than anyone]', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 300 },
         { text: '💍 PRIMARY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
         { text: '💍 SECONDARY LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
@@ -390,7 +428,7 @@ export const easterEggs = {
         { text: '---LINE---', type: 'system' as const, delay: 300 },
         { text: '', type: 'system' as const, delay: 200 },
         { text: '👯 TARGET EVENT: Brother\'s Wedding Support', type: 'system' as const, delay: 600 },
-        { text: '⏰ TIME: [CLASSIFIED - Family briefing to follow]', type: 'system' as const, delay: 600 },
+        { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
         { text: '', type: 'system' as const, delay: 300 },
         { text: '👯 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
         { text: '👯 RECEPTTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
@@ -584,7 +622,7 @@ MISSION DETAILS:
 
 TARGET EVENT: Wedding Ceremony & Reception
 DATE: ${weddingDetails.date}
-TIME: [CLASSIFIED - Details to follow in subsequent briefing]
+TIME: 16:00
 
 ---LINE---
 
@@ -839,7 +877,7 @@ export const brideContent = {
       { text: '---LINE---', type: 'system' as const, delay: 300 },
       { text: '', type: 'system' as const, delay: 200 },
       { text: '💍 TARGET EVENT: Your Wedding Day', type: 'system' as const, delay: 600 },
-      { text: '⏰ TIME: [CLASSIFIED - You probably know this better than anyone]', type: 'system' as const, delay: 600 },
+      { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
       { text: '', type: 'system' as const, delay: 300 },
       { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
       { text: '🎉 RECEPTTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
@@ -898,6 +936,164 @@ export const brideContent = {
       { text: '💍 Are you sure? The fate of true love depends on you.', type: 'error' as const, delay: 800 },
       { text: '💕 We\'ll give you time to think about it. This mission is too important to refuse.', type: 'error' as const, delay: 800 },
       { text: '💖 Your love is more valuable than any mission. Consider it again.', type: 'error' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 1000 },
+      { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+    ]
+  }
+};
+
+// =============================================================================
+// BRIDESMAID-SPECIFIC CONTENT
+// =============================================================================
+
+export const bridesmaidContent = {
+  mission: {
+    header: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '🎀 🎀 🎀 BRIDESMAID TRANSMISSION 🎀 🎀 🎀', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'TOP SECRET - BRIDE PAWSEE EYES ONLY', type: 'classified' as const, delay: 600 },
+      { text: 'MISSION CODE: OPERATION: BRIDE PAWSEE', type: 'classified' as const, delay: 600 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Your mission, should you choose to accept it, is to surveil, protect, and hype up the bride at all times.', type: 'system' as const, delay: 1000 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'BRIDESMAID MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+      { text: '---LINE---', type: 'system' as const, delay: 300 },
+      { text: '', type: 'system' as const, delay: 200 },
+      { text: '💍 TARGET EVENT: Protect The Bride', type: 'system' as const, delay: 600 },
+      { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+      { text: '🎉 RECEPTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: 'BRIDESMAID MISSION PARAMETERS:', type: 'classified' as const, delay: 800 }
+    ],
+    parameters: [
+      { text: '• Maintain constant vibe surveillance — if the vibe drops, deploy compliments immediately', type: 'system' as const, delay: 400 },
+      { text: '• Protect the bride from rogue mascara, wilted bouquets, and unsolicited opinions', type: 'system' as const, delay: 400 },
+      { text: '• Execute dress, veil, and train management with precision', type: 'system' as const, delay: 400 },
+      { text: '• Hydration and snack logistics — never let the bride run on empty', type: 'system' as const, delay: 400 },
+      { text: '• Gas up the bride on a strict 30-second interval schedule', type: 'system' as const, delay: 400 }
+    ],
+    equipment: [
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: 'SPECIAL BRIDE PAWSEE EQUIPMENT:', type: 'classified' as const, delay: 800 },
+      { text: '• Bobby pins, safety pins, and emergency sewing kit', type: 'system' as const, delay: 400 },
+      { text: '• Tissues, blotting papers, and waterproof mascara protocols', type: 'system' as const, delay: 400 },
+      { text: '• Water, electrolytes, and snack rations', type: 'system' as const, delay: 400 },
+      { text: '• Portable phone charger for mission-critical comms', type: 'system' as const, delay: 400 }
+    ],
+    footer: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'This mission will test your awareness, coordination, and hype-woman abilities. The success of Operation: Bride Pawsee depends on your dedication.', type: 'system' as const, delay: 1000 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '---LINE---', type: 'system' as const, delay: 300 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '🎀 DO YOU ACCEPT THIS BRIDESMAID MISSION? 🎀', type: 'classified' as const, delay: 1000 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+    ]
+  },
+  responses: {
+    accept: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '🎀 BRIDESMAID MISSION ACCEPTED 🎀', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '💖 Outstanding. The Bride Pawsee stands ready.', type: 'success' as const, delay: 800 },
+      { text: '🗝️ Fun fact: You were granted explicit system access by the bride herself. Quote: “Let them in — they have bobby pins.”', type: 'success' as const, delay: 800 },
+      { text: '📡 Standby for vibe surveillance and protection protocols...', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 1000 },
+      { text: '🎀 Save the date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+      { text: '🧰 Equipment checklists to follow.', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 800 },
+      { text: '✨ Bride Pawsee briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+      { text: 'Just kidding! Now go hype that bride. 🎀', type: 'success' as const, delay: 1500 }
+    ],
+    decline: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '💔 BRIDESMAID MISSION DECLINED', type: 'error' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '🎀 This is... unexpected. Please reconsider — the bride depends on her squad.', type: 'error' as const, delay: 800 },
+      { text: '💄 Your glam, logistics, and hype skills are mission-critical.', type: 'error' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 1000 },
+      { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
+    ]
+  }
+};
+
+// =============================================================================
+// MAID OF HONOR CONTENT (Zoe Howard)
+// =============================================================================
+
+export const maidOfHonorContent = {
+  mission: {
+    header: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '👑 👑 👑 MAID OF HONOR TRANSMISSION 👑 👑 👑', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'TOP SECRET - MAID OF HONOR EYES ONLY', type: 'classified' as const, delay: 600 },
+      { text: 'MISSION CODE: OPERATION: MAID OF HONOR', type: 'classified' as const, delay: 600 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Your mission, should you choose to accept it, is to command the Bride Pawsee, safeguard the schedule, and keep the bride glowing at all times.', type: 'system' as const, delay: 1000 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'MAID OF HONOR MISSION DETAILS:', type: 'classified' as const, delay: 800 },
+      { text: '---LINE---', type: 'system' as const, delay: 300 },
+      { text: '', type: 'system' as const, delay: 200 },
+      { text: '💍 TARGET EVENT: Lead Bride Protection Detail', type: 'system' as const, delay: 600 },
+      { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: '👰 CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
+      { text: '🎉 RECEPTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: 'MAID OF HONOR PARAMETERS:', type: 'classified' as const, delay: 800 }
+    ],
+    parameters: [
+      { text: '• Run point on timeline, vendors, and last-minute miracles', type: 'system' as const, delay: 400 },
+      { text: '• Coordinate Bride Pawsee to maintain maximum hype and calm', type: 'system' as const, delay: 400 },
+      { text: '• Guard the vows, rings-in-transit, and tissues supply chain', type: 'system' as const, delay: 400 },
+      { text: '• Signal wardrobe, hair, and makeup contingencies instantly', type: 'system' as const, delay: 400 },
+      { text: '• Deliver MOH toast protocols with heart and precision', type: 'system' as const, delay: 400 }
+    ],
+    equipment: [
+      { text: '', type: 'system' as const, delay: 300 },
+      { text: 'SPECIAL MAID OF HONOR EQUIPMENT:', type: 'classified' as const, delay: 800 },
+      { text: '• Day-of timeline and vendor numbers (secured)', type: 'system' as const, delay: 400 },
+      { text: '• Advanced emergency kit: pins, tape, backup lashes, stain pen', type: 'system' as const, delay: 400 },
+      { text: '• Portable charger and comms for the squad', type: 'system' as const, delay: 400 },
+      { text: '• Unlimited sister energy', type: 'system' as const, delay: 400 }
+    ],
+    footer: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'This mission will test your leadership, logistics, and legendary sister skills. The success of Operation: Maid of Honor depends on you.', type: 'system' as const, delay: 1000 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '---LINE---', type: 'system' as const, delay: 300 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '👑 DO YOU ACCEPT THIS MAID OF HONOR MISSION? 👑', type: 'classified' as const, delay: 1000 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+    ]
+  },
+  responses: {
+    accept: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '👑 MAID OF HONOR MISSION ACCEPTED 👑', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '💖 Confirmed. Command of the Bride Pawsee granted.', type: 'success' as const, delay: 800 },
+      { text: '🗝️ Access note: Approved by the bride herself. She trusts your sister instincts.', type: 'success' as const, delay: 800 },
+      { text: '📡 Standby for MOH coordination protocols...', type: 'success' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 1000 },
+      { text: '👑 Save the date in your calendar immediately!', type: 'classified' as const, delay: 800 },
+      { text: '🧰 Final logistics brief to follow.', type: 'classified' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 800 },
+      { text: '✨ MOH briefing complete. This terminal will self-destruct in...', type: 'system' as const, delay: 1000 },
+      { text: 'Just kidding! Go lead the squad. 👑', type: 'success' as const, delay: 1500 }
+    ],
+    decline: [
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '💔 MAID OF HONOR MISSION DECLINED', type: 'error' as const, delay: 800 },
+      { text: '', type: 'system' as const, delay: 500 },
+      { text: '👑 This is... unexpected. Please reconsider, Maid of Honor.', type: 'error' as const, delay: 800 },
+      { text: '💄 Your leadership and sister skills are mission-critical.', type: 'error' as const, delay: 800 },
       { text: '', type: 'system' as const, delay: 1000 },
       { text: 'Type Y to reconsider, or N to confirm declination:', type: 'system' as const, delay: 800 }
     ]
@@ -976,7 +1172,7 @@ export const bestManContent = {
       { text: '---LINE---', type: 'system' as const, delay: 300 },
       { text: '', type: 'system' as const, delay: 200 },
       { text: '🎖️ TARGET EVENT: Your Best Man Duties', type: 'system' as const, delay: 600 },
-      { text: '⏰ TIME: [CLASSIFIED - You\'ll be the first to know]', type: 'system' as const, delay: 600 },
+      { text: '⏰ TIME: 16:00', type: 'system' as const, delay: 600 },
       { text: '', type: 'system' as const, delay: 300 },
       { text: '🎖️ CEREMONY LOCATION: Armstrong Browning Library', type: 'system' as const, delay: 600 },
       { text: '🎖️ RECEPTTION LOCATION: Hotel Herringbone', type: 'system' as const, delay: 600 },

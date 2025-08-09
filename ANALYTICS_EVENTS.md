@@ -92,6 +92,9 @@ This document outlines all the analytics events being tracked in the Mission Gro
 - **Data**: `{ userName }`
 - **Location**: Mission choice handling
 
+### Bridesmaids
+- Bridesmaids follow the same event lifecycle as groomsmen with the same analytics events. Their detection and authorization are handled via last-name matching against `bridesmaidNames` and produce role-specific briefings and responses.
+
 ### `invalid_mission_response`
 - **Triggered**: When a user provides invalid response to mission choice
 - **Data**: `{ userName, response }`

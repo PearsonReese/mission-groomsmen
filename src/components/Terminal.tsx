@@ -9,6 +9,7 @@ import { apiService } from '@/services/api';
 
 import { 
   groomsmenNames, 
+  bridesmaidNames,
   missionBriefing, 
   responses, 
   weddingDetails,
@@ -16,6 +17,8 @@ import {
   verificationQuestions,
   terminalMessages,
   brideContent,
+  bridesmaidContent,
+  maidOfHonorContent,
   bestManContent,
   missionPrompts,
   easterEggs,
@@ -30,7 +33,7 @@ interface TerminalLine {
   delay?: number;
 }
 
-type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'reese_groom_question' | 'beau_verification' | 'howard_bride_detection' | 'howard_younger_brother_detection' | 'tarver_groomsman_detection' | 'holland_groomsman_detection' | 'williard_groomsman_detection' | 'jones_groomsman_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
+type GameState = 'intro' | 'name_input' | 'swann_disambiguation' | 'swann_second_question' | 'reese_groom_question' | 'beau_verification' | 'howard_bride_detection' | 'howard_younger_brother_detection' | 'howard_moh_detection' | 'tarver_groomsman_detection' | 'holland_groomsman_detection' | 'williard_groomsman_detection' | 'jones_groomsman_detection' | 'best_man_authentication' | 'verification' | 'authentication' | 'mission_choice' | 'email_collection' | 'address_collection' | 'groom_advice' | 'completed';
 
 export function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -236,7 +239,7 @@ export function Terminal() {
     console.log('%c💍 This terminal is designed to recruit the most elite groomsmen for Operation: Eternal Bond', 'color: #00ff00; font-size: 14px;');
     console.log('%c🚨 SECURITY NOTICE: 3 unauthorized attempts will trigger lockdown', 'color: #ff0000; font-size: 14px;');
     console.log('%c🎮 Try typing the Konami code (↑↑↓↓←→←→BA) for a secret surprise!', 'color: #ffff00; font-size: 14px;');
-    console.log('%c🎬 Or try entering names like "Tom Cruise", "Ethan Hunt", or "Pearson Reese" for special missions!', 'color: #ffff00; font-size: 14px;');
+    console.log('%c🎬 Or try entering names like "Tom Cruise" or "Ethan Hunt" for special missions!', 'color: #ffff00; font-size: 14px;');
     console.log('%c💥 Type "self destruct" or "mission impossible" for more easter eggs!', 'color: #ff0000; font-size: 14px;');
   }, []);
 
@@ -290,12 +293,8 @@ export function Terminal() {
       }
     }
     
-    // Check Pearson Reese easter egg
-    for (const name of easterEggs.pearsonReese.names) {
-      if (inputLower.includes(name.toLowerCase())) {
-        return 'pearsonReese';
-      }
-    }
+    // Intentionally do NOT auto-trigger the groom (Pearson Reese) flow from typed input.
+    // The groom flow should only be entered via the Reese -> YES confirmation path.
     
     // Check Jordan Swann easter egg
     for (const name of easterEggs.jordanSwann.names) {
@@ -409,6 +408,17 @@ export function Terminal() {
     return matchedGroomsman || null;
   };
 
+  // Exact last name matching for bridesmaids
+  const findMatchingBridesmaid = (input: string): string | null => {
+    const inputLower = input.toLowerCase().trim();
+    const matched = bridesmaidNames.find(name => {
+      const nameParts = name.toLowerCase().split(' ');
+      const lastName = nameParts[nameParts.length - 1];
+      return lastName === inputLower;
+    });
+    return matched || null;
+  };
+
   // Check if input matches multiple Swann family members
   const findAllSwannMatches = (input: string): string[] => {
     const inputLower = input.toLowerCase().trim();
@@ -459,7 +469,8 @@ export function Terminal() {
       
       // Security check: Only allow authorized users to access briefing
       // Check if user is a groomsman, an easter egg character, Howard Family, or other family members
-      const isGroomsman = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
+        const isGroomsman = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
+        const isBridesmaid = bridesmaidNames.some(name => name.toLowerCase() === userName.toLowerCase());
       const isEasterEgg = easterEggs.tomCruise.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                           easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                           easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
@@ -467,7 +478,7 @@ export function Terminal() {
       const isHowardFamily = userName.toLowerCase() === 'howard family';
       const isOtherFamily = userName.toLowerCase().includes(' family') && !isHowardFamily;
       
-      const authorizedUser = isGroomsman || isEasterEgg || isHowardFamily || isOtherFamily;
+        const authorizedUser = isGroomsman || isBridesmaid || isEasterEgg || isHowardFamily || isOtherFamily;
       
       if (!authorizedUser) {
         // Unauthorized user trying to access briefing - block them
@@ -557,6 +568,18 @@ export function Terminal() {
         ];
 
         await addLines(bestManBriefingLines);
+        setGameState('mission_choice');
+      } else if (bridesmaidNames.some(name => name.toLowerCase() === userName.toLowerCase())) {
+        // Bridesmaid briefing
+        const bridesmaidBriefingLines = [
+          ...bridesmaidContent.mission.header,
+          { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+          ...bridesmaidContent.mission.parameters,
+          ...bridesmaidContent.mission.equipment,
+          ...bridesmaidContent.mission.footer
+        ];
+
+        await addLines(bridesmaidBriefingLines);
         setGameState('mission_choice');
       } else if (userName.toLowerCase() === 'howard family') {
         // Howard Family briefing
@@ -732,10 +755,7 @@ export function Terminal() {
               easterEggData = easterEggs.ethanHunt;
               easterEggName = 'Ethan Hunt';
               break;
-            case 'pearsonReese':
-              easterEggData = easterEggs.pearsonReese;
-              easterEggName = 'Pearson Reese';
-              break;
+            // Groom flow is intentionally not selectable via direct name input
             case 'jordanSwann':
               easterEggData = easterEggs.jordanSwann;
               easterEggName = 'Jordan Swann';
@@ -771,7 +791,10 @@ export function Terminal() {
           }
         }
         
-        const matchedName = findMatchingGroomsman(input);
+        // Try groomsman and bridesmaid last-name matches
+        const matchedGroomsman = findMatchingGroomsman(input);
+        const matchedBridesmaid = findMatchingBridesmaid(input);
+        const matchedName = matchedGroomsman || matchedBridesmaid;
         
         // Special case: last name Howard - ask for gender to determine flow
         // Only trigger this if we don't have an exact match (i.e., not Emma Howard)
@@ -894,6 +917,15 @@ export function Terminal() {
               { text: specialPersons.bestMan.titles.detection, type: 'classified', delay: 1000 },
               ...(terminalMessages.authentication.success.bestMan as TerminalLine[])
             );
+          } else if (matchedBridesmaid) {
+            // Bridesmaid detection + bride-granted-access joke
+            authLines.push(
+              { text: '🎀 BRIDESMAID CREDENTIALS DETECTED', type: 'classified', delay: 1000 },
+              { text: '🎀 CLEARANCE LEVEL: BRIDE PAWSEE', type: 'success', delay: 800 },
+              { text: '🎀 PRIVILEGES: SURVEIL • PROTECT • HYPE', type: 'success', delay: 600 },
+              { text: '', type: 'system', delay: 500 },
+              { text: '🗝️ Access note: The bride explicitly granted you system access. Quote: “Let them in — they have bobby pins.”', type: 'classified', delay: 1000 }
+            );
           } else {
             authLines.push(
               { text: `✓ IDENTITY CONFIRMED: ${matchedName.toUpperCase()}`, type: 'success', delay: 800 },
@@ -987,6 +1019,15 @@ export function Terminal() {
             await addLines(bestManAuthLines);
             setGameState('best_man_authentication');
             return;
+          } else if (matchedBridesmaid) {
+            authLines.push(
+              { text: '', type: 'system', delay: 800 },
+              { text: `🎀 WELCOME, BRIDESMAID ${matchedBridesmaid.toUpperCase()}`, type: 'classified', delay: 1000 },
+              { text: '🎀 You have Bride Pawsee access to the planning terminal', type: 'classified', delay: 800 },
+              { text: '🗝️ Confirmed by the bride herself. She said you know where the safety pins are.', type: 'system', delay: 800 },
+              { text: '', type: 'system', delay: 500 },
+              { text: 'Press ENTER to receive your bridesmaid mission briefing...', type: 'system', delay: 800 }
+            );
           } else {
             authLines.push(
               { text: '', type: 'system', delay: 800 },
@@ -1097,20 +1138,17 @@ export function Terminal() {
           await addLines(willAuthLines);
           setGameState('authentication');
         } else if (brotherAnswer === 'n' || brotherAnswer === 'no') {
-          // Generic Howard family path
-          setUserName('Howard Family');
-          await initializeSession('Howard Family');
-          const familyAuthLines: TerminalLine[] = [
+          // Ask Maid of Honor verification question for Zoe Howard
+          const mohQuestionLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 500 },
-            { text: '✓ IDENTITY CONFIRMED: HOWARD FAMILY', type: 'success', delay: 800 },
-            { text: '👪 FAMILY CLEARANCE GRANTED', type: 'success', delay: 800 },
-            { text: '', type: 'system', delay: 500 },
-            { text: 'Welcome, Howard family member! You now have access to the family and friends briefing and invitation coordination portal.', type: 'classified', delay: 1000 },
-            { text: '', type: 'system', delay: 500 },
-            { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+            { text: 'One more verification required...', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Would the whiskered wonder in his 24/7 formal wear accept you as his mother?', type: 'system', delay: 800 },
+            { text: '', type: 'system', delay: 300 },
+            { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
           ];
-          await addLines(familyAuthLines);
-          setGameState('authentication');
+          await addLines(mohQuestionLines);
+          setGameState('howard_moh_detection');
         } else {
           const errorLines: TerminalLine[] = [
             { text: '', type: 'system', delay: 300 },
@@ -1118,6 +1156,51 @@ export function Terminal() {
             { text: 'Please type Y for YES or N for NO:', type: 'system', delay: 600 }
           ];
           await addLines(errorLines);
+        }
+        break;
+
+      case 'howard_moh_detection':
+        {
+          const mohAnswer = input.toLowerCase().trim();
+          if (mohAnswer === 'y' || mohAnswer === 'yes') {
+            // Zoe Howard - Maid of Honor flow
+            const user = 'Zoe Howard';
+            setUserName(user);
+            await initializeSession(user);
+            const authLines: TerminalLine[] = [
+              ...terminalMessages.authentication.verifying,
+              { text: `✓ IDENTITY CONFIRMED: ${user.toUpperCase()}`, type: 'success' as const, delay: 800 },
+              { text: '👑 MAID OF HONOR CLEARANCE GRANTED', type: 'success' as const, delay: 800 },
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: 'Welcome, Maid of Honor. Command privileges enabled.', type: 'classified' as const, delay: 1000 },
+              { text: '', type: 'system' as const, delay: 500 },
+              { text: 'Press ENTER to receive your Maid of Honor mission briefing...', type: 'system' as const, delay: 800 }
+            ];
+            await addLines(authLines);
+            setGameState('authentication');
+          } else if (mohAnswer === 'n' || mohAnswer === 'no') {
+            // Generic Howard family path
+            setUserName('Howard Family');
+            await initializeSession('Howard Family');
+            const familyAuthLines: TerminalLine[] = [
+              { text: '', type: 'system', delay: 500 },
+              { text: '✓ IDENTITY CONFIRMED: HOWARD FAMILY', type: 'success', delay: 800 },
+              { text: '👪 FAMILY CLEARANCE GRANTED', type: 'success', delay: 800 },
+              { text: '', type: 'system', delay: 500 },
+              { text: 'Welcome, Howard family member! You now have access to the family and friends briefing and invitation coordination portal.', type: 'classified', delay: 1000 },
+              { text: '', type: 'system', delay: 500 },
+              { text: 'Press ENTER to receive your family and friends briefing...', type: 'system', delay: 800 }
+            ];
+            await addLines(familyAuthLines);
+            setGameState('authentication');
+          } else {
+            const errorLines: TerminalLine[] = [
+              { text: '', type: 'system', delay: 300 },
+              { text: '⚠️  INVALID RESPONSE', type: 'error', delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system', delay: 600 }
+            ];
+            await addLines(errorLines);
+          }
         }
         break;
 
@@ -1434,6 +1517,9 @@ export function Terminal() {
           const groomName = 'Pearson Reese';
           setUserName(groomName);
           await initializeSession(groomName);
+
+          // Log groom easter egg activation via Reese -> YES flow
+          await apiService.logEasterEgg('pearsonReese', { userName: groomName });
 
           const groomData = easterEggs.pearsonReese;
           const groomAuthLines: TerminalLine[] = [
@@ -1759,6 +1845,52 @@ export function Terminal() {
               { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
             ];
 
+            await addLines(errorLines);
+            break;
+          }
+        }
+
+        // Special responses for Maid of Honor (Zoe Howard)
+        if (userName.toLowerCase() === 'zoe howard') {
+          if (choice === 'y' || choice === 'yes') {
+            await apiService.logEvent('mission_accepted', { userName });
+            await addLines(maidOfHonorContent.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
+            return;
+          } else if (choice === 'n' || choice === 'no') {
+            await apiService.logEvent('mission_declined', { userName });
+            await addLines(maidOfHonorContent.responses.decline as TerminalLine[]);
+            return;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID MAID OF HONOR RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
+            await addLines(errorLines);
+            break;
+          }
+        }
+        
+        // Special responses for Bridesmaids
+        if (bridesmaidNames.some(n => n.toLowerCase() === userName.toLowerCase())) {
+          if (choice === 'y' || choice === 'yes') {
+            // Log mission acceptance
+            await apiService.logEvent('mission_accepted', { userName });
+            await addLines(bridesmaidContent.responses.accept as TerminalLine[]);
+            setGameState('groom_advice');
+            return;
+          } else if (choice === 'n' || choice === 'no') {
+            // Log mission decline
+            await apiService.logEvent('mission_declined', { userName });
+            await addLines(bridesmaidContent.responses.decline as TerminalLine[]);
+            return;
+          } else {
+            const errorLines = [
+              { text: '', type: 'system' as const, delay: 300 },
+              { text: '⚠️  INVALID BRIDESMAID RESPONSE', type: 'error' as const, delay: 600 },
+              { text: 'Please type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+            ];
             await addLines(errorLines);
             break;
           }
@@ -2494,6 +2626,61 @@ export function Terminal() {
                   const answer = 'n';
                   setCurrentInput('');
                   setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  // Ask Maid of Honor verification question (Zoe Howard)
+                  const mohQuestionLines: TerminalLine[] = [
+                    { text: '', type: 'system', delay: 500 },
+                    { text: 'One more verification required...', type: 'system', delay: 800 },
+                    { text: '', type: 'system', delay: 300 },
+                    { text: 'Would the whiskered wonder in his 24/7 formal wear accept you as his mother?', type: 'system', delay: 800 },
+                    { text: '', type: 'system', delay: 300 },
+                    { text: 'Type Y for YES or N for NO:', type: 'system', delay: 600 }
+                  ];
+                  await addLines(mohQuestionLines);
+                  await updateGameState('howard_moh_detection');
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-blue-400 shadow-lg"
+                disabled={isTyping}
+              >
+                👑 NO
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile CTA Buttons for Howard Maid of Honor detection */}
+          {gameState === 'howard_moh_detection' && !isTyping && isMobile && (
+            <div className="mobile-cta-container mt-4 space-y-3">
+              <Button
+                onClick={async () => {
+                  const answer = 'y';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
+                  // Zoe Howard - Maid of Honor flow
+                  const user = 'Zoe Howard';
+                  setUserName(user);
+                  await initializeSession(user);
+                  const authLines: TerminalLine[] = [
+                    ...terminalMessages.authentication.verifying,
+                    { text: `✓ IDENTITY CONFIRMED: ${user.toUpperCase()}`, type: 'success' as const, delay: 800 },
+                    { text: '👑 MAID OF HONOR CLEARANCE GRANTED', type: 'success' as const, delay: 800 },
+                    { text: '', type: 'system' as const, delay: 500 },
+                    { text: 'Welcome, Maid of Honor. Command privileges enabled.', type: 'classified' as const, delay: 1000 },
+                    { text: '', type: 'system' as const, delay: 500 },
+                    { text: 'Press ENTER to receive your Maid of Honor mission briefing...', type: 'system' as const, delay: 800 }
+                  ];
+                  await addLines(authLines);
+                  await updateGameState('authentication');
+                }}
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-mono font-bold py-3 px-4 rounded border-2 border-purple-400 shadow-lg"
+                disabled={isTyping}
+              >
+                👑 YES
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  const answer = 'n';
+                  setCurrentInput('');
+                  setLines(prev => [...prev, { text: `> ${answer}`, type: 'user' }]);
                   // Generic Howard family path
                   setUserName('Howard Family');
                   await initializeSession('Howard Family');
@@ -3138,8 +3325,9 @@ export function Terminal() {
                   setLines(prev => [...prev, { text: `> `, type: 'user' }]);
                   
                   // Security check: Only allow authorized users to access briefing
-                  // Check if user is a groomsman, an easter egg character, Howard Family, or other family members
+                  // Check if user is party (groomsman/bridesmaid), an easter egg character, Howard Family, or other family members
                   const isGroomsman = groomsmenNames.some(name => name.toLowerCase() === userName.toLowerCase());
+                  const isBridesmaid = bridesmaidNames.some(name => name.toLowerCase() === userName.toLowerCase());
                   const isEasterEgg = easterEggs.tomCruise.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                                       easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                                       easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
@@ -3147,7 +3335,7 @@ export function Terminal() {
                   const isHowardFamily = userName.toLowerCase() === 'howard family';
                   const isOtherFamily = userName.toLowerCase().includes(' family') && !isHowardFamily;
                   
-                  const authorizedUser = isGroomsman || isEasterEgg || isHowardFamily || isOtherFamily;
+                  const authorizedUser = isGroomsman || isBridesmaid || isEasterEgg || isHowardFamily || isOtherFamily;
                   
                   if (!authorizedUser) {
                     // Unauthorized user trying to access briefing - block them
@@ -3237,6 +3425,30 @@ export function Terminal() {
                     ];
 
                     await addLines(bestManBriefingLines);
+                    setGameState('mission_choice');
+                  } else if (userName.toLowerCase() === 'zoe howard') {
+                    // Maid of Honor briefing (Zoe Howard)
+                    const mohBriefingLines = [
+                      ...maidOfHonorContent.mission.header,
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      ...maidOfHonorContent.mission.parameters,
+                      ...maidOfHonorContent.mission.equipment,
+                      ...maidOfHonorContent.mission.footer
+                    ];
+
+                    await addLines(mohBriefingLines);
+                    setGameState('mission_choice');
+                  } else if (bridesmaidNames.some(n => n.toLowerCase() === userName.toLowerCase())) {
+                    // Bridesmaid briefing
+                    const bridesmaidBriefingLines = [
+                      ...bridesmaidContent.mission.header,
+                      { text: `📅 DATE: ${weddingDetails.date}`, type: 'system' as const, delay: 600 },
+                      ...bridesmaidContent.mission.parameters,
+                      ...bridesmaidContent.mission.equipment,
+                      ...bridesmaidContent.mission.footer
+                    ];
+
+                    await addLines(bridesmaidBriefingLines);
                     setGameState('mission_choice');
                   } else if (userName.toLowerCase() === 'howard family') {
                             // Howard Family briefing
@@ -3351,7 +3563,7 @@ export function Terminal() {
                     setGameState('mission_choice');
                   }
                 }}
-                className="w-full bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
+                className="w-full h-auto whitespace-normal break-words text-center leading-tight text-[clamp(0.75rem,3.6vw,1rem)] bg-green-500 hover:bg-green-600 text-black font-mono font-bold py-3 px-4 rounded border-2 border-green-400 shadow-lg"
                 disabled={isTyping}
               >
                 {userName.toLowerCase() === 'tom cruise'
@@ -3366,6 +3578,10 @@ export function Terminal() {
                   ? '💍 RECEIVE FIANCÉE BRIEFING' 
                   : userName.toLowerCase() === specialPersons.bestMan.name.toLowerCase()
                   ? '🎖️ RECEIVE BEST MAN BRIEFING'
+                  : userName.toLowerCase() === 'zoe howard'
+                  ? '👑 RECEIVE MAID OF HONOR BRIEFING'
+                  : bridesmaidNames.some(n => n.toLowerCase() === userName.toLowerCase())
+                  ? '🎀 RECEIVE BRIDESMAID BRIEFING'
                   : userName.toLowerCase() === 'howard family'
                   ? '🏠 RECEIVE FAMILY AND FRIENDS BRIEFING'
                   : userName.toLowerCase().includes(' family')
@@ -3444,6 +3660,18 @@ export function Terminal() {
                     // Log mission acceptance
                     await apiService.logEvent('mission_accepted', { userName });
                     await addLines(easterEggs.jordanSwann.responses.accept as TerminalLine[]);
+                    
+                    // Show email collection prompt
+                    await addLines(contactInfoData.email.prompt);
+                    setGameState('email_collection');
+                    return;
+                  }
+                  
+                  // Special responses for Bridesmaids
+                  if (bridesmaidNames.some(n => n.toLowerCase() === userName.toLowerCase())) {
+                    // Log mission acceptance
+                    await apiService.logEvent('mission_accepted', { userName });
+                    await addLines(bridesmaidContent.responses.accept as TerminalLine[]);
                     
                     // Show email collection prompt
                     await addLines(contactInfoData.email.prompt);
@@ -3598,6 +3826,14 @@ export function Terminal() {
                     // Log mission decline
                     await apiService.logEvent('mission_declined', { userName });
                     await addLines(easterEggs.jordanSwann.responses.decline as TerminalLine[]);
+                    return;
+                  }
+                  
+                  // Special responses for Bridesmaids
+                  if (bridesmaidNames.some(n => n.toLowerCase() === userName.toLowerCase())) {
+                    // Log mission decline
+                    await apiService.logEvent('mission_declined', { userName });
+                    await addLines(bridesmaidContent.responses.decline as TerminalLine[]);
                     return;
                   }
                   

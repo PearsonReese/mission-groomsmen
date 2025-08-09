@@ -63,7 +63,7 @@ Access at `/admin` with your admin password to view:
 ## 🎬 Features
 
 - **Mission Impossible Theme**: Complete terminal styling with authentic feel
-- **13 Participant Flows**: Special handling for groomsmen, bride, and groom's sister
+- **Bridal Party Flows**: Special handling for groomsmen, bridesmaids, bride, and groom's sister
 - **Easter Egg System**: Hidden celebrity flows and secret features
 - **Mobile Optimized**: Touch-friendly interface with auto-focus management
 - **Audio Integration**: Mission Impossible theme music with controls
@@ -91,6 +91,17 @@ mission-groomsmen/
 │   └── wrangler.toml      # Worker config
 └── public/                # Static assets
 ```
+
+## 👥 Configure Participants
+
+- Edit `src/utils/missionData.ts`:
+  - `groomsmenNames`: full names; authenticate by last name.
+  - `bridesmaidNames`: full names; authenticate by last name.
+  - Content blocks (`brideContent`, `bridesmaidContent`, `bestManContent`) drive tailored mission briefings.
+
+Notes:
+- Bridesmaids receive a special “Bride Pawsee” mission briefing focused on surveilling, protecting, and hyping up the bride, including a lighthearted note that the bride explicitly granted their system access.
+- Family entries can authenticate by entering their last name from `familyAndFriendsNames`.
 
 ## 🚀 Deployment
 
