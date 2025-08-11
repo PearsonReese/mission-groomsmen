@@ -19,6 +19,7 @@ interface UserSession {
   completed_mission: boolean;
   started_at: string;
   completed_at: string | null;
+  session_id?: string;
 }
 
 interface GroomAdvice {
@@ -88,7 +89,7 @@ export function AdminDashboard() {
         const data = await response.json();
         setDashboardData(data);
         setIsAuthenticated(true);
-        localStorage.setItem('admin_token', password);
+        sessionStorage.setItem('admin_token', password);
         await loadAllData();
       } else {
         setError('Invalid password');
@@ -189,14 +190,9 @@ export function AdminDashboard() {
 
   // Try to restore session
   useEffect(() => {
-    const savedToken = localStorage.getItem('admin_token');
+    const savedToken = sessionStorage.getItem('admin_token');
     if (savedToken) {
       setPassword(savedToken);
-      // Auto-authenticate with saved token
-      setTimeout(() => {
-        const button = document.querySelector('[data-auth-button]') as HTMLButtonElement;
-        if (button) button.click();
-      }, 100);
     }
   }, []);
 
@@ -211,7 +207,7 @@ export function AdminDashboard() {
     setGroomAdvice([]);
     setContactInfo([]);
     setAnalyticsEvents([]);
-    localStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_token');
   };
 
   const toggleSection = (section: string) => {
@@ -394,7 +390,8 @@ export function AdminDashboard() {
                               <td className="p-2 text-center">
                                 <Button
                                   size="sm"
-                                  onClick={() => deleteSession(session.user_name)}
+                                  onClick={() => deleteSession(session.session_id!)}
+                                  disabled={!session.session_id}
                                   className="bg-red-600 hover:bg-red-700 text-white"
                                 >
                                   🗑️
