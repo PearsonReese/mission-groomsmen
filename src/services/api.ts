@@ -38,15 +38,22 @@ class ApiService {
   private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
     const requestId = Math.random().toString(36).substr(2, 9);
     const timestamp = new Date().toISOString();
+    const isDev = (process.env.NODE_ENV || 'development') !== 'production';
     
-    // Log outgoing request
-    console.log(`🌐 [${timestamp}] API Request [${requestId}]:`, {
-      method: options.method || 'GET',
-      endpoint: `${this.baseUrl}${endpoint}`,
-      sessionId: this.sessionId,
-      body: options.body ? JSON.parse(options.body as string) : undefined,
-      headers: options.headers
-    });
+    // Log outgoing request (dev only)
+    if (isDev) {
+      let safeBody: any = undefined;
+      if (options.body && typeof options.body === 'string') {
+        try { safeBody = JSON.parse(options.body); } catch { safeBody = '[unparsable]'; }
+      }
+      console.log(`🌐 [${timestamp}] API Request [${requestId}]:`, {
+        method: options.method || 'GET',
+        endpoint: `${this.baseUrl}${endpoint}`,
+        sessionId: this.sessionId,
+        body: safeBody,
+        headers: options.headers
+      });
+    }
 
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -74,13 +81,15 @@ class ApiService {
         }
       }
       
-      // Log successful response
-      console.log(`✅ [${timestamp}] API Response [${requestId}]:`, {
-        status: response.status,
-        statusText: response.statusText,
-        data: responseData,
-        endpoint
-      });
+      // Log successful response (dev only)
+      if (isDev) {
+        console.log(`✅ [${timestamp}] API Response [${requestId}]:`, {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+          endpoint
+        });
+      }
 
       if (!response.ok) {
         const reason = typeof responseData === 'string' ? responseData : (responseData?.error || response.statusText);
@@ -89,13 +98,15 @@ class ApiService {
 
       return responseData;
     } catch (error) {
-      // Log error response
-      console.error(`❌ [${timestamp}] API Error [${requestId}]:`, {
-        endpoint,
-        sessionId: this.sessionId,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        fullError: error
-      });
+      // Log error response (dev only)
+      if (isDev) {
+        console.error(`❌ [${timestamp}] API Error [${requestId}]:`, {
+          endpoint,
+          sessionId: this.sessionId,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          fullError: error
+        });
+      }
       
       // Don't throw error to avoid breaking the app if backend is down
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };

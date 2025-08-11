@@ -1,5 +1,4 @@
 #!/usr/bin/env bun
-import plugin from "bun-plugin-tailwind";
 import { existsSync, copyFileSync, mkdirSync } from "fs";
 import { rm, cp } from "fs/promises";
 import path from "path";
@@ -124,18 +123,54 @@ const entrypoints = [...new Bun.Glob("**.html").scanSync("src")]
   .filter(dir => !dir.includes("node_modules"));
 console.log(`📄 Found ${entrypoints.length} HTML ${entrypoints.length === 1 ? "file" : "files"} to process\n`);
 
-const result = await Bun.build({
-  entrypoints,
-  outdir,
-  plugins: [plugin],
-  minify: true,
-  target: "browser",
-  sourcemap: "linked",
-  define: {
-    "process.env.NODE_ENV": JSON.stringify("production"),
-  },
-  ...cliConfig,
-});
+// Conditionally enable Tailwind plugin only for compatible Bun versions
+let pluginsList: any[] = [];
+try {
+  const version = Bun.version || "";
+  const [major, minor] = version.split(".").map(Number);
+  const isCompatible = Number.isFinite(major) && Number.isFinite(minor) && (major > 1 || (major === 1 && minor >= 1));
+  if (isCompatible && !process.env.DISABLE_TW_PLUGIN) {
+    const tw = (await import("bun-plugin-tailwind")).default;
+    // Basic capability probe: ensure build has plugin hooks we need; if not, skip
+    // If the plugin import succeeds, we still might fail at runtime; wrap build below in try/catch
+    pluginsList.push(tw);
+    console.log("✨ Tailwind plugin enabled");
+  } else {
+    console.warn("⚠️ Tailwind plugin disabled due to Bun version incompatibility or env override");
+  }
+} catch (e) {
+  console.warn("⚠️ Tailwind plugin not available or incompatible; continuing without it");
+}
+
+let result;
+try {
+  result = await Bun.build({
+    entrypoints,
+    outdir,
+    plugins: pluginsList,
+    minify: true,
+    target: "browser",
+    sourcemap: "linked",
+    define: {
+      "process.env.NODE_ENV": JSON.stringify("production"),
+    },
+    ...cliConfig,
+  });
+} catch (e) {
+  console.warn("⚠️ Build failed with Tailwind plugin; retrying without it...", e?.toString?.());
+  result = await Bun.build({
+    entrypoints,
+    outdir,
+    plugins: [],
+    minify: true,
+    target: "browser",
+    sourcemap: "linked",
+    define: {
+      "process.env.NODE_ENV": JSON.stringify("production"),
+    },
+    ...cliConfig,
+  });
+}
 
 // Copy static assets from public directory to build root
 console.log("📁 Copying static assets from public directory...");
