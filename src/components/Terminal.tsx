@@ -1529,12 +1529,12 @@ export function Terminal() {
 
           const authLines: TerminalLine[] = [
             ...terminalMessages.authentication.verifying,
-            { text: easterEggs.etGroup.detection, type: 'classified', delay: 1000 },
+            { text: easterEggs.etGroup.detection, type: 'classified', delay: 800 },
             { text: easterEggs.etGroup.clearance, type: 'success', delay: 800 },
             { text: easterEggs.etGroup.privileges, type: 'success', delay: 600 },
             { text: easterEggs.etGroup.status, type: 'success', delay: 600 },
-            { text: '', type: 'system', delay: 800 },
-            { text: easterEggs.etGroup.welcome, type: 'classified', delay: 1000 },
+            { text: '', type: 'system', delay: 500 },
+            { text: easterEggs.etGroup.welcome, type: 'classified', delay: 800 },
             { text: '', type: 'system', delay: 500 },
             { text: 'Press ENTER to receive your special mission briefing...', type: 'system', delay: 800 }
           ];
