@@ -506,7 +506,8 @@ export function Terminal() {
         easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
         easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
         easterEggs.jordanSwann.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
-        easterEggs.etGroup.names.some(name => name.toLowerCase() === userName.toLowerCase());
+        easterEggs.etGroup.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+        userName.toLowerCase() === 'accenture et innovation';
       const isHowardFamily = userName.toLowerCase() === 'howard family';
       const isOtherFamily = userName.toLowerCase().includes(' family') && !isHowardFamily;
       
@@ -1524,16 +1525,6 @@ export function Terminal() {
           await apiService.logEasterEgg('etGroup', {
             userName: easterEggName,
             verificationAnswer: input
-          });
-
-          const etAudioLoaded = await audio.setSource('/audio/et-theme.mp3', {
-            autoplay: false,
-            fallbackSrc: audio.defaultSource
-          });
-
-          await apiService.logEvent('et_audio_switch', {
-            userName: easterEggName,
-            success: etAudioLoaded
           });
 
           const authLines: TerminalLine[] = [
@@ -3474,7 +3465,8 @@ export function Terminal() {
                     easterEggs.ethanHunt.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                     easterEggs.pearsonReese.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
                     easterEggs.jordanSwann.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
-                    easterEggs.etGroup.names.some(name => name.toLowerCase() === userName.toLowerCase());
+                    easterEggs.etGroup.names.some(name => name.toLowerCase() === userName.toLowerCase()) ||
+                    userName.toLowerCase() === 'accenture et innovation';
                   const isHowardFamily = userName.toLowerCase() === 'howard family';
                   const isOtherFamily = userName.toLowerCase().includes(' family') && !isHowardFamily;
                   

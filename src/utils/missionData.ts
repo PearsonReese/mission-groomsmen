@@ -501,9 +501,11 @@ export const easterEggs = {
       "et",
       "et innovation",
       "emerging technology innovation",
+      "accenture et innovation",
       "liquid studio",
+      "liquid studios",
       "ls",
-      "I literally have no idea, they keep changing it"
+      "I literally have no idea, Commander Klein keeps changing it"
     ],
     verificationQuestion: "What Accenture group are you in?",
     detection: "🛰️ 🛰️ 🛰️ ET NETWORK SIGNAL DETECTED 🛰️ 🛰️ 🛰️",
