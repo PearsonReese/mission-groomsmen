@@ -505,7 +505,7 @@ export const easterEggs = {
       "liquid studio",
       "liquid studios",
       "ls",
-      "I literally have no idea, Commander Klein keeps changing it"
+      "I literally have no idea because Commander Klein keeps changing it"
     ],
     verificationQuestion: "What Accenture group are you in?",
     detection: "🛰️ 🛰️ 🛰️ ET NETWORK SIGNAL DETECTED 🛰️ 🛰️ 🛰️",
