@@ -493,6 +493,95 @@ export const easterEggs = {
     }
   },
 
+  etGroup: {
+    names: [
+      "technology innovation",
+      "ti",
+      "emerging technology",
+      "et",
+      "et innovation",
+      "emerging technology innovation",
+      "liquid studio",
+      "ls",
+      "I literally have no idea, they keep changing it"
+    ],
+    verificationQuestion: "What Accenture group are you in?",
+    detection: "🛰️ 🛰️ 🛰️ ET NETWORK SIGNAL DETECTED 🛰️ 🛰️ 🛰️",
+    welcome: "🛰️ WELCOME, INNOVATION SERVICES OPERATIVE 🛰️",
+    clearance: "🛰️ CLEARANCE LEVEL: EMERGING TECHNOLOGY",
+    privileges: "🛰️ PRIVILEGES: FUTURECRAFT ACCESS",
+    status: "🛰️ STATUS: SIGNAL LOCKED – PHONE HOME",
+    mission: {
+      header: [
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: '🛰️ 🛰️ 🛰️ ET PHONE HOME TRANSMISSION 🛰️ 🛰️ 🛰️', type: 'classified' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: 'INNOVATION SERVICES | EMERGING TECHNOLOGY', type: 'classified' as const, delay: 700 },
+        { text: 'MISSION CODE: OPERATION: ET PHONE HOME', type: 'classified' as const, delay: 700 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: 'Join us for the monthly Innovation Services Emerging Technology call.', type: 'system' as const, delay: 900 },
+        { text: 'Stay connected, inspired, and aligned with our galaxy of innovators.', type: 'system' as const, delay: 900 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: 'ET PHONE HOME BRIEFING:', type: 'classified' as const, delay: 800 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 250 },
+        { text: '🌌 TARGET EVENT: Emerging Technology Community Call', type: 'system' as const, delay: 700 },
+        { text: '⏰ TIME: Monthly – Sync your comms array for the next uplink', type: 'system' as const, delay: 700 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'PRIMARY CHANNEL: Innovation Services ET Network', type: 'system' as const, delay: 700 },
+        { text: 'SUPPORT SIGNAL: Accenture Emerging Technology Innovation', type: 'system' as const, delay: 700 },
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'MISSION OBJECTIVES:', type: 'classified' as const, delay: 800 }
+      ],
+      parameters: [
+        { text: '• Share updates from across our Emerging Technology network', type: 'system' as const, delay: 450 },
+        { text: '• Spotlight cool projects – inside and outside of work', type: 'system' as const, delay: 450 },
+        { text: '• Celebrate our people and passions fueling innovation', type: 'system' as const, delay: 450 },
+        { text: '• Learn new tricks and tools to stay on the cutting edge', type: 'system' as const, delay: 450 },
+        { text: '• Bring positive energy and stay plugged into the galaxy', type: 'system' as const, delay: 450 }
+      ],
+      equipment: [
+        { text: '', type: 'system' as const, delay: 300 },
+        { text: 'RECOMMENDED EQUIPMENT:', type: 'classified' as const, delay: 800 },
+        { text: '• Secure connection (Teams, hologram, or telepathic link)', type: 'system' as const, delay: 450 },
+        { text: '• Curiosity calibrated to maximum', type: 'system' as const, delay: 450 },
+        { text: '• One spotlight-worthy story or tool to share', type: 'system' as const, delay: 450 },
+        { text: '• Optional: Liquid Studio swag or cosmic attire', type: 'system' as const, delay: 450 }
+      ],
+      footer: [
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: 'This call keeps our Innovation galaxy aligned. Your signal matters.', type: 'system' as const, delay: 900 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: '---LINE---', type: 'system' as const, delay: 300 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: '📡 DO YOU ACCEPT THIS ET MISSION? 📡', type: 'classified' as const, delay: 900 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: 'Type Y for YES or N for NO:', type: 'system' as const, delay: 600 }
+      ]
+    },
+    responses: {
+      accept: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '🛰️ ET MISSION ACCEPTED', type: 'success' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: '✨ Outstanding! Your curiosity is now synced with the ET network.', type: 'success' as const, delay: 800 },
+        { text: '🌌 Prepare to share, celebrate, and learn with Emerging Technology peers.', type: 'success' as const, delay: 800 },
+        { text: '📅 Calendar sync engaged – see you on the next ET Phone Home call!', type: 'success' as const, delay: 900 },
+        { text: '', type: 'system' as const, delay: 600 },
+        { text: '🛰️ Mission logged. Keep exploring the extraordinary.', type: 'success' as const, delay: 900 }
+      ],
+      decline: [
+        { text: '', type: 'system' as const, delay: 500 },
+        { text: '💤 ET SIGNAL MISSED', type: 'error' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 400 },
+        { text: 'We will keep the uplink open for when you are ready to reconnect.', type: 'system' as const, delay: 800 },
+        { text: 'Innovation never sleeps – drop by next time to recharge your inspiration.', type: 'system' as const, delay: 800 },
+        { text: '', type: 'system' as const, delay: 600 },
+        { text: 'Type Y if you change your mind, or N to confirm decline.', type: 'system' as const, delay: 700 }
+      ]
+    }
+  },
+
   // Konami code easter egg
   konamiCode: {
     sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'],

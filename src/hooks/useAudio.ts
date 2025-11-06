@@ -11,6 +11,8 @@ interface AudioState {
 }
 
 export function useAudio(src: string) {
+  const defaultSrcRef = useRef(src);
+  const currentSrcRef = useRef(src);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [state, setState] = useState<AudioState>({
     isPlaying: false,
@@ -23,10 +25,11 @@ export function useAudio(src: string) {
   });
 
   useEffect(() => {
-    console.log('🎵 Initializing audio with src:', src);
+    const initialSrc = defaultSrcRef.current;
+    console.log('🎵 Initializing audio with src:', initialSrc);
     
     // Create audio element
-    const audio = new Audio(src);
+    const audio = new Audio(initialSrc);
     audio.loop = true;
     audio.volume = state.volume;
     audio.preload = 'auto';
@@ -98,7 +101,7 @@ export function useAudio(src: string) {
       audio.pause();
       audio.src = '';
     };
-  }, [src]);
+  }, []);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -172,6 +175,103 @@ export function useAudio(src: string) {
     setState(prev => ({ ...prev, showAudioPrompt: false }));
   };
 
+  const setSource = async (
+    newSrc: string,
+    options: { autoplay?: boolean; fallbackSrc?: string } = {}
+  ): Promise<boolean> => {
+    const audioElement = audioRef.current;
+    if (!audioElement) {
+      console.warn('🎵 Cannot switch audio source: audio element not ready');
+      return false;
+    }
+
+    const requestedSrc = newSrc || defaultSrcRef.current;
+    const fallbackSrc = options.fallbackSrc ?? defaultSrcRef.current;
+
+    const loadSource = (source: string, usedFallback: boolean): Promise<boolean> => {
+      return new Promise(resolve => {
+        console.log('🎵 Switching audio source to:', source);
+
+        const cleanupListeners = () => {
+          audioElement.removeEventListener('canplay', handleCanPlayOnce);
+          audioElement.removeEventListener('error', handleErrorOnce);
+        };
+
+        const handleCanPlayOnce = async () => {
+          cleanupListeners();
+          currentSrcRef.current = source;
+          setState(prev => ({
+            ...prev,
+            canPlay: true,
+            isLoading: false,
+            hasError: false,
+            isPlaying: false
+          }));
+
+          audioElement.volume = state.isMuted ? 0 : state.volume;
+          audioElement.muted = state.isMuted;
+
+          if (options.autoplay) {
+            try {
+              await audioElement.play();
+              setState(prev => ({ ...prev, isPlaying: true, showAudioPrompt: false }));
+            } catch (error) {
+              console.warn('🎵 Autoplay failed after source switch (likely policy):', error);
+            }
+          }
+
+          resolve(true);
+        };
+
+        const handleErrorOnce = () => {
+          cleanupListeners();
+          console.error('🎵 Failed to load audio source:', source);
+
+          if (!usedFallback && fallbackSrc && fallbackSrc !== source) {
+            console.warn('🎵 Attempting fallback audio source:', fallbackSrc);
+            loadSource(fallbackSrc, true).then(resolve);
+            return;
+          }
+
+          setState(prev => ({
+            ...prev,
+            canPlay: false,
+            isLoading: false,
+            hasError: true,
+            isPlaying: false
+          }));
+
+          resolve(false);
+        };
+
+        // Reset listeners before assigning new ones
+        cleanupListeners();
+
+        audioElement.addEventListener('canplay', handleCanPlayOnce);
+        audioElement.addEventListener('error', handleErrorOnce);
+
+        setState(prev => ({
+          ...prev,
+          isPlaying: false,
+          canPlay: false,
+          isLoading: true,
+          hasError: false
+        }));
+
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        audioElement.src = source;
+        audioElement.load();
+      });
+    };
+
+    const result = await loadSource(requestedSrc, false);
+    if (!result && fallbackSrc && fallbackSrc !== requestedSrc) {
+      currentSrcRef.current = fallbackSrc;
+    }
+    return result;
+  };
+
   return {
     ...state,
     play,
@@ -179,6 +279,9 @@ export function useAudio(src: string) {
     togglePlay,
     toggleMute,
     setVolume,
-    dismissAudioPrompt
+    dismissAudioPrompt,
+    setSource,
+    currentSource: currentSrcRef.current,
+    defaultSource: defaultSrcRef.current
   };
 }

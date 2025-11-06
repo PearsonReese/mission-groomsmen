@@ -1,6 +1,6 @@
 # Mission Groomsmen - Terminal Wedding Invitation
 
-A sophisticated Mission Impossible-themed terminal interface for groomsmen wedding invitations, built with React, TypeScript, and Tailwind CSS.
+A Mission Impossible-themed terminal interface for groomsmen wedding invitations - built with Bun, TypeScript, React, Tailwind, and hosted on Cloudflare Pages and Workers.
 
 ## 🚀 Quick Start
 
